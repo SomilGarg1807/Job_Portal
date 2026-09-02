@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "users")
-public class Users {
+public class Users extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

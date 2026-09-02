@@ -1,103 +1,84 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <link
-      rel="stylesheet"
-      type="text/css"
-      media="all"
-      th:href="@{/css/style.css}"
-    />
-    <link
-      th:rel="stylesheet"
-      th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      media="all"
-      th:href="@{/css/font-awesome.min.css}"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      media="all"
-      th:href="@{/css/styles.css}"
-    />
-    <meta charset="ISO-8859-1" />
-    <title>Login</title>
-  </head>
-
-  <body>
-
-    <div class="row" style="margin-right:0">
-      <div class="col-md-6">
-        <div class="coffee_mug_background">
-          <div class="logo_left mt-3 pt-4 ms-5 pl-5">
-            <h2 class="logo">hotdevjobs <span class="logo_com">.com</span></h2>
-          </div>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content="Sign in to manage your jobs, applications, and profile on HotDevJobs."/>
+    <title>Sign in | HotDevJobs</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/font-awesome/css/all.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/login.css}"/>
+</head>
+<body class="login-page">
+<main class="login-shell">
+    <section class="login-showcase">
+        <a class="login-brand" th:href="@{/}">
+            <span class="brand-mark"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span>
+            <span>hotdevjobs<em>.com</em></span>
+        </a>
+        <div class="showcase-copy">
+            <span class="eyebrow"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Welcome back</span>
+            <h1>Your next opportunity is waiting.</h1>
+            <p>Sign in to continue your job search, manage applications, or connect with the right candidates.</p>
+            <div class="trust-row">
+                <span><i class="fa-solid fa-circle-check"></i> One account</span>
+                <span><i class="fa-solid fa-circle-check"></i> Two career paths</span>
+            </div>
         </div>
-      </div>
-      <div class="col-md-6">
-        <div class="myForm" style="align-items:center">
-          <form th:action="@{/login}" th:object="${user}" method="post">
-            <h1 class="text-center bold font-weight-bold mb-4">Login</h1>
-            <div class="form-group">
-              <input
-                placeholder="Email"
-                name="username"
-                field="{email}"
-                type="email"
-                class="form-control"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <input
-                placeholder="Password"
-                name="password"
-                field="{password}"
-                type="password"
-                class="form-control"
-                required
-              />
-            </div>
-            <div class="clearfix mb-4">
-              <label class="float-left form-check-label"
-                ><input type="checkbox" /> Remember me</label
-              >
-              <a href="#" class="color-text float-right">Forgot Password?</a>
-            </div>
-            <div class="form-group">
-              <button type="submit" class="myBtn">Log in</button>
-            </div>
-
-            <p class="text-center">
-              Are you a new User?
-              <a
-                class="color-text"
-                href="#"
-                th:href="@{/register}"
-              >
-                Register Now</a
-              >
-            </p>
-          </form>
+        <p class="showcase-footer">Careers and teams, connected.</p>
+    </section>
+    <section class="login-panel">
+        <div class="panel-topbar">
+            <a th:href="@{/}"><i class="fa-solid fa-arrow-left"></i> Back to home</a>
+            <span>New here? <a th:href="@{/register}">Create account</a></span>
         </div>
-      </div>
-    </div>
-  </body>
-  <script
-    type="text/javascript"
-    th:src="@{/webjars/jquery/jquery.min.js}"
-  ></script>
-  <script
-    type="text/javascript"
-    th:src="@{/webjars/popper.js/umd/popper.min.js}"
-  ></script>
-  <script
-    type="text/javascript"
-    th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"
-  ></script>
-  <script type="text/javascript" th:src="@{/js/main.js}"></script>
+        <div class="login-card">
+            <span class="form-eyebrow">Secure sign in</span>
+            <h2>Welcome back</h2>
+            <p class="form-intro">Enter the email and password you registered with.</p>
+            <div class="login-alert error" role="alert" th:if="${param.error}">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>That email or password is incorrect. Please try again.</span>
+            </div>
+            <div class="login-alert success" role="status" th:if="${param.logout}">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>You have signed out successfully.</span>
+            </div>
+            <form th:action="@{/login}" method="post">
+                <div class="form-field">
+                    <label for="username">Email address</label>
+                    <div class="input-wrap">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input id="username" name="username" type="email" autocomplete="email" placeholder="you@example.com" required autofocus/>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label for="password">Password</label>
+                    <div class="input-wrap">
+                        <i class="fa-solid fa-lock"></i>
+                        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required/>
+                        <button class="password-toggle" type="button" id="passwordToggle" aria-label="Show password"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                </div>
+                <button class="login-submit" type="submit">Sign in <i class="fa-solid fa-arrow-right"></i></button>
+            </form>
+            <div class="account-note">
+                <i class="fa-solid fa-users"></i>
+                <span>The same sign-in works for both job seekers and recruiters.</span>
+            </div>
+            <p class="mobile-register">Need an account? <a th:href="@{/register}">Register now</a></p>
+        </div>
+    </section>
+</main>
+<script>
+    const passwordInput = document.getElementById('password');
+    const passwordToggle = document.getElementById('passwordToggle');
+    passwordToggle.addEventListener('click', function () {
+        const isVisible = passwordInput.type === 'text';
+        passwordInput.type = isVisible ? 'password' : 'text';
+        passwordToggle.setAttribute('aria-label', isVisible ? 'Show password' : 'Hide password');
+        passwordToggle.querySelector('i').className = isVisible ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+    });
+</script>
+</body>
 </html>

@@ -4,8 +4,9 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Create account | HotDevJobs</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}"/>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
-    <link rel="stylesheet" type="text/css" th:href="@{/css/font-awesome.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/font-awesome/css/all.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/register.css}"/>
 </head>
 
@@ -27,15 +28,15 @@
 
                 <div class="benefit-list">
                     <div class="benefit-item">
-                        <span class="benefit-icon"><i class="fa fa-search" aria-hidden="true"></i></span>
+                        <span class="benefit-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
                         <span>Find relevant jobs faster</span>
                     </div>
                     <div class="benefit-item">
-                        <span class="benefit-icon"><i class="fa fa-briefcase" aria-hidden="true"></i></span>
+                        <span class="benefit-icon"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span>
                         <span>Hire skilled candidates</span>
                     </div>
                     <div class="benefit-item">
-                        <span class="benefit-icon"><i class="fa fa-check" aria-hidden="true"></i></span>
+                        <span class="benefit-icon"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
                         <span>Simple, focused experience</span>
                     </div>
                 </div>
@@ -61,7 +62,7 @@
             <p class="form-intro">It only takes a minute. Choose your role and get started.</p>
 
             <div class="form-alert" role="alert" th:if="${error}">
-                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
                 <span th:text="${error}">This email is already registered.</span>
             </div>
 
@@ -69,7 +70,7 @@
                 <div class="form-field">
                     <label for="email">Email address</label>
                     <div class="input-wrap">
-                        <i class="fa fa-envelope" aria-hidden="true"></i>
+                        <i class="fa-solid fa-envelope" aria-hidden="true"></i>
                         <input
                                 id="email"
                                 name="email"
@@ -85,7 +86,7 @@
                 <div class="form-field">
                     <label for="password">Password</label>
                     <div class="input-wrap password-wrap">
-                        <i class="fa fa-lock" aria-hidden="true"></i>
+                        <i class="fa-solid fa-lock" aria-hidden="true"></i>
                         <input
                                 id="password"
                                 name="password"
@@ -97,7 +98,7 @@
                                 required
                         />
                         <button class="password-toggle" type="button" id="passwordToggle" aria-label="Show password">
-                            <i class="fa fa-eye" aria-hidden="true"></i>
+                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
                         </button>
                     </div>
                     <small>Use at least 8 characters.</small>
@@ -106,7 +107,7 @@
                 <div class="form-field">
                     <label for="accountType">I want to join as</label>
                     <div class="input-wrap select-wrap">
-                        <i class="fa fa-user" aria-hidden="true"></i>
+                        <i class="fa-solid fa-user" aria-hidden="true"></i>
                         <select id="accountType" required th:field="*{userTypeId}">
                             <option value="" disabled>Select your account type</option>
                             <option
@@ -115,7 +116,7 @@
                                     th:value="${userType.userTypeId}"
                             >Job Seeker</option>
                         </select>
-                        <i class="fa fa-chevron-down select-arrow" aria-hidden="true"></i>
+                        <i class="fa-solid fa-chevron-down select-arrow" aria-hidden="true"></i>
                     </div>
                 </div>
 
@@ -143,7 +144,7 @@
         const showingPassword = passwordInput.type === 'text';
         passwordInput.type = showingPassword ? 'password' : 'text';
         passwordToggle.setAttribute('aria-label', showingPassword ? 'Show password' : 'Hide password');
-        passwordToggle.querySelector('i').className = showingPassword ? 'fa fa-eye' : 'fa fa-eye-slash';
+        passwordToggle.querySelector('i').className = showingPassword ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
     });
 </script>
 </body>

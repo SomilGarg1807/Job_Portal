@@ -10,6 +10,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge"/>
     <meta name="description" content=""/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}"/>
 
     <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/styles.css}"/>
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
@@ -243,7 +244,7 @@
                 <input id="job" class="radius-left" type="text" placeholder="Search for a job" name="job"
                        th:value="${job}"/>
                 <input id="loc" class="" type="text" placeholder="Job Location" name="location" th:value="${location}"/>
-                <button class="radius-right" type="submit" form="myForm"><i class="fa fa-search"></i></button>
+                <button class="radius-right" type="submit" form="myForm"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
         </div>
 

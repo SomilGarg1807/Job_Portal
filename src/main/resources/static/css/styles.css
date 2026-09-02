@@ -190,6 +190,13 @@ label.nav-item {
   display: inline-block;
   margin-bottom: 0;
 }
+header.navbar label.nav-item.nav-link,
+header.navbar label.nav-item.nav-link:hover,
+header.navbar label.nav-item.nav-link:focus {
+  color: white !important;
+  background: transparent !important;
+  cursor: default;
+}
 ul.navbar-nav li.nav-item a {
   color: white !important;
 }

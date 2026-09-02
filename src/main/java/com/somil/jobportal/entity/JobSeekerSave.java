@@ -8,7 +8,7 @@ import java.io.Serializable;
 @Table(uniqueConstraints = {
         @UniqueConstraint(columnNames = {"userId", "job"})
 })
-public class JobSeekerSave implements Serializable {
+public class JobSeekerSave extends AuditableEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -19,7 +19,7 @@ import jakarta.persistence.UniqueConstraint;
 @Table(uniqueConstraints = {
         @UniqueConstraint(columnNames = {"userId", "job"})
 })
-public class JobSeekerApply implements Serializable {
+public class JobSeekerApply extends AuditableEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
