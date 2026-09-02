@@ -62,12 +62,12 @@ public class UsersService {
             Users users = usersRepository.findByEmail(username).orElseThrow(()-> new UsernameNotFoundException("Could not found " + "user"));
             int userId = users.getUserId();
             if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("Recruiter"))) {
-                RecruiterProfile recruiterProfile = recruiterProfileRepository.findById(userId).orElse(new RecruiterProfile());
-                return recruiterProfile;
-            } else {
-                JobSeekerProfile jobSeekerProfile = jobSeekerProfileRepository.findById(userId).orElse(new JobSeekerProfile());
-                return jobSeekerProfile;
+                return recruiterProfileRepository.findById(userId)
+                        .orElseGet(() -> recruiterProfileRepository.save(new RecruiterProfile(users)));
             }
+
+            return jobSeekerProfileRepository.findById(userId)
+                    .orElseGet(() -> jobSeekerProfileRepository.save(new JobSeekerProfile(users)));
         }
 
         return null;

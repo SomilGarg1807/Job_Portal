@@ -20,10 +20,10 @@ public interface JobPostActivityRepository extends JpaRepository<JobPostActivity
             " left join job_seeker_apply s " +
             " on s.job = j.job_post_id " +
             " where j.posted_by_id = :recruiter " +
-            " GROUP By j.job_post_id" ,nativeQuery = true)
+            " GROUP BY j.job_post_id, j.job_title, l.id, l.city, l.state, l.country, c.id, c.name" ,nativeQuery = true)
     List<IRecruiterJobs> getRecruiterJobs(@Param("recruiter") int recruiter);
 
-    @Query(value = "SELECT * FROM job_post_activity j INNER JOIN job_location l on j.job_location_id=l.id  WHERE j" +
+    @Query(value = "SELECT j.* FROM job_post_activity j INNER JOIN job_location l on j.job_location_id=l.id  WHERE j" +
             ".job_title LIKE %:job%"
             + " AND (l.city LIKE %:location%"
             + " OR l.country LIKE %:location%"
@@ -35,7 +35,7 @@ public interface JobPostActivityRepository extends JpaRepository<JobPostActivity
                                             @Param("remote") List<String> remote,
                                             @Param("type") List<String> type);
 
-    @Query(value = "SELECT * FROM job_post_activity j INNER JOIN job_location l on j.job_location_id=l.id  WHERE j" +
+    @Query(value = "SELECT j.* FROM job_post_activity j INNER JOIN job_location l on j.job_location_id=l.id  WHERE j" +
             ".job_title LIKE %:job%"
             + " AND (l.city LIKE %:location%"
             + " OR l.country LIKE %:location%"
