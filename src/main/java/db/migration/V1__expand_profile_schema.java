@@ -26,6 +26,10 @@ public class V1__expand_profile_schema extends BaseJavaMigration {
     private void addMissingColumns(Connection connection,
                                    String tableName,
                                    Map<String, String> expectedColumns) throws SQLException {
+        if (!tableExists(connection, tableName)) {
+            return;
+        }
+
         List<String> additions = new ArrayList<>();
 
         for (Map.Entry<String, String> column : expectedColumns.entrySet()) {
@@ -53,6 +57,23 @@ public class V1__expand_profile_schema extends BaseJavaMigration {
         }
 
         return hasColumn(metadata, null, tableName, columnName);
+    }
+
+    private boolean tableExists(Connection connection, String tableName) throws SQLException {
+        DatabaseMetaData metadata = connection.getMetaData();
+        String catalog = connection.getCatalog();
+
+        if (hasTable(metadata, catalog, tableName)) {
+            return true;
+        }
+
+        return hasTable(metadata, null, tableName);
+    }
+
+    private boolean hasTable(DatabaseMetaData metadata, String catalog, String tableName) throws SQLException {
+        try (ResultSet tables = metadata.getTables(catalog, null, tableName, new String[]{"TABLE"})) {
+            return tables.next();
+        }
     }
 
     private boolean hasColumn(DatabaseMetaData metadata,
