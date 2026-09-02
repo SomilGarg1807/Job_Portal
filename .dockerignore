@@ -1,0 +1,12 @@
+.git
+.github
+.idea
+.settings
+.vscode
+target
+bin
+photos
+photos.recruiter
+application-secrets.properties
+*.iml
+*.log
