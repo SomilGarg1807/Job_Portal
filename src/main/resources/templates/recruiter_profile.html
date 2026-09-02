@@ -1,95 +1,155 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Recruiter profile | HotDevJobs</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}"/>
-    <link rel="stylesheet" type="text/css" media="all" th:href="@{/webjars/font-awesome/css/all.css}"/>
-    <link rel="stylesheet" type="text/css" media="all"  th:href="@{/css/styles.css}" />
-   <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Profile Setup</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/font-awesome/css/all.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/profile.css}"/>
 </head>
+<body class="profile-page">
+<header class="profile-header">
+    <a class="profile-brand" th:href="@{/dashboard/}">
+        <span class="brand-mark"><i class="fa-solid fa-briefcase"></i></span>
+        <span>hotdevjobs<em>.com</em></span>
+    </a>
+    <nav>
+        <a th:href="@{/dashboard/}"><i class="fa-solid fa-table-columns"></i> Dashboard</a>
+        <a class="logout-link" th:href="@{/logout}">Sign out</a>
+    </nav>
+</header>
 
-<body>
-<div class="row" style="margin-right:0">
-    <div class="col-5 coffee_mug_background">
-        <div class="logo_left mt-3 pt-4 ms-5 pl-5">
-            <h2 class="logo" style="color: white">hotdevjobs <span class="logo_com">.com</span></h2>
+<main class="profile-layout">
+    <aside class="profile-aside">
+        <span class="aside-kicker">Recruiter profile</span>
+        <h1>Help candidates understand your company.</h1>
+        <p>A complete company profile builds trust and gives applicants useful context before they apply.</p>
+        <div class="profile-points">
+            <span><i class="fa-solid fa-circle-check"></i> Company identity</span>
+            <span><i class="fa-solid fa-circle-check"></i> Team size and industry</span>
+            <span><i class="fa-solid fa-circle-check"></i> Office locations</span>
         </div>
-    </div>
-    <div class=" col-7">
-        <div class="myForm">
-            <form th:action="@{/recruiter-profile/addNew}" th:object="${profile}" method="post" enctype="multipart/form-data"
-            >
-                <div class="row gutters ">
-                    <div class="row mt-5">
-                        <div class="col-md-12">
-                            <div class="d-flex justify-content-center ">
-                                <h1 class="heading_font font-weight-bold">
-                                    Recruiter
-                                </h1>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div >
-                                    <h2 class="d-flex justify-content-center heading_font">
-                                        Set up your Profile
-                                    </h2>
-                                </div>
-                            </div>
+    </aside>
 
-                            <div class="card-body ms-2.5">
-                                <label class="heading_font font_sub_heading_color">Name</label>
-                                <div class="row ">
-                                    <div class="col-md-6 pr-1">
-                                        <input placeholder="First Name" id="firstName" th:field="*{firstName}"  name="firstName"  type="text" class="form-control"  />
-                                    </div>
-                                    <div class="col-md-6 pl-1">
-                                        <input placeholder="Last Name" id="lastName" name="lastName" th:field="*{lastName}" type="text" class="form-control"  />
-                                    </div>
-                                </div>
-                                <div class="row " >
-                                    <div class="col-md-4 pr-1">
-                                        <input placeholder="City" name="city" th:field="*{city}" type="text" class="form-control"  />
-                                    </div>
-                                    <div class="col-md-4 px-1">
-                                        <input placeholder="State" name="state" type="text" th:field="*{state}" class="form-control"  />
-                                    </div>
-                                    <div class="col-md-4 pl-1">
-                                        <input placeholder="Country" name="country" th:field="*{country}" type="text" class="form-control"  />
-                                    </div>
-                                </div>
-                                <div class="row " >
-                                    <div class="col">
-                                        <input placeholder="Company" id="company" name="company" th:field="*{company}" type="text" class="form-control"  />
-                                    </div>
-                                </div>
-                                <label class="heading_font font_sub_heading_color mt-2">Profile Photo</label>
-                                <div class="row" >
+    <section class="profile-card">
+        <div class="card-heading">
+            <div>
+                <span>Employer details</span>
+                <h2>Set up your recruiter profile</h2>
+                <p>Fields marked with * are required.</p>
+            </div>
+            <span class="profile-type"><i class="fa-solid fa-building"></i> Recruiter</span>
+        </div>
 
-                                    <div class="col" >
-                                        <input type="file" name="image" class="form-control" accept="image/png, image/jpeg" />
-                                        <input type="text" name="profilePhoto" th:field="*{profilePhoto}" class="form-control" hidden />
-                                    </div>
-                                </div>
-                                <div class="row mt-4" >
-                                    <div class="col d-flex justify-content-center">
-                                        <button type="submit" id="submit2" name="submit" class="btn btn-primary base_button px-4 py-2">Save</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <div class="form-message info" th:if="${onboarding}">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Complete the required details before continuing to your dashboard.</span>
+        </div>
+        <div class="form-message error" th:if="${error}">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span th:text="${error}">Please check the form.</span>
+        </div>
+
+        <form class="profile-form" th:action="@{/recruiter-profile/addNew}" th:object="${profile}" method="post" enctype="multipart/form-data">
+            <input type="hidden" th:field="*{userAccountId}"/>
+            <input type="hidden" th:field="*{profilePhoto}"/>
+
+            <fieldset>
+                <legend><span>1</span> Your details</legend>
+                <div class="form-grid two-columns">
+                    <label class="form-field">
+                        <span>First name *</span>
+                        <input th:field="*{firstName}" type="text" autocomplete="given-name" required/>
+                    </label>
+                    <label class="form-field">
+                        <span>Last name *</span>
+                        <input th:field="*{lastName}" type="text" autocomplete="family-name" required/>
+                    </label>
+                    <label class="form-field">
+                        <span>Your designation</span>
+                        <input th:field="*{designation}" type="text" placeholder="Talent Acquisition Manager"/>
+                    </label>
+                    <label class="form-field">
+                        <span>Phone number</span>
+                        <input th:field="*{phoneNumber}" type="tel" autocomplete="tel" placeholder="+91 98765 43210"/>
+                    </label>
                 </div>
-            </form>
-        </div>
-    </div>
-</div>
-</body>
-<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
-<script type="text/javascript" th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
-<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
-<script type="text/javascript" th:src="@{/js/main.js}"></script>
+            </fieldset>
 
+            <fieldset>
+                <legend><span>2</span> Company information</legend>
+                <div class="form-grid two-columns">
+                    <label class="form-field full-width">
+                        <span>Company name *</span>
+                        <input th:field="*{company}" type="text" autocomplete="organization" placeholder="Your registered or trading name" required/>
+                        <small>Required for recruiter accounts.</small>
+                    </label>
+                    <label class="form-field">
+                        <span>Industry</span>
+                        <input th:field="*{industry}" list="industry-options" type="text" placeholder="Software & Technology"/>
+                    </label>
+                    <label class="form-field">
+                        <span>Current number of employees</span>
+                        <input th:field="*{employeeCount}" type="number" min="1" step="1" placeholder="250"/>
+                    </label>
+                    <label class="form-field full-width">
+                        <span>Company website</span>
+                        <input th:field="*{companyWebsite}" type="url" placeholder="https://company.com"/>
+                    </label>
+                    <label class="form-field full-width">
+                        <span>About the company</span>
+                        <textarea th:field="*{companyDescription}" rows="4" maxlength="2000" placeholder="What does your company build, and why should someone join?"></textarea>
+                    </label>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend><span>3</span> Headquarters and offices</legend>
+                <div class="location-picker form-grid three-columns" data-location-picker>
+                    <label class="form-field">
+                        <span>Country *</span>
+                        <input th:field="*{country}" type="text" list="recruiter-country-options" data-location-country autocomplete="country-name" required/>
+                        <datalist id="recruiter-country-options" data-country-options></datalist>
+                    </label>
+                    <label class="form-field">
+                        <span>State / province *</span>
+                        <input th:field="*{state}" type="text" list="recruiter-state-options" data-location-state required/>
+                        <datalist id="recruiter-state-options" data-state-options></datalist>
+                    </label>
+                    <label class="form-field">
+                        <span>City *</span>
+                        <input th:field="*{city}" type="text" list="recruiter-city-options" data-location-city autocomplete="address-level2" required/>
+                        <datalist id="recruiter-city-options" data-city-options></datalist>
+                    </label>
+                    <p class="location-status full-width" data-location-status>Start typing or choose a suggested location.</p>
+                </div>
+                <label class="form-field">
+                    <span>Other office locations</span>
+                    <textarea th:field="*{officeLocations}" rows="3" maxlength="1000" placeholder="Bengaluru, Karnataka; Pune, Maharashtra; Remote"></textarea>
+                    <small>Separate multiple locations with semicolons.</small>
+                </label>
+            </fieldset>
+
+            <fieldset>
+                <legend><span>4</span> Profile image</legend>
+                <label class="upload-field">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span><strong>Upload a logo or profile photo</strong><small>PNG or JPEG. Leave empty to keep the current image.</small></span>
+                    <input type="file" name="image" accept="image/png,image/jpeg"/>
+                </label>
+            </fieldset>
+
+            <button class="save-profile" type="submit">Save recruiter profile <i class="fa-solid fa-arrow-right"></i></button>
+        </form>
+    </section>
+</main>
+
+<datalist id="industry-options">
+    <option value="Software & Technology"></option><option value="Financial Services"></option>
+    <option value="Healthcare"></option><option value="Education"></option><option value="E-commerce"></option>
+    <option value="Consulting"></option><option value="Manufacturing"></option><option value="Media"></option>
+</datalist>
+<script th:src="@{/js/location-picker.js}"></script>
+</body>
 </html>

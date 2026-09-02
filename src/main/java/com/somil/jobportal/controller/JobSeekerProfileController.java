@@ -50,7 +50,8 @@ public class JobSeekerProfileController {
     }
 
     @GetMapping("/")
-    public String jobSeekerProfile(Model model) {
+    public String jobSeekerProfile(Model model,
+                                   @RequestParam(value = "onboarding", required = false, defaultValue = "false") boolean onboarding) {
         JobSeekerProfile jobSeekerProfile = new JobSeekerProfile();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         List<Skills> skills = new ArrayList<>();
@@ -60,14 +61,17 @@ public class JobSeekerProfileController {
             Optional<JobSeekerProfile> seekerProfile = jobSeekerProfileService.getOne(user.getUserId());
             if (seekerProfile.isPresent()) {
                 jobSeekerProfile = seekerProfile.get();
-                if (jobSeekerProfile.getSkills().isEmpty()) {
-                    skills.add(new Skills());
-                    jobSeekerProfile.setSkills(skills);
-                }
+            }
+
+            if (jobSeekerProfile.getSkills() == null || jobSeekerProfile.getSkills().isEmpty()) {
+                skills.add(new Skills());
+                jobSeekerProfile.setSkills(skills);
             }
 
             model.addAttribute("skills", skills);
             model.addAttribute("profile", jobSeekerProfile);
+            model.addAttribute("viewOnly", false);
+            model.addAttribute("onboarding", onboarding);
         }
 
         return "job-seeker-profile";
@@ -89,6 +93,27 @@ public class JobSeekerProfileController {
         List<Skills> skillsList = new ArrayList<>();
         model.addAttribute("profile", jobSeekerProfile);
         model.addAttribute("skills", skillsList);
+        model.addAttribute("viewOnly", false);
+
+        if (!hasRequiredProfileFields(jobSeekerProfile)) {
+            model.addAttribute("error", "Name, current location, work authorization, and employment preference are required.");
+            model.addAttribute("onboarding", true);
+            return "job-seeker-profile";
+        }
+
+        if ((jobSeekerProfile.getTotalExperienceYears() != null && jobSeekerProfile.getTotalExperienceYears().signum() < 0)
+                || (jobSeekerProfile.getCurrentCtc() != null && jobSeekerProfile.getCurrentCtc().signum() < 0)
+                || (jobSeekerProfile.getExpectedCtc() != null && jobSeekerProfile.getExpectedCtc().signum() < 0)
+                || (jobSeekerProfile.getNoticePeriodDays() != null && jobSeekerProfile.getNoticePeriodDays() < 0)) {
+            model.addAttribute("error", "Experience, compensation, and notice period values cannot be negative.");
+            return "job-seeker-profile";
+        }
+
+        if (jobSeekerProfile.getSkills() == null) {
+            jobSeekerProfile.setSkills(new ArrayList<>());
+        }
+
+        jobSeekerProfile.getSkills().removeIf(skill -> !StringUtils.hasText(skill.getName()));
 
         for (Skills skills : jobSeekerProfile.getSkills()) {
             skills.setJobSeekerProfile(jobSeekerProfile);
@@ -130,6 +155,8 @@ public class JobSeekerProfileController {
 
         Optional<JobSeekerProfile> seekerProfile = jobSeekerProfileService.getOne(id);
         model.addAttribute("profile", seekerProfile.get());
+        model.addAttribute("viewOnly", true);
+        model.addAttribute("onboarding", false);
         return "job-seeker-profile";
     }
 
@@ -157,5 +184,15 @@ public class JobSeekerProfileController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
                 .body(resource);
 
+    }
+
+    private boolean hasRequiredProfileFields(JobSeekerProfile profile) {
+        return StringUtils.hasText(profile.getFirstName())
+                && StringUtils.hasText(profile.getLastName())
+                && StringUtils.hasText(profile.getCountry())
+                && StringUtils.hasText(profile.getState())
+                && StringUtils.hasText(profile.getCity())
+                && StringUtils.hasText(profile.getWorkAuthorization())
+                && StringUtils.hasText(profile.getEmploymentType());
     }
 }

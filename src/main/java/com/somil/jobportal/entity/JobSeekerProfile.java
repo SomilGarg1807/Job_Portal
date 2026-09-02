@@ -2,6 +2,7 @@ package com.somil.jobportal.entity;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -23,12 +24,41 @@ public class JobSeekerProfile extends AuditableEntity {
     private String country;
     private String workAuthorization;
     private String employmentType;
+    private String desiredJobTitle;
+    private String currentCompany;
+    private String remotePreference;
+    private String preferredJobCity;
+    private String preferredJobState;
+    private String preferredJobCountry;
+    private Boolean willingToRelocate;
+
+    @Column(length = 1000)
+    private String preferredLocations;
+
+    @Column(precision = 4, scale = 1)
+    private BigDecimal totalExperienceYears;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal currentCtc;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal expectedCtc;
+
+    private String compensationCurrency;
+    private Integer noticePeriodDays;
+    private String phoneNumber;
+    private String linkedInUrl;
+    private String portfolioUrl;
+
+    @Column(length = 300)
+    private String professionalHeadline;
+
     private String resume;
 
     @Column(nullable = true, length = 64)
     private String profilePhoto;
 
-    @OneToMany(targetEntity = Skills.class, cascade = CascadeType.ALL, mappedBy = "jobSeekerProfile")
+    @OneToMany(targetEntity = Skills.class, cascade = CascadeType.ALL, mappedBy = "jobSeekerProfile", orphanRemoval = true)
     private List<Skills> skills;
 
     public JobSeekerProfile() {
@@ -123,6 +153,142 @@ public class JobSeekerProfile extends AuditableEntity {
 
     public void setEmploymentType(String employmentType) {
         this.employmentType = employmentType;
+    }
+
+    public String getDesiredJobTitle() {
+        return desiredJobTitle;
+    }
+
+    public void setDesiredJobTitle(String desiredJobTitle) {
+        this.desiredJobTitle = desiredJobTitle;
+    }
+
+    public String getCurrentCompany() {
+        return currentCompany;
+    }
+
+    public void setCurrentCompany(String currentCompany) {
+        this.currentCompany = currentCompany;
+    }
+
+    public String getRemotePreference() {
+        return remotePreference;
+    }
+
+    public void setRemotePreference(String remotePreference) {
+        this.remotePreference = remotePreference;
+    }
+
+    public String getPreferredJobCity() {
+        return preferredJobCity;
+    }
+
+    public void setPreferredJobCity(String preferredJobCity) {
+        this.preferredJobCity = preferredJobCity;
+    }
+
+    public String getPreferredJobState() {
+        return preferredJobState;
+    }
+
+    public void setPreferredJobState(String preferredJobState) {
+        this.preferredJobState = preferredJobState;
+    }
+
+    public String getPreferredJobCountry() {
+        return preferredJobCountry;
+    }
+
+    public void setPreferredJobCountry(String preferredJobCountry) {
+        this.preferredJobCountry = preferredJobCountry;
+    }
+
+    public Boolean getWillingToRelocate() {
+        return willingToRelocate;
+    }
+
+    public void setWillingToRelocate(Boolean willingToRelocate) {
+        this.willingToRelocate = willingToRelocate;
+    }
+
+    public String getPreferredLocations() {
+        return preferredLocations;
+    }
+
+    public void setPreferredLocations(String preferredLocations) {
+        this.preferredLocations = preferredLocations;
+    }
+
+    public BigDecimal getTotalExperienceYears() {
+        return totalExperienceYears;
+    }
+
+    public void setTotalExperienceYears(BigDecimal totalExperienceYears) {
+        this.totalExperienceYears = totalExperienceYears;
+    }
+
+    public BigDecimal getCurrentCtc() {
+        return currentCtc;
+    }
+
+    public void setCurrentCtc(BigDecimal currentCtc) {
+        this.currentCtc = currentCtc;
+    }
+
+    public BigDecimal getExpectedCtc() {
+        return expectedCtc;
+    }
+
+    public void setExpectedCtc(BigDecimal expectedCtc) {
+        this.expectedCtc = expectedCtc;
+    }
+
+    public String getCompensationCurrency() {
+        return compensationCurrency;
+    }
+
+    public void setCompensationCurrency(String compensationCurrency) {
+        this.compensationCurrency = compensationCurrency;
+    }
+
+    public Integer getNoticePeriodDays() {
+        return noticePeriodDays;
+    }
+
+    public void setNoticePeriodDays(Integer noticePeriodDays) {
+        this.noticePeriodDays = noticePeriodDays;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getLinkedInUrl() {
+        return linkedInUrl;
+    }
+
+    public void setLinkedInUrl(String linkedInUrl) {
+        this.linkedInUrl = linkedInUrl;
+    }
+
+    public String getPortfolioUrl() {
+        return portfolioUrl;
+    }
+
+    public void setPortfolioUrl(String portfolioUrl) {
+        this.portfolioUrl = portfolioUrl;
+    }
+
+    public String getProfessionalHeadline() {
+        return professionalHeadline;
+    }
+
+    public void setProfessionalHeadline(String professionalHeadline) {
+        this.professionalHeadline = professionalHeadline;
     }
 
     public String getResume() {

@@ -24,6 +24,22 @@ public class RecruiterProfile extends AuditableEntity {
 
     private String company;
 
+    private String designation;
+
+    private String industry;
+
+    private String companyWebsite;
+
+    private Integer employeeCount;
+
+    @Column(length = 1000)
+    private String officeLocations;
+
+    @Column(length = 2000)
+    private String companyDescription;
+
+    private String phoneNumber;
+
     @Column(nullable = true, length = 64)
     private String profilePhoto;
 
@@ -108,6 +124,62 @@ public class RecruiterProfile extends AuditableEntity {
 
     public void setCompany(String company) {
         this.company = company;
+    }
+
+    public String getDesignation() {
+        return designation;
+    }
+
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
+    public String getIndustry() {
+        return industry;
+    }
+
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
+
+    public String getCompanyWebsite() {
+        return companyWebsite;
+    }
+
+    public void setCompanyWebsite(String companyWebsite) {
+        this.companyWebsite = companyWebsite;
+    }
+
+    public Integer getEmployeeCount() {
+        return employeeCount;
+    }
+
+    public void setEmployeeCount(Integer employeeCount) {
+        this.employeeCount = employeeCount;
+    }
+
+    public String getOfficeLocations() {
+        return officeLocations;
+    }
+
+    public void setOfficeLocations(String officeLocations) {
+        this.officeLocations = officeLocations;
+    }
+
+    public String getCompanyDescription() {
+        return companyDescription;
+    }
+
+    public void setCompanyDescription(String companyDescription) {
+        this.companyDescription = companyDescription;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getProfilePhoto() {

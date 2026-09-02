@@ -1,336 +1,268 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org/" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <link
-            th:rel="stylesheet"
-            th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "
-    />
-    <link
-            rel="stylesheet"
-            type="text/css"
-            media="all"
-            th:href="@{/webjars/font-awesome/css/all.css}"
-    />
-    <link
-            rel="stylesheet"
-            type="text/css"
-            media="all"
-            th:href="@{/css/styles.css}"
-    />
-    <link
-            href="https://fonts.googleapis.com/css?family=Montserrat"
-            rel="stylesheet"
-    />
-    <meta charset="ISO-8859-1"/>
-    <title>Profile Setup</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Job seeker profile | HotDevJobs</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/font-awesome/css/all.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/profile.css}"/>
 </head>
+<body class="profile-page">
+<header class="profile-header">
+    <a class="profile-brand" th:href="@{/dashboard/}">
+        <span class="brand-mark"><i class="fa-solid fa-briefcase"></i></span>
+        <span>hotdevjobs<em>.com</em></span>
+    </a>
+    <nav>
+        <a th:href="@{/dashboard/}"><i class="fa-solid fa-table-columns"></i> Dashboard</a>
+        <a class="logout-link" th:href="@{/logout}">Sign out</a>
+    </nav>
+</header>
 
-<body>
-<div class="row" style="margin-right:0; ">
-    <div class="col-5 coffee_mug_background">
-        <div class="logo_left mt-3 pt-4 ms-5 pl-5">
-            <h2 class="logo" style="color: white">
-                hotdevjobs <span class="logo_com">.com</span>
-            </h2>
+<main class="profile-layout">
+    <aside class="profile-aside seeker-aside">
+        <span class="aside-kicker" th:text="${viewOnly} ? 'Candidate profile' : 'Job seeker profile'">Job seeker profile</span>
+        <h1 th:text="${viewOnly} ? 'Candidate experience at a glance.' : 'Tell employers what you want next.'">Tell employers what you want next.</h1>
+        <p>Skills, preferences, and location help recruiters find relevant candidates and improve job matching.</p>
+        <div class="profile-points">
+            <span><i class="fa-solid fa-circle-check"></i> Career preferences</span>
+            <span><i class="fa-solid fa-circle-check"></i> Experience and skills</span>
+            <span><i class="fa-solid fa-circle-check"></i> Work authorization</span>
         </div>
-    </div>
-    <div class="col-7">
-        <div class="myForm">
-            <form
-                    th:action="@{/job-seeker-profile/addNew}"
-                    th:object="${profile}"
-                    method="post"
-                    enctype="multipart/form-data"
-            >
-                <div class="row" style="margin-right:0; margin-left:0;">
-                    <div class="col-md-12">
-                        <div class="d-flex justify-content-center pt-3">
-                            <h1 class="heading_font font-weight-bold">Candidate</h1>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div>
-                            <h2 class="heading_font d-flex justify-content-center">
-                                Set up your Profile
-                            </h2>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <label class="heading_font font_sub_heading_color">Name</label>
-                        <div class="row">
-                            <div class="col-md-6 pr-1">
-                                <input
+    </aside>
 
-                                        id="user_account_id"
-                                        th:field="*{userAccountId}"
-                                        name="userAccountId"
-                                        type="text"
-                                        hidden
-                                />
-                                <input
-                                        placeholder="First Name"
-                                        id="firstName"
-                                        th:field="*{firstName}"
-                                        name="firstName"
-                                        type="text"
-                                        class="form-control"
-                                />
-                            </div>
-                            <div class="col-md-6 pl-1">
-                                <input
-                                        placeholder="Last Name"
-                                        id="lastName"
-                                        name="lastName"
-                                        th:field="*{lastName}"
-                                        type="text"
-                                        class="form-control"
-                                />
-                            </div>
-                        </div>
-                        <div class="row ">
-                            <div class="col-md-4 pr-1">
-                                <input
-                                        placeholder="City"
-                                        name="city"
-                                        th:field="*{city}"
-                                        type="text"
-                                        class="form-control"
-                                />
-                            </div>
-                            <div class="col-md-4 px-1">
-                                <input
-                                        placeholder="State"
-                                        name="state"
-                                        type="text"
-                                        th:field="*{state}"
-                                        class="form-control"
-                                />
-                            </div>
-                            <div class="col-md-4 pl-1">
-                                <input
-                                        placeholder="Country"
-                                        name="country"
-                                        th:field="*{country}"
-                                        type="text"
-                                        class="form-control"
-                                />
-                            </div>
-                        </div>
-                        <label class="mt-3 heading_font font_sub_heading_color"
-                        >Work Classification</label
-                        >
-                        <div class="row">
-                            <div class="form-group col-md-6 pr-1">
-                                <select
-                                        required
-                                        class="form-control"
-                                        name="workAuthorization"
-                                        th:field="*{workAuthorization}"
-                                >
-                                    <option value="" selected>Work Authorization</option>
-                                    <option value="US Citizen">US Citizen</option>
-                                    <option value="Canadian Citizen">Canadian Citizen</option>
-                                    <option value="Green Card">Green Card</option>
-                                    <option value="H1 Visa">H1 Visa</option>
-                                    <option value="TN Permit">TN Permit</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-6 pl-1">
-                                <select
-                                        required
-                                        class="form-control"
-                                        name="employmentType"
-                                        th:field="*{employmentType}"
-                                >
-                                    <option value="" selected>Seeking Employment</option>
-                                    <option value="Full-Time">Full-time</option>
-                                    <option value="Part-Time">Part-time</option>
-                                    <option value="Freelance">Freelance</option>
-                                </select>
-                            </div>
-                        </div>
-                        <label class=" heading_font font_sub_heading_color"
-                        >Skills</label
-                        >
-                        <div class="parent" th:each="skills, iterStat : *{skills}">
-                            <div id="skill-repeat">
-                                <div class="row">
-                                    <div class="col-md-4 pr-1">
-                                        <input
-                                                type="text"
-                                                th:field="*{skills[__${iterStat.index}__].id}"
-                                                hidden
-                                        />
-                                        <input
-                                                placeholder="Skill Name"
-                                                type="text"
-                                                class="form-control"
-                                                th:field="*{skills[__${iterStat.index}__].name}"
-                                        />
-                                    </div>
-                                    <div class="col-md-4 px-1">
-                                        <input
-                                                placeholder="Years of Experience"
-                                                type="text"
-                                                class="form-control"
-                                                th:field="*{skills[__${iterStat.index}__].yearsOfExperience}"
-                                        />
-                                    </div>
-                                    <div class="form-group col-md-4 pl-1">
-                                        <select
-                                                required
-                                                class="form-control"
-                                                th:field="*{skills[__${iterStat.index}__].experienceLevel}"
-                                        >
-                                            <option value="Experience Level" selected>Experience Level</option>
-                                            <option value="Beginner">Beginner</option>
-                                            <option value="Intermediate">Intermediate</option>
-                                            <option value="Advance">Advance</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    <section class="profile-card">
+        <div class="card-heading">
+            <div>
+                <span th:text="${viewOnly} ? 'Candidate details' : 'Your career profile'">Your career profile</span>
+                <h2 th:text="${viewOnly} ? 'Review candidate profile' : 'Build your job seeker profile'">Build your job seeker profile</h2>
+                <p th:unless="${viewOnly}">Fields marked with * are required. Compensation details are optional.</p>
+            </div>
+            <span class="profile-type"><i class="fa-solid fa-user-tie"></i> Job seeker</span>
+        </div>
 
-                        <div class="row gutters" sec:authorize="hasAuthority('Job Seeker')">
-                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                                <div class="text-left mt-2">
-                                    <button
-                                            type="button"
-                                            class="btn btn-outline-secondary"
-                                            id="addSkill"
-                                    >
-                                        Add Skill
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+        <div class="form-message info" th:if="${onboarding}">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Complete the required details before continuing to your dashboard.</span>
+        </div>
+        <div class="form-message error" th:if="${error}">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span th:text="${error}">Please check the form.</span>
+        </div>
 
-                        <div class="row mt-2">
-                            <div class="col-md-5 me-5" sec:authorize="hasAuthority('Job Seeker')">
-                                <label class="heading_font font_sub_heading_color">
-                                    Profile Photo</label
-                                >
-                                <input
-                                        type="file"
-                                        name="image"
-                                        class="form-control"
-                                        accept="image/png, image/jpeg"
-                                />
-                                <input type="text" name="profilePhoto" th:field="*{profilePhoto}" class="form-control"
-                                       hidden/>
+        <form class="profile-form" th:action="@{/job-seeker-profile/addNew}" th:object="${profile}" method="post" enctype="multipart/form-data">
+            <input type="hidden" th:field="*{userAccountId}"/>
+            <input type="hidden" th:field="*{profilePhoto}"/>
+            <input type="hidden" th:field="*{resume}"/>
 
-                            </div>
-                            <div class="col-md-5 me-5">
-                                <label class="heading_font font_sub_heading_color">
-                                    Resume</label
-                                >
-                                <input
-                                        sec:authorize="hasAuthority('Job Seeker')"
-                                        type="file"
-                                        name="pdf"
-                                        class="form-control"
-                                        required="true"
-                                        accept="application/pdf"
-                                />
-                                <input type="text" name="resume" th:field="*{resume}" class="form-control" hidden/>
-                                <a sec:authorize="hasAuthority('Recruiter')"
-                                   th:href="@{|/job-seeker-profile/downloadResume?fileName=${profile.resume}&&userID=${profile.userAccountId}|}">Download
-                                    Resume</a>
-                            </div>
-                        </div>
+            <fieldset>
+                <legend><span>1</span> About you</legend>
+                <div class="form-grid two-columns">
+                    <label class="form-field">
+                        <span>First name *</span>
+                        <input th:field="*{firstName}" th:disabled="${viewOnly}" type="text" autocomplete="given-name" required/>
+                    </label>
+                    <label class="form-field">
+                        <span>Last name *</span>
+                        <input th:field="*{lastName}" th:disabled="${viewOnly}" type="text" autocomplete="family-name" required/>
+                    </label>
+                    <label class="form-field full-width">
+                        <span>Professional headline</span>
+                        <input th:field="*{professionalHeadline}" th:disabled="${viewOnly}" type="text" maxlength="300" placeholder="Backend Engineer | Java & Spring Boot"/>
+                    </label>
+                    <label class="form-field">
+                        <span>Phone number</span>
+                        <input th:field="*{phoneNumber}" th:disabled="${viewOnly}" type="tel" autocomplete="tel" placeholder="+91 98765 43210"/>
+                    </label>
+                    <label class="form-field">
+                        <span>Current company</span>
+                        <input th:field="*{currentCompany}" th:disabled="${viewOnly}" type="text" placeholder="Optional"/>
+                    </label>
+                </div>
+            </fieldset>
 
-                        <div class="row mt-3 col d-flex justify-content-center"
-                             sec:authorize="hasAuthority('Job Seeker')">
-                            <div class="text-right">
-                                <button
-                                        type="submit"
-                                        id="submit2"
-                                        name="submit"
-                                        class="btn btn-primary base_button px-4 py-2"
-                                >
-                                    Save
-                                </button>
-                            </div>
-                        </div>
+            <fieldset>
+                <legend><span>2</span> Current location</legend>
+                <div class="location-picker form-grid three-columns" data-location-picker>
+                    <label class="form-field">
+                        <span>Country *</span>
+                        <input th:field="*{country}" th:disabled="${viewOnly}" type="text" list="seeker-country-options" data-location-country autocomplete="country-name" required/>
+                        <datalist id="seeker-country-options" data-country-options></datalist>
+                    </label>
+                    <label class="form-field">
+                        <span>State / province *</span>
+                        <input th:field="*{state}" th:disabled="${viewOnly}" type="text" list="seeker-state-options" data-location-state required/>
+                        <datalist id="seeker-state-options" data-state-options></datalist>
+                    </label>
+                    <label class="form-field">
+                        <span>City *</span>
+                        <input th:field="*{city}" th:disabled="${viewOnly}" type="text" list="seeker-city-options" data-location-city autocomplete="address-level2" required/>
+                        <datalist id="seeker-city-options" data-city-options></datalist>
+                    </label>
+                    <p class="location-status full-width" data-location-status th:unless="${viewOnly}">Start typing or choose a suggested location.</p>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend><span>3</span> Job preferences</legend>
+                <div class="form-grid two-columns">
+                    <label class="form-field">
+                        <span>Desired job title</span>
+                        <input th:field="*{desiredJobTitle}" th:disabled="${viewOnly}" type="text" placeholder="Java Developer"/>
+                    </label>
+                    <label class="form-field">
+                        <span>Employment type *</span>
+                        <select th:field="*{employmentType}" th:disabled="${viewOnly}" required>
+                            <option value="">Select employment type</option>
+                            <option value="Full-Time">Full-time</option><option value="Part-Time">Part-time</option>
+                            <option value="Freelance">Freelance / contract</option><option value="Internship">Internship</option>
+                        </select>
+                    </label>
+                    <label class="form-field">
+                        <span>Work authorization *</span>
+                        <select th:field="*{workAuthorization}" th:disabled="${viewOnly}" required>
+                            <option value="">Select authorization</option>
+                            <option value="Citizen">Citizen</option><option value="Permanent Resident">Permanent resident</option>
+                            <option value="Employment Visa">Employment visa / work permit</option><option value="Student Visa">Student visa</option>
+                            <option value="Dependent Visa">Dependent visa with work rights</option>
+                            <option value="Requires Sponsorship">Requires employer sponsorship</option><option value="Other">Other</option>
+                        </select>
+                    </label>
+                    <label class="form-field">
+                        <span>Workplace preference</span>
+                        <select th:field="*{remotePreference}" th:disabled="${viewOnly}">
+                            <option value="">No preference</option><option value="Remote-Only">Remote only</option>
+                            <option value="Partial-Remote">Hybrid</option><option value="Office-Only">On-site</option>
+                        </select>
+                    </label>
+                    <label class="form-field">
+                        <span>Willing to relocate?</span>
+                        <select th:field="*{willingToRelocate}" th:disabled="${viewOnly}">
+                            <option value="">Not specified</option><option value="true">Yes</option><option value="false">No</option>
+                        </select>
+                    </label>
+                </div>
+                <h3 class="subsection-title">Primary preferred job location</h3>
+                <div class="location-picker form-grid three-columns" data-location-picker>
+                    <label class="form-field">
+                        <span>Preferred country</span>
+                        <input th:field="*{preferredJobCountry}" th:disabled="${viewOnly}" type="text" list="preferred-country-options" data-location-country/>
+                        <datalist id="preferred-country-options" data-country-options></datalist>
+                    </label>
+                    <label class="form-field">
+                        <span>Preferred state / province</span>
+                        <input th:field="*{preferredJobState}" th:disabled="${viewOnly}" type="text" list="preferred-state-options" data-location-state/>
+                        <datalist id="preferred-state-options" data-state-options></datalist>
+                    </label>
+                    <label class="form-field">
+                        <span>Preferred city</span>
+                        <input th:field="*{preferredJobCity}" th:disabled="${viewOnly}" type="text" list="preferred-city-options" data-location-city/>
+                        <datalist id="preferred-city-options" data-city-options></datalist>
+                    </label>
+                    <p class="location-status full-width" data-location-status th:unless="${viewOnly}">Choose a preferred location or leave it empty.</p>
+                </div>
+                <div class="form-grid">
+                    <label class="form-field full-width">
+                        <span>Other preferred job locations</span>
+                        <input th:field="*{preferredLocations}" th:disabled="${viewOnly}" type="text" placeholder="Bengaluru; Delhi NCR; Remote"/>
+                        <small>Separate multiple locations with semicolons.</small>
+                    </label>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend><span>4</span> Experience and compensation <em>Optional</em></legend>
+                <div class="form-grid three-columns">
+                    <label class="form-field">
+                        <span>Total experience (years)</span>
+                        <input th:field="*{totalExperienceYears}" th:disabled="${viewOnly}" type="number" min="0" max="99" step="0.1" placeholder="3.5"/>
+                    </label>
+                    <label class="form-field">
+                        <span>Current CTC / annual pay</span>
+                        <input th:field="*{currentCtc}" th:disabled="${viewOnly}" type="number" min="0" step="0.01" placeholder="8.50"/>
+                    </label>
+                    <label class="form-field">
+                        <span>Expected CTC / annual pay</span>
+                        <input th:field="*{expectedCtc}" th:disabled="${viewOnly}" type="number" min="0" step="0.01" placeholder="12.00"/>
+                    </label>
+                    <label class="form-field">
+                        <span>Compensation currency</span>
+                        <select th:field="*{compensationCurrency}" th:disabled="${viewOnly}">
+                            <option value="">Select currency</option><option value="INR">INR (lakhs)</option>
+                            <option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option>
+                            <option value="CAD">CAD</option><option value="AUD">AUD</option>
+                        </select>
+                    </label>
+                    <label class="form-field">
+                        <span>Notice period (days)</span>
+                        <input th:field="*{noticePeriodDays}" th:disabled="${viewOnly}" type="number" min="0" max="365" step="1" placeholder="30"/>
+                    </label>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend><span>5</span> Skills</legend>
+                <div id="skillsContainer" class="skills-list" th:attr="data-skill-count=${profile.skills == null ? 0 : #lists.size(profile.skills)}">
+                    <div class="skill-row" th:each="skill,iter : *{skills}">
+                        <input type="hidden" th:field="*{skills[__${iter.index}__].id}"/>
+                        <label class="form-field"><span>Skill</span><input th:field="*{skills[__${iter.index}__].name}" th:disabled="${viewOnly}" type="text" placeholder="Java"/></label>
+                        <label class="form-field"><span>Years</span><input th:field="*{skills[__${iter.index}__].yearsOfExperience}" th:disabled="${viewOnly}" type="number" min="0" step="0.5" placeholder="3"/></label>
+                        <label class="form-field"><span>Level</span><select th:field="*{skills[__${iter.index}__].experienceLevel}" th:disabled="${viewOnly}"><option value="">Select level</option><option value="Beginner">Beginner</option><option value="Intermediate">Intermediate</option><option value="Advanced">Advanced</option><option value="Expert">Expert</option></select></label>
+                        <button class="remove-skill" th:unless="${viewOnly}" type="button" aria-label="Remove skill"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                 </div>
-            </form>
-        </div>
-    </div>
-</div>
-<div sec:authorize="hasAuthority('Recruiter')">
+                <button class="add-skill" th:unless="${viewOnly}" type="button" id="addSkill"><i class="fa-solid fa-plus"></i> Add another skill</button>
+            </fieldset>
 
-</div>
+            <fieldset>
+                <legend><span>6</span> Links and documents</legend>
+                <div class="form-grid two-columns">
+                    <label class="form-field"><span>LinkedIn URL</span><input th:field="*{linkedInUrl}" th:disabled="${viewOnly}" type="url" placeholder="https://linkedin.com/in/you"/></label>
+                    <label class="form-field"><span>Portfolio or GitHub URL</span><input th:field="*{portfolioUrl}" th:disabled="${viewOnly}" type="url" placeholder="https://github.com/you"/></label>
+                </div>
+                <div class="upload-grid" th:unless="${viewOnly}">
+                    <label class="upload-field"><i class="fa-solid fa-image"></i><span><strong>Profile photo</strong><small>PNG or JPEG. Optional.</small></span><input type="file" name="image" accept="image/png,image/jpeg"/></label>
+                    <label class="upload-field"><i class="fa-solid fa-file-pdf"></i><span><strong>Resume</strong><small>PDF. Leave empty to keep the current resume.</small></span><input type="file" name="pdf" accept="application/pdf"/></label>
+                </div>
+                <a class="download-resume" th:if="${profile.resume != null and !#strings.isEmpty(profile.resume)}" th:href="@{/job-seeker-profile/downloadResume(fileName=${profile.resume},userID=${profile.userAccountId})}"><i class="fa-solid fa-download"></i> Download current resume</a>
+            </fieldset>
+
+            <button class="save-profile" th:unless="${viewOnly}" type="submit">Save job seeker profile <i class="fa-solid fa-arrow-right"></i></button>
+        </form>
+    </section>
+</main>
+
+<script th:unless="${viewOnly}" th:src="@{/js/location-picker.js}"></script>
+<script th:unless="${viewOnly}">
+    const skillsContainer = document.getElementById('skillsContainer');
+    const addSkillButton = document.getElementById('addSkill');
+
+    function skillRow(index) {
+        const row = document.createElement('div');
+        row.className = 'skill-row';
+        row.innerHTML = `
+            <input type="hidden" name="skills[${index}].id">
+            <label class="form-field"><span>Skill</span><input name="skills[${index}].name" type="text" placeholder="Java"></label>
+            <label class="form-field"><span>Years</span><input name="skills[${index}].yearsOfExperience" type="number" min="0" step="0.5" placeholder="3"></label>
+            <label class="form-field"><span>Level</span><select name="skills[${index}].experienceLevel"><option value="">Select level</option><option value="Beginner">Beginner</option><option value="Intermediate">Intermediate</option><option value="Advanced">Advanced</option><option value="Expert">Expert</option></select></label>
+            <button class="remove-skill" type="button" aria-label="Remove skill"><i class="fa-solid fa-xmark"></i></button>`;
+        return row;
+    }
+
+    function reindexSkills() {
+        skillsContainer.querySelectorAll('.skill-row').forEach((row, index) => {
+            row.querySelectorAll('[name]').forEach(field => field.name = field.name.replace(/skills\[\d+]/, `skills[${index}]`));
+        });
+    }
+
+    addSkillButton.addEventListener('click', () => skillsContainer.appendChild(skillRow(skillsContainer.querySelectorAll('.skill-row').length)));
+    skillsContainer.addEventListener('click', event => {
+        const button = event.target.closest('.remove-skill');
+        if (!button) return;
+        button.closest('.skill-row').remove();
+        reindexSkills();
+    });
+</script>
 </body>
-<script
-        type="text/javascript"
-        th:src="@{/webjars/jquery/jquery.min.js}"
-></script>
-<script
-        type="text/javascript"
-        th:src="@{/webjars/popper.js/umd/popper.min.js}"
-></script>
-<script
-        type="text/javascript"
-        th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"
-></script>
-<script type="text/javascript" th:src="@{/js/main.js}"></script>
-<script sec:authorize="hasAuthority('Recruiter')">
-    console.log("Disable inputs");
-  $("input").prop( "disabled", true );
-   $("select").prop( "disabled", true );
-       $("button").prop( "disabled", true );
-</script>
-<script>
-
-
-    var counter = 0;
-     $(document).on("click", "#addSkill", function (e) {
-       e.preventDefault();
-       counter++;
-        var newRow = jQuery("<div id='skill-repeat'><div class='row'>"+
-                   "    <div class='col-md-4 pr-1'>"+
-                   "     <input"+
-                   "        hidden type='text'"+
-                   "        class='form-control' "+
-                   "        name='skills["+counter+"].Id'"+
-                   "      />"+
-                   "      <input"+
-                   "        placeholder='Skill Name'"+
-                   "        type='text'"+
-                   "        class='form-control'"+
-                   "        name='skills["+counter+"].name'"+
-                   "      />"+
-                   "    </div>"+
-                   "    <div class='col-md-4 px-1'>"+
-                   "      <input"+
-                   "        placeholder='Years of Experience'"+
-                   "        type='text'"+
-                   "        class='form-control'"+
-                   "        name='skills["+counter+"].yearsOfExperience'"+
-                   "      />"+
-                   "    </div>"+
-                   "    <div class='form-group col-md-4 pl-1'>"+
-                   "      <select"+
-                   "        required"+
-                   "        class='form-control'"+
-                   "        name='skills["+counter+"].experienceLevel'"+
-                   "      >"+
-                   "        <option selected>Experience Level</option>"+
-                   "        <option value='Beginner'>Beginner</option>"+
-                   "        <option value='Intermediate'>Intermediate</option>"+
-                   "        <option value='Advance'>Advance</option>"+
-                   "      </select>"+
-                   "    </div>"+
-                   "  </div>"+
-                   "</div>");
-        console.log(newRow);
-       $('#skill-repeat')
-         .parent('div.parent')
-         .append(newRow);
-
-     });
-</script>
 </html>
