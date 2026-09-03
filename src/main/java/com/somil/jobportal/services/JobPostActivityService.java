@@ -52,13 +52,16 @@ public class JobPostActivityService {
         return jobPostActivityRepository.findAll();
     }
 
-    public List<JobPostActivity> search(String job, String location, List<String> type, List<String> remote, LocalDate searchDate) {
+    public List<JobPostActivity> search(String job, String location, List<String> type, List<String> remote,
+                                        LocalDate searchDate, boolean typeFilter, boolean remoteFilter) {
         String normalizedJob = Objects.toString(job, "").trim();
         String normalizedLocation = Objects.toString(location, "").trim();
         List<String> normalizedType = normalizeFilters(type);
         List<String> normalizedRemote = normalizeFilters(remote);
-        return Objects.isNull(searchDate) ? jobPostActivityRepository.searchWithoutDate(normalizedJob, normalizedLocation, normalizedRemote, normalizedType) :
-                jobPostActivityRepository.search(normalizedJob, normalizedLocation, normalizedRemote, normalizedType, searchDate);
+        int typeFilterFlag = typeFilter ? 1 : 0;
+        int remoteFilterFlag = remoteFilter ? 1 : 0;
+        return Objects.isNull(searchDate) ? jobPostActivityRepository.searchWithoutDate(normalizedJob, normalizedLocation, normalizedRemote, normalizedType, remoteFilterFlag, typeFilterFlag) :
+                jobPostActivityRepository.search(normalizedJob, normalizedLocation, normalizedRemote, normalizedType, searchDate, remoteFilterFlag, typeFilterFlag);
     }
 
     private List<String> normalizeFilters(List<String> filters) {

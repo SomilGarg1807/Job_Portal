@@ -27,23 +27,27 @@ public interface JobPostActivityRepository extends JpaRepository<JobPostActivity
             + " AND (LOWER(COALESCE(l.city,'')) LIKE LOWER(CONCAT('%',:location,'%'))"
             + " OR LOWER(COALESCE(l.country,'')) LIKE LOWER(CONCAT('%',:location,'%'))"
             + " OR LOWER(COALESCE(l.state,'')) LIKE LOWER(CONCAT('%',:location,'%'))) " +
-            " AND (LOWER(TRIM(j.job_type)) IN (:type)) " +
-            " AND (LOWER(TRIM(j.remote)) IN (:remote)) ", nativeQuery = true)
+            " AND (:typeFilter = 0 OR LOWER(TRIM(j.job_type)) IN (:type)) " +
+            " AND (:remoteFilter = 0 OR LOWER(TRIM(j.remote)) IN (:remote)) ", nativeQuery = true)
     List<JobPostActivity> searchWithoutDate(@Param("job") String job,
                                             @Param("location") String location,
                                             @Param("remote") List<String> remote,
-                                            @Param("type") List<String> type);
+                                            @Param("type") List<String> type,
+                                            @Param("remoteFilter") int remoteFilter,
+                                            @Param("typeFilter") int typeFilter);
 
     @Query(value = "SELECT j.* FROM job_post_activity j INNER JOIN job_location l on j.job_location_id=l.id INNER JOIN job_company c on j.job_company_id=c.id WHERE (LOWER(COALESCE(j.job_title,'')) LIKE LOWER(CONCAT('%',:job,'%')) OR LOWER(COALESCE(j.description_of_job,'')) LIKE LOWER(CONCAT('%',:job,'%')) OR LOWER(COALESCE(c.name,'')) LIKE LOWER(CONCAT('%',:job,'%')))"
             + " AND (LOWER(COALESCE(l.city,'')) LIKE LOWER(CONCAT('%',:location,'%'))"
             + " OR LOWER(COALESCE(l.country,'')) LIKE LOWER(CONCAT('%',:location,'%'))"
             + " OR LOWER(COALESCE(l.state,'')) LIKE LOWER(CONCAT('%',:location,'%'))) " +
-            " AND (LOWER(TRIM(j.job_type)) IN (:type)) " +
-            " AND (LOWER(TRIM(j.remote)) IN (:remote)) " +
+            " AND (:typeFilter = 0 OR LOWER(TRIM(j.job_type)) IN (:type)) " +
+            " AND (:remoteFilter = 0 OR LOWER(TRIM(j.remote)) IN (:remote)) " +
             " AND (posted_date >= :date)", nativeQuery = true)
     List<JobPostActivity> search(@Param("job") String job,
                                  @Param("location") String location,
                                  @Param("remote") List<String> remote,
                                  @Param("type") List<String> type,
-                                 @Param("date") LocalDate searchDate);
+                                 @Param("date") LocalDate searchDate,
+                                 @Param("remoteFilter") int remoteFilter,
+                                 @Param("typeFilter") int typeFilter);
 }

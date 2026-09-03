@@ -80,8 +80,8 @@ public class JobPostActivityController {
         LocalDate searchDate = null;
         List<JobPostActivity> jobPost = null;
         boolean dateSearchFlag = true;
-        boolean remote = true;
-        boolean type = true;
+        boolean typeFilter = true;
+        boolean remoteFilter = true;
 
         if (days30) {
             searchDate = LocalDate.now().minusDays(30);
@@ -97,21 +97,21 @@ public class JobPostActivityController {
             partTime = "Part-Time";
             fullTime = "Full-Time";
             freelance = "Freelance";
-            remote = false;
+            typeFilter = false;
         }
 
         if (officeOnly == null && remoteOnly == null && partialRemote == null) {
             officeOnly = "Office-Only";
             remoteOnly = "Remote-Only";
             partialRemote = "Partial-Remote";
-            type = false;
+            remoteFilter = false;
         }
 
-        if (!dateSearchFlag && !remote && !type && !StringUtils.hasText(job) && !StringUtils.hasText(location)) {
+        if (!dateSearchFlag && !typeFilter && !remoteFilter && !StringUtils.hasText(job) && !StringUtils.hasText(location)) {
             jobPost = jobPostActivityService.getAll();
         } else {
             jobPost = jobPostActivityService.search(job, location, Arrays.asList(partTime, fullTime, freelance),
-                    Arrays.asList(remoteOnly, officeOnly, partialRemote), searchDate);
+                    Arrays.asList(remoteOnly, officeOnly, partialRemote), searchDate, typeFilter, remoteFilter);
         }
 
         Object currentUserProfile = usersService.getCurrentUserProfile();
@@ -199,8 +199,8 @@ public class JobPostActivityController {
         LocalDate searchDate = null;
         List<JobPostActivity> jobPost = null;
         boolean dateSearchFlag = true;
-        boolean remote = true;
-        boolean type = true;
+        boolean typeFilter = true;
+        boolean remoteFilter = true;
 
         if (days30) {
             searchDate = LocalDate.now().minusDays(30);
@@ -216,21 +216,21 @@ public class JobPostActivityController {
             partTime = "Part-Time";
             fullTime = "Full-Time";
             freelance = "Freelance";
-            remote = false;
+            typeFilter = false;
         }
 
         if (officeOnly == null && remoteOnly == null && partialRemote == null) {
             officeOnly = "Office-Only";
             remoteOnly = "Remote-Only";
             partialRemote = "Partial-Remote";
-            type = false;
+            remoteFilter = false;
         }
 
-        if (!dateSearchFlag && !remote && !type && !StringUtils.hasText(job) && !StringUtils.hasText(location)) {
+        if (!dateSearchFlag && !typeFilter && !remoteFilter && !StringUtils.hasText(job) && !StringUtils.hasText(location)) {
             jobPost = jobPostActivityService.getAll();
         } else {
             jobPost = jobPostActivityService.search(job, location, Arrays.asList(partTime, fullTime, freelance),
-                    Arrays.asList(remoteOnly, officeOnly, partialRemote), searchDate);
+                    Arrays.asList(remoteOnly, officeOnly, partialRemote), searchDate, typeFilter, remoteFilter);
         }
 
         model.addAttribute("jobPost", jobPost);
