@@ -63,7 +63,7 @@ public class JobPostActivityController {
     ) {
 
         model.addAttribute("partTime", Objects.equals(partTime, "Part-Time"));
-        model.addAttribute("fullTime", Objects.equals(fullTime, "Full-time"));
+        model.addAttribute("fullTime", isFullTime(fullTime));
         model.addAttribute("freelance", Objects.equals(freelance, "Freelance"));
 
         model.addAttribute("remoteOnly", Objects.equals(remoteOnly, "Remote-Only"));
@@ -95,7 +95,7 @@ public class JobPostActivityController {
 
         if (partTime == null && fullTime == null && freelance == null) {
             partTime = "Part-Time";
-            fullTime = "Full-time";
+            fullTime = "Full-Time";
             freelance = "Freelance";
             remote = false;
         }
@@ -182,7 +182,7 @@ public class JobPostActivityController {
                                @RequestParam(value = "days30", required = false) boolean days30) {
 
         model.addAttribute("partTime", Objects.equals(partTime, "Part-Time"));
-        model.addAttribute("fullTime", Objects.equals(fullTime, "Full-time"));
+        model.addAttribute("fullTime", isFullTime(fullTime));
         model.addAttribute("freelance", Objects.equals(freelance, "Freelance"));
 
         model.addAttribute("remoteOnly", Objects.equals(remoteOnly, "Remote-Only"));
@@ -214,7 +214,7 @@ public class JobPostActivityController {
 
         if (partTime == null && fullTime == null && freelance == null) {
             partTime = "Part-Time";
-            fullTime = "Full-time";
+            fullTime = "Full-Time";
             freelance = "Freelance";
             remote = false;
         }
@@ -264,5 +264,9 @@ public class JobPostActivityController {
         model.addAttribute("jobPostActivity", jobPostActivity);
         model.addAttribute("user", usersService.getCurrentUserProfile());
         return "add-jobs";
+    }
+
+    private boolean isFullTime(String value) {
+        return "Full-Time".equalsIgnoreCase(value) || "Full-time".equalsIgnoreCase(value);
     }
 }

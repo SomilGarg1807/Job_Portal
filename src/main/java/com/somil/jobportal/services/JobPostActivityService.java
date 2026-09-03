@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -52,7 +53,18 @@ public class JobPostActivityService {
     }
 
     public List<JobPostActivity> search(String job, String location, List<String> type, List<String> remote, LocalDate searchDate) {
-        return Objects.isNull(searchDate) ? jobPostActivityRepository.searchWithoutDate(job, location, remote,type) :
-                jobPostActivityRepository.search(job, location, remote, type, searchDate);
+        String normalizedJob = Objects.toString(job, "").trim();
+        String normalizedLocation = Objects.toString(location, "").trim();
+        List<String> normalizedType = normalizeFilters(type);
+        List<String> normalizedRemote = normalizeFilters(remote);
+        return Objects.isNull(searchDate) ? jobPostActivityRepository.searchWithoutDate(normalizedJob, normalizedLocation, normalizedRemote, normalizedType) :
+                jobPostActivityRepository.search(normalizedJob, normalizedLocation, normalizedRemote, normalizedType, searchDate);
+    }
+
+    private List<String> normalizeFilters(List<String> filters) {
+        return filters.stream()
+                .filter(Objects::nonNull)
+                .map(value -> value.trim().toLowerCase())
+                .collect(Collectors.toList());
     }
 }

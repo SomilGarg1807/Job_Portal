@@ -27,8 +27,8 @@ public interface JobPostActivityRepository extends JpaRepository<JobPostActivity
             + " AND (LOWER(COALESCE(l.city,'')) LIKE LOWER(CONCAT('%',:location,'%'))"
             + " OR LOWER(COALESCE(l.country,'')) LIKE LOWER(CONCAT('%',:location,'%'))"
             + " OR LOWER(COALESCE(l.state,'')) LIKE LOWER(CONCAT('%',:location,'%'))) " +
-            " AND (j.job_type IN(:type)) " +
-            " AND (j.remote IN(:remote)) ", nativeQuery = true)
+            " AND (LOWER(TRIM(j.job_type)) IN (:type)) " +
+            " AND (LOWER(TRIM(j.remote)) IN (:remote)) ", nativeQuery = true)
     List<JobPostActivity> searchWithoutDate(@Param("job") String job,
                                             @Param("location") String location,
                                             @Param("remote") List<String> remote,
@@ -38,8 +38,8 @@ public interface JobPostActivityRepository extends JpaRepository<JobPostActivity
             + " AND (LOWER(COALESCE(l.city,'')) LIKE LOWER(CONCAT('%',:location,'%'))"
             + " OR LOWER(COALESCE(l.country,'')) LIKE LOWER(CONCAT('%',:location,'%'))"
             + " OR LOWER(COALESCE(l.state,'')) LIKE LOWER(CONCAT('%',:location,'%'))) " +
-            " AND (j.job_type IN(:type)) " +
-            " AND (j.remote IN(:remote)) " +
+            " AND (LOWER(TRIM(j.job_type)) IN (:type)) " +
+            " AND (LOWER(TRIM(j.remote)) IN (:remote)) " +
             " AND (posted_date >= :date)", nativeQuery = true)
     List<JobPostActivity> search(@Param("job") String job,
                                  @Param("location") String location,
