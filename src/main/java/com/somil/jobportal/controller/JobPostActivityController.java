@@ -63,7 +63,7 @@ public class JobPostActivityController {
     ) {
 
         model.addAttribute("partTime", Objects.equals(partTime, "Part-Time"));
-        model.addAttribute("fullTime", Objects.equals(fullTime, "Full-Time"));
+        model.addAttribute("fullTime", Objects.equals(fullTime, "Full-time"));
         model.addAttribute("freelance", Objects.equals(freelance, "Freelance"));
 
         model.addAttribute("remoteOnly", Objects.equals(remoteOnly, "Remote-Only"));
@@ -95,7 +95,7 @@ public class JobPostActivityController {
 
         if (partTime == null && fullTime == null && freelance == null) {
             partTime = "Part-Time";
-            fullTime = "Full-Time";
+            fullTime = "Full-time";
             freelance = "Freelance";
             remote = false;
         }
@@ -121,7 +121,8 @@ public class JobPostActivityController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             String currentUsername = authentication.getName();
             model.addAttribute("username", currentUsername);
-            if (currentUserProfile instanceof RecruiterProfile recruiterProfile) {
+            if (currentUserProfile instanceof RecruiterProfile recruiterProfile
+                    && !StringUtils.hasText(job) && !StringUtils.hasText(location)) {
                 List<RecruiterJobsDto> recruiterJobs = jobPostActivityService.getRecruiterJobs(recruiterProfile.getUserAccountId());
                 model.addAttribute("jobPost", recruiterJobs);
             } else if (currentUserProfile instanceof JobSeekerProfile jobSeekerProfile) {
@@ -181,7 +182,7 @@ public class JobPostActivityController {
                                @RequestParam(value = "days30", required = false) boolean days30) {
 
         model.addAttribute("partTime", Objects.equals(partTime, "Part-Time"));
-        model.addAttribute("fullTime", Objects.equals(fullTime, "Full-Time"));
+        model.addAttribute("fullTime", Objects.equals(fullTime, "Full-time"));
         model.addAttribute("freelance", Objects.equals(freelance, "Freelance"));
 
         model.addAttribute("remoteOnly", Objects.equals(remoteOnly, "Remote-Only"));
@@ -213,7 +214,7 @@ public class JobPostActivityController {
 
         if (partTime == null && fullTime == null && freelance == null) {
             partTime = "Part-Time";
-            fullTime = "Full-Time";
+            fullTime = "Full-time";
             freelance = "Freelance";
             remote = false;
         }

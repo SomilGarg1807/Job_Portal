@@ -23,11 +23,10 @@ public interface JobPostActivityRepository extends JpaRepository<JobPostActivity
             " GROUP BY j.job_post_id, j.job_title, l.id, l.city, l.state, l.country, c.id, c.name" ,nativeQuery = true)
     List<IRecruiterJobs> getRecruiterJobs(@Param("recruiter") int recruiter);
 
-    @Query(value = "SELECT j.* FROM job_post_activity j INNER JOIN job_location l on j.job_location_id=l.id  WHERE j" +
-            ".job_title LIKE %:job%"
-            + " AND (l.city LIKE %:location%"
-            + " OR l.country LIKE %:location%"
-            + " OR l.state LIKE %:location%) " +
+    @Query(value = "SELECT j.* FROM job_post_activity j INNER JOIN job_location l on j.job_location_id=l.id INNER JOIN job_company c on j.job_company_id=c.id WHERE (LOWER(COALESCE(j.job_title,'')) LIKE LOWER(CONCAT('%',:job,'%')) OR LOWER(COALESCE(j.description_of_job,'')) LIKE LOWER(CONCAT('%',:job,'%')) OR LOWER(COALESCE(c.name,'')) LIKE LOWER(CONCAT('%',:job,'%')))"
+            + " AND (LOWER(COALESCE(l.city,'')) LIKE LOWER(CONCAT('%',:location,'%'))"
+            + " OR LOWER(COALESCE(l.country,'')) LIKE LOWER(CONCAT('%',:location,'%'))"
+            + " OR LOWER(COALESCE(l.state,'')) LIKE LOWER(CONCAT('%',:location,'%'))) " +
             " AND (j.job_type IN(:type)) " +
             " AND (j.remote IN(:remote)) ", nativeQuery = true)
     List<JobPostActivity> searchWithoutDate(@Param("job") String job,
@@ -35,11 +34,10 @@ public interface JobPostActivityRepository extends JpaRepository<JobPostActivity
                                             @Param("remote") List<String> remote,
                                             @Param("type") List<String> type);
 
-    @Query(value = "SELECT j.* FROM job_post_activity j INNER JOIN job_location l on j.job_location_id=l.id  WHERE j" +
-            ".job_title LIKE %:job%"
-            + " AND (l.city LIKE %:location%"
-            + " OR l.country LIKE %:location%"
-            + " OR l.state LIKE %:location%) " +
+    @Query(value = "SELECT j.* FROM job_post_activity j INNER JOIN job_location l on j.job_location_id=l.id INNER JOIN job_company c on j.job_company_id=c.id WHERE (LOWER(COALESCE(j.job_title,'')) LIKE LOWER(CONCAT('%',:job,'%')) OR LOWER(COALESCE(j.description_of_job,'')) LIKE LOWER(CONCAT('%',:job,'%')) OR LOWER(COALESCE(c.name,'')) LIKE LOWER(CONCAT('%',:job,'%')))"
+            + " AND (LOWER(COALESCE(l.city,'')) LIKE LOWER(CONCAT('%',:location,'%'))"
+            + " OR LOWER(COALESCE(l.country,'')) LIKE LOWER(CONCAT('%',:location,'%'))"
+            + " OR LOWER(COALESCE(l.state,'')) LIKE LOWER(CONCAT('%',:location,'%'))) " +
             " AND (j.job_type IN(:type)) " +
             " AND (j.remote IN(:remote)) " +
             " AND (posted_date >= :date)", nativeQuery = true)
