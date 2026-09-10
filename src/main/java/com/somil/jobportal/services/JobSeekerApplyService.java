@@ -29,7 +29,13 @@ public class JobSeekerApplyService {
         return jobSeekerApplyRepository.findByJob(job);
     }
 
-    public void addNew(JobSeekerApply jobSeekerApply) {
-        jobSeekerApplyRepository.save(jobSeekerApply);
+    public void addNew(JobSeekerApply entry) {
+        if (jobSeekerApplyRepository.findByUserIdAndJob(entry.getUserId(), entry.getJob()).isPresent()) return;
+        try {
+            jobSeekerApplyRepository.saveAndFlush(entry);
+        } catch (org.springframework.dao.DataIntegrityViolationException exception) {
+            // A concurrent request may already have inserted this user's record.
+            if (jobSeekerApplyRepository.findByUserIdAndJob(entry.getUserId(), entry.getJob()).isEmpty()) throw exception;
+        }
     }
 }

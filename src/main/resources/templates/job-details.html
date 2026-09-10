@@ -1,218 +1,42 @@
-<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org/" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" style="height: 100%">
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/>
-    <title>Candidate Dashboard</title>
-    <meta charset="utf-8"/>
-    <meta http-equiv="x-ua-compatible" content="ie=edge"/>
-    <meta name="description" content=""/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}"/>
-
-
-    <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/styles.css}"/>
-    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
-    <link rel="stylesheet" type="text/css" media="all" th:href="@{/webjars/font-awesome/css/all.css}"/>
-    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${jobDetails.jobTitle + ' | HotDevJobs'}"></title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/job-workspace.css}">
+    <script defer th:src="@{/js/portal.js}"></script>
+    <script defer th:src="@{/js/ai-assistant.js}"></script>
 </head>
-
-<body th:object="${jobDetails}" style="font-family: 'Montserrat';height: 100%">
-
-<header class="navbar navbar-expand-lg navbar-dark">
-    <label class="mt-2 ms-5 font-weight-bold h5"
-    ><a th:href="@{/dashboard/}">hotdevjobs</a
-    ><span class="logo_com font-weight-bold h5" style="color: white">
-          .com</span
-    ></label
-    >
-    <button
-            class="navbar-toggler"
-            type="button"
-            data-toggle="collapse"
-            data-target="#navbarTogglerDemo02"
-            aria-controls="navbarTogglerDemo02"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-    >
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarToggler">
-        <ul class="navbar-nav m-auto mt-2 mt-lg-0">
-
-            <li class="nav-item active">
-                <a sec:authorize="hasAuthority('Job Seeker')" class="nav-link" th:href="@{/dashboard/}"
-                ><i class="fas fa-search"></i>Search for Jobs</a
-                >
-            </li>
-            <li class="nav-item ">
-                <a sec:authorize="hasAuthority('Job Seeker')" class="nav-link" th:href="@{/saved-jobs/}">
-                    <i class="fa-solid fa-eye"></i>View Saved Jobs</a>
-            </li>
-            <li class="nav-item ">
-                <a sec:authorize="hasAuthority('Job Seeker')" class="nav-link" th:href="@{/job-seeker-profile/}">
-                    <i class="fa-solid fa-pencil"></i>Edit Profile</a>
-            </li>
-
-            <li class="nav-item ">
-                <a sec:authorize="hasAuthority('Recruiter')" class="nav-link" th:href="@{/dashboard/add}"
-                ><i class="fa-solid fa-file-circle-plus"></i>Post New Job</a
-                >
-            </li>
-            <li class="nav-item active">
-                <a sec:authorize="hasAuthority('Recruiter')" class="nav-link" th:href="@{/dashboard/}"
-                > <i class="fa-solid fa-eye"></i>View Your Jobs</a
-                >
-            </li>
-            <li class="nav-item ">
-                <a sec:authorize="hasAuthority('Recruiter')" class="nav-link" th:href="@{/recruiter-profile/}"
-                > <i class="fa-solid fa-pencil"></i>Edit Account</a
-                >
-            </li>
-
-        </ul>
-        <img
-                class="rounded-circle me-3"
-                height="50px"
-                width="50x"
-                th:src="@{${user.photosImagePath}}"
-        />
-        <label th:text="${user.firstName+' '+user.lastName}" class="nav-item nav-link px-2 me-3">John Doe</label>
-
-        <button class="myBtn-light me-5" onclick="window.location.href='/logout'">Logout</button>
+<body class="job-workspace">
+<a class="skip-link" href="#main">Skip to content</a>
+<header th:replace="~{fragments/portal :: header('details')}"></header>
+<main id="main" class="workspace-main">
+    <div class="detail-breadcrumb"><a class="breadcrumb" th:href="@{/dashboard/}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to opportunities</a><button class="share-button" data-copy-link type="button"><i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i> Copy job link</button></div>
+    <p id="share-feedback" class="copy-feedback share-feedback" role="status" aria-live="polite"></p>
+    <section class="job-hero">
+        <div class="job-hero-top"><span class="detail-company-mark" aria-hidden="true" th:text="${jobDetails.jobCompanyId != null and !#strings.isEmpty(jobDetails.jobCompanyId.name) ? #strings.toUpperCase(#strings.substring(jobDetails.jobCompanyId.name,0,1)) : 'J'}"></span><div><p class="eyebrow" th:text="${jobDetails.jobCompanyId?.name ?: 'Company'}"></p><h1 th:text="${jobDetails.jobTitle}"></h1><p class="hero-location"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <span th:text="${jobDetails.jobLocationId != null ? #strings.listJoin({jobDetails.jobLocationId.city, jobDetails.jobLocationId.state, jobDetails.jobLocationId.country}, ', ') : 'Location not specified'}"></span></p></div></div>
+        <div class="detail-tags"><span><i class="fa-regular fa-clock" aria-hidden="true"></i> <span th:text="${jobDetails.jobType ?: 'Type not specified'}"></span></span><span><i class="fa-solid fa-laptop" aria-hidden="true"></i> <span th:text="${jobDetails.remote == 'Remote-Only' ? 'Remote' : (jobDetails.remote == 'Partial-Remote' ? 'Hybrid' : (jobDetails.remote == 'Office-Only' ? 'On site' : 'Workplace not specified'))}"></span></span><span th:if="${alreadyApplied}" class="applied-tag"><i class="fa-solid fa-check" aria-hidden="true"></i> Applied</span><span th:if="${alreadySaved}"><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Saved</span></div>
+        <div class="demo-notice" th:if="${demoJob}"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span><strong>Demo opportunity.</strong> This fictional listing showcases the portal. It is not an active vacancy.</span></div>
+    </section>
+    <div class="detail-grid">
+        <div class="detail-main">
+            <section class="description-card"><div class="section-heading"><h2>About the opportunity</h2><span class="muted" th:text="${jobDetails.postedDate != null ? 'Posted ' + #dates.format(jobDetails.postedDate,'dd MMM yyyy') : ''}"></span></div><div class="job-description" th:utext="${safeDescription}"></div></section>
+            <section class="applicants-card" th:if="${owner}"><div class="section-heading"><div><p class="eyebrow">YOUR HIRING PIPELINE</p><h2>Applicants</h2></div><span class="result-count" th:text="${#lists.size(applyList) + ' applications'}"></span></div><p class="muted">Open a candidate's profile to review their skills and experience.</p><div class="applicant-row" th:each="application : ${applyList}"><span class="applicant-initial" aria-hidden="true" th:text="${#strings.isEmpty(application.userId.firstName) ? 'U' : #strings.toUpperCase(#strings.substring(application.userId.firstName,0,1))}"></span><div><a th:href="@{/job-seeker-profile/{id}(id=${application.userId.userAccountId})}" th:text="${#strings.isEmpty(application.userId.firstName) ? 'Candidate' : application.userId.firstName + ' ' + (application.userId.lastName ?: '')}"></a><p th:text="${application.applyDate != null ? 'Applied ' + #dates.format(application.applyDate,'dd MMM yyyy') : 'Application received'}"></p></div><a class="text-link" th:href="@{/job-seeker-profile/{id}(id=${application.userId.userAccountId})}">View profile <span aria-hidden="true">↗</span></a></div><div th:if="${#lists.isEmpty(applyList)}" class="applicants-empty"><i class="fa-regular fa-paper-plane" aria-hidden="true"></i><h3>Your next teammate could be on their way.</h3><p>Applications will appear here as candidates apply.</p></div></section>
+            <section class="detail-tip"><i class="fa-regular fa-lightbulb" aria-hidden="true"></i><div><h3 th:text="${recruiter ? 'A clear role attracts the right conversations.' : 'Make your application count.'}"></h3><p th:text="${recruiter ? 'Keep your responsibilities and requirements current, and review each candidate on their relevant experience.' : 'Update your profile and resume before applying. Focus on the skills and projects that are relevant to this role.'}"></p></div></section>
+        </div>
+        <aside class="detail-rail">
+            <section class="overview-card"><p class="eyebrow">THE ROLE AT A GLANCE</p><h2>Job overview</h2><dl><div><dt><i class="fa-solid fa-wallet" aria-hidden="true"></i> Compensation</dt><dd th:text="${#strings.isEmpty(jobDetails.salary) ? 'Not disclosed' : jobDetails.salary}"></dd></div><div><dt><i class="fa-regular fa-building" aria-hidden="true"></i> Company</dt><dd th:text="${jobDetails.jobCompanyId?.name ?: 'Not specified'}"></dd></div><div><dt><i class="fa-solid fa-earth-americas" aria-hidden="true"></i> Country</dt><dd th:text="${jobDetails.jobLocationId?.country ?: 'Not specified'}"></dd></div></dl>
+                <th:block th:unless="${recruiter}"><form th:action="@{/job-details/apply/{id}(id=${jobDetails.jobPostId})}" method="post"><button class="button primary wide" type="submit" th:disabled="${alreadyApplied}" th:text="${alreadyApplied ? 'Application submitted' : (demoJob ? 'Try a demo application' : 'Apply for this role')}"></button></form><form th:action="@{/job-details/save/{id}(id=${jobDetails.jobPostId})}" method="post"><button class="button secondary wide" type="submit" th:disabled="${alreadySaved}" th:text="${alreadySaved ? 'Saved to your shortlist' : 'Save for later'}"></button></form><p class="action-note" th:text="${demoJob ? 'Demo applications stay in this portal. No employer will be contacted.' : 'Your profile and resume will be available to the recruiter.'}"></p><a class="text-link" th:href="@{/job-seeker-profile/}">Review my profile <span aria-hidden="true">→</span></a></th:block>
+                <th:block th:if="${owner}"><a class="button primary wide" th:href="@{/dashboard/edit/{id}(id=${jobDetails.jobPostId})}"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i> Edit this job</a><a class="button secondary wide" href="#ai-assistant">Improve the description</a></th:block>
+                <p class="action-note" th:if="${recruiter and !owner}">You are viewing another recruiter's post.</p>
+            </section>
+            <section th:replace="~{fragments/portal :: assistant(${recruiter ? 'Make your role shine.' : 'Walk into the interview ready.'}, ${recruiter ? 'Use this role as a starting point for a clearer description. Review your draft before editing a post.' : 'Practise questions tailored to this role. Add relevant skills below for a more focused plan.'}, ${recruiter ? 'Draft a job description' : 'Create a practice plan'}, false)}"></section>
+        </aside>
     </div>
-</header>
-
-
-<!-- header-end -->
-<section class="section">
-    <!--    Side Bar Starts here    -->
-    <div class="sidenav px-5">
-        <div>
-            <hr/>
-        </div>
-    </div>
-    <article>
-        <div class="box px-3">
-            <a class="mt-3 ms-3 primary" id="back-link"><i class="fa-solid fa-angle-left me-1"></i> Back to Search
-                Results </a>
-            <h1 class="primary-title mt-3"> Job Details </h1>
-            <div class="ms-3">
-                <h4 th:text="${jobDetails.jobTitle}" class="job-title text-left">Software Engineer</h4>
-                <div class="mt-1">
-                    <p th:text="${jobDetails.jobLocationId.city+', '+ jobDetails.jobLocationId.state}"
-                       class="m-0"> California, USA</p>
-                    <p th:text="${jobDetails.jobCompanyId.name}">Company</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="box mt-3">
-            <label class="large-label px-3 mt-3"> Job Specs </label>
-
-            <div class="job-row">
-                <div class="row ">
-                    <div class="col-md-3">
-                        <label class="text-left">Date Posted:<span
-                                th:text="${jobDetails.postedDate}">12 Nov, 2030</span></label>
-                    </div>
-                    <div class="col-md-3 text-center">
-                        <label> Salary: <span th:text="${jobDetails.salary}">50k - 120k/y</span></label>
-                    </div>
-                    <div class="col-md-3 text-center">
-                        <label>Type: <span th:text="${jobDetails.jobType}"> Full-time</span></label>
-                    </div>
-                    <div class="col-md-3 text-right">
-                        <label>Remote: <span th:text="${jobDetails.remote}">Remote</span></label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="px-3 mb-3" sec:authorize="hasAuthority('Job Seeker')">
-                <label class="large-label "> Job Description </label>
-                <div th:utext="${jobDetails.descriptionOfJob}"></div>
-            </div>
-
-
-
-            <div class="px-3 mb-3" sec:authorize="hasAuthority('Recruiter')">
-                <div class="row">
-                    <div class="col-md-9">
-                        <label class="large-label "> Job Description </label>
-                        <div th:utext="${jobDetails.descriptionOfJob}"></div>
-                    </div>
-                    <div class="col-md-3 centerCandidate">
-                        <div class="candidatesApplied">
-                            <label>Candidates Applied for Job</label>
-                            <th:block th:each="applyList:${applyList}">
-                                <a th:href="@{/job-seeker-profile/{id}(id=${applyList.userId.userAccountId})}"
-                                   class="white"
-                                   th:text="${applyList.userId.firstName+', '+applyList.userId.lastName}">FirstName,
-                                    LastName</a>
-                            </th:block>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-3 px-3" sec:authorize="hasAuthority('Job Seeker')">
-                <div class="row">
-                    <div class="col-md-3">
-                        <form th:action="@{/job-details/apply/{id}(id=${jobDetails.jobPostId})}" th:object="${applyJob}"
-                              method="post">
-                            <button class="btn-sec btn-red w-100" type="submit" th:if="${alreadyApplied == false}">Apply
-                                Now
-                            </button>
-                            <button class="btn-sec btn-red w-100" disabled th:if="${alreadyApplied == true}">Already
-                                Applied
-                            </button>
-                        </form>
-                    </div>
-                    <div class="col-md-3">
-                        <form th:action="@{/job-details/save/{id}(id=${jobDetails.jobPostId})}" th:object="${applyJob}"
-                              method="post">
-                            <button class="btn-sec btn-black w-100" type="submit" th:if="${alreadySaved == false}">Save
-                                Job
-                            </button>
-                            <button class="btn-sec btn-black w-100" disabled th:if="${alreadySaved == true}">Already
-                                Saved
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-3 px-3" sec:authorize="hasAuthority('Recruiter')">
-                <div class="row">
-                    <div class="col-md-3">
-                        <form th:action="@{/dashboard/edit/{id}(id=${jobDetails.jobPostId})}" method="get">
-                            <button class="btn-sec btn-red w-100" type="submit">Edit Job</button>
-                        </form>
-                    </div>
-                    <div class="col-md-3">
-                        <form th:action="@{/dashboard/deleteJob/{id}(id=${jobDetails.jobPostId})}" method="post">
-                            <button class="btn-sec btn-black w-100" type="submit">Delete Job</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </article>
-</section>
-
-
-<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
-<script type="text/javascript" th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
-<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
-<script type="text/javascript" th:src="@{/js/main.js}"></script>
-<script>
-    var element = document.getElementById('back-link');
-    element.setAttribute('href', document.referrer);
-    element.onclick = function() {
-      history.back();
-      return false;
-    }
-</script>
+    <footer class="page-footer"><span>hotdevjobs<span class="accent">.</span></span><span>Good work. Great possibilities.</span></footer>
+</main>
 </body>
 </html>

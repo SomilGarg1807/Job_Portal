@@ -7,6 +7,8 @@
     <link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}">
     <link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <script defer th:src="@{/js/portal.js}"></script>
+    <script defer th:src="@{/js/ai-assistant.js}"></script>
     <script defer th:src="@{/js/dashboard.js}"></script>
 </head>
 <body>
@@ -32,7 +34,7 @@
     <form class="logout" method="post" th:action="@{/logout}"><button type="submit"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Sign out</button></form>
 </aside>
 <div class="page-shell">
-    <header class="topbar"><span th:text="${recruiter ? 'Hiring / Overview' : 'Workspace / Overview'}"></span><div class="account"><span class="role-label" th:text="${recruiter ? 'Recruiter' : 'Job seeker'}"></span><span class="avatar" th:if="${user.photosImagePath == null}" aria-hidden="true" th:text="${#strings.isEmpty(user.firstName) ? 'H' : #strings.substring(user.firstName,0,1)}"></span><img class="avatar" th:if="${user.photosImagePath != null}" th:src="@{${user.photosImagePath}}" alt="Your profile photo"><span class="account-name" th:text="${#strings.isEmpty(user.firstName) ? username : user.firstName}"></span><form class="mobile-logout" method="post" th:action="@{/logout}"><button type="submit" aria-label="Sign out"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></button></form></div></header>
+    <header class="topbar"><span th:text="${recruiter ? 'Hiring / Overview' : 'Workspace / Overview'}"></span><div th:replace="~{fragments/portal :: account}"></div></header>
     <main id="main">
         <section class="welcome"><div><p class="eyebrow" th:text="${recruiter ? 'MAKE YOUR NEXT GREAT HIRE' : 'A LITTLE MOMENTUM, A BIG NEXT STEP'}"></p><h1>Welcome back<span th:unless="${#strings.isEmpty(user.firstName)}" th:text="${', ' + user.firstName}"></span><span class="accent">.</span></h1><p th:text="${recruiter ? 'Your roles, your applicants, and your next great team — all in one place.' : 'Explore opportunities, keep track of applications, and find what comes next.'}"></p></div><a class="button primary" th:href="${recruiter} ? @{/dashboard/add} : @{/job-seeker-profile/}"><i class="fa-solid" th:classappend="${recruiter ? 'fa-plus' : 'fa-pen-to-square'}" aria-hidden="true"></i><span th:text="${recruiter ? 'Post a new job' : 'Edit my profile'}"></span></a></section>
         <section class="stats" aria-label="Your activity">

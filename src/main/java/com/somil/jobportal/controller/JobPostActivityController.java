@@ -22,6 +22,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.somil.jobportal.entity.JobPostActivity;
+import com.somil.jobportal.entity.JobCompany;
+import com.somil.jobportal.entity.JobLocation;
+import com.somil.jobportal.util.JobContent;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.validation.BindingResult;
 import com.somil.jobportal.entity.JobSeekerApply;
 import com.somil.jobportal.entity.JobSeekerProfile;
 import com.somil.jobportal.entity.JobSeekerSave;
@@ -266,33 +275,107 @@ public class JobPostActivityController {
         return "global-search";
     }
 
+    @InitBinder("jobPostActivity")
+    public void bindJobFields(WebDataBinder binder) {
+        binder.setAllowedFields("jobPostId", "jobTitle", "jobType", "remote", "salary", "descriptionOfJob",
+                "jobCompanyId.name", "jobLocationId.city", "jobLocationId.state", "jobLocationId.country");
+    }
+
     @GetMapping("/dashboard/add")
     public String addJobs(Model model) {
-        model.addAttribute("jobPostActivity", new JobPostActivity());
-        model.addAttribute("user", usersService.getCurrentUserProfile());
-        return "add-jobs";
+        RecruiterProfile profile = requireRecruiter();
+        JobPostActivity job = new JobPostActivity();
+        job.setJobCompanyId(new JobCompany());
+        job.getJobCompanyId().setName(profile.getCompany());
+        job.setJobLocationId(new JobLocation());
+        return editor(model, job, profile);
     }
 
     @PostMapping("/dashboard/addNew")
-    public String addNew(JobPostActivity jobPostActivity, Model model) {
-
-        Users user = usersService.getCurrentUser();
-        if (user != null) {
-            jobPostActivity.setPostedById(user);
+    public String addNew(@ModelAttribute("jobPostActivity") JobPostActivity submitted,
+                         BindingResult binding, Model model) {
+        RecruiterProfile profile = requireRecruiter();
+        JobPostActivity existing = submitted.getJobPostId() == null ? null : jobPostActivityService.getOne(submitted.getJobPostId());
+        if (existing != null) requireOwner(existing, profile);
+        String error = validateJob(submitted);
+        if (binding.hasErrors() || error != null) {
+            model.addAttribute("formError", error == null ? "Please check the job details and try again." : error);
+            return editor(model, submitted, profile);
         }
-        jobPostActivity.setPostedDate(new Date());
-        model.addAttribute("jobPostActivity", jobPostActivity);
-        JobPostActivity saved = jobPostActivityService.addNew(jobPostActivity);
-        return "redirect:/dashboard/";
+        // Preserve server-owned relationships, author and posting date on edits.
+        JobPostActivity job = existing == null ? new JobPostActivity() : existing;
+        if (existing == null) {
+            job.setPostedById(usersService.getCurrentUser());
+            job.setPostedDate(new Date());
+            job.setJobCompanyId(new JobCompany());
+            job.setJobLocationId(new JobLocation());
+        }
+        job.setJobTitle(submitted.getJobTitle().trim());
+        job.setJobType(submitted.getJobType());
+        job.setRemote(submitted.getRemote());
+        job.setSalary(Objects.toString(submitted.getSalary(), "").trim());
+        job.setDescriptionOfJob(JobContent.safeHtml(submitted.getDescriptionOfJob()));
+        // Copy locations/companies into new records when edited so shared demo records are not overwritten.
+        job.setJobCompanyId(new JobCompany(null, submitted.getJobCompanyId().getName().trim(), ""));
+        job.setJobLocationId(new JobLocation(null, submitted.getJobLocationId().getCity().trim(),
+                submitted.getJobLocationId().getState().trim(), submitted.getJobLocationId().getCountry().trim()));
+        JobPostActivity saved = jobPostActivityService.addNew(job);
+        return "redirect:/job-details-apply/" + saved.getJobPostId();
     }
 
     @GetMapping("dashboard/edit/{id}")
     public String editJob(@PathVariable("id") int id, Model model) {
+        RecruiterProfile profile = requireRecruiter();
+        JobPostActivity job = jobPostActivityService.getOne(id);
+        requireOwner(job, profile);
+        job.setDescriptionOfJob(JobContent.safeHtml(job.getDescriptionOfJob()));
+        if ("Full-Time".equalsIgnoreCase(job.getJobType())) job.setJobType("Full-time");
+        if ("Part-Time".equalsIgnoreCase(job.getJobType())) job.setJobType("Part-time");
+        return editor(model, job, profile);
+    }
 
-        JobPostActivity jobPostActivity = jobPostActivityService.getOne(id);
-        model.addAttribute("jobPostActivity", jobPostActivity);
-        model.addAttribute("user", usersService.getCurrentUserProfile());
+    private String editor(Model model, JobPostActivity job, RecruiterProfile profile) {
+        if (job.getJobCompanyId() == null) job.setJobCompanyId(new JobCompany());
+        if (job.getJobLocationId() == null) job.setJobLocationId(new JobLocation());
+        model.addAttribute("jobPostActivity", job);
+        model.addAttribute("user", profile);
+        model.addAttribute("recruiter", true);
+        model.addAttribute("aiContext", "");
         return "add-jobs";
+    }
+
+    private RecruiterProfile requireRecruiter() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getAuthorities().stream().noneMatch(a -> "Recruiter".equals(a.getAuthority())))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        Object profile = usersService.getCurrentUserProfile();
+        if (!(profile instanceof RecruiterProfile recruiter)) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return recruiter;
+    }
+
+    private void requireOwner(JobPostActivity job, RecruiterProfile profile) {
+        if (job.getPostedById() == null || job.getPostedById().getUserId() != profile.getUserAccountId())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the posting recruiter can edit this job.");
+    }
+
+    private String validateJob(JobPostActivity job) {
+        if (!validText(job.getJobTitle(), 160) || job.getJobCompanyId() == null || !validText(job.getJobCompanyId().getName(), 160))
+            return "Enter a job title and company name (up to 160 characters each).";
+        if (!List.of("Full-time", "Part-time", "Freelance", "Internship").contains(Objects.toString(job.getJobType(), ""))
+                || !List.of("Remote-Only", "Office-Only", "Partial-Remote").contains(Objects.toString(job.getRemote(), "")))
+            return "Choose an employment type and workplace arrangement.";
+        JobLocation location = job.getJobLocationId();
+        if (location == null || !validText(location.getCity(), 100) || !validText(location.getState(), 100) || !validText(location.getCountry(), 100))
+            return "Enter a city, state or region, and country (up to 100 characters each).";
+        if (Objects.toString(job.getSalary(), "").length() > 120) return "Keep the salary range within 120 characters.";
+        if (job.getDescriptionOfJob() == null || job.getDescriptionOfJob().length() > 10000
+                || JobContent.plainText(JobContent.safeHtml(job.getDescriptionOfJob())).length() < 30)
+            return "Write a description with at least 30 characters of text, within the 10,000-character limit.";
+        return null;
+    }
+
+    private boolean validText(String value, int max) {
+        return StringUtils.hasText(value) && value.length() <= max;
     }
 
     private boolean isFullTime(String value) {

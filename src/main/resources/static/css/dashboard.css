@@ -8,3 +8,11 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 
 .mobile-logout{display:none}@media(max-width:760px){.mobile-logout{display:block}.mobile-logout button{border:0;background:transparent;color:var(--muted);padding:8px}}
+.avatar-container { display: inline-flex; flex-shrink: 0; }
+.header-logout button { border: 0; background: transparent; color: var(--muted); padding: 8px; }
+.copy-feedback { margin: 10px 0 0; font-size: 12px; line-height: 1.6; }
+.copy-feedback:empty { display: none; }
+.ai-card .copy-feedback { color: #ffe0cf; }
+.ai-result-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.ai-result-actions .button { white-space: normal; }
+.ai-context-button { padding: 7px 0; border: 0; background: none; color: #ffd6bc; font-size: 11px; text-align: left; }

@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="account" th:fragment="account" th:with="displayName=${user != null and !#strings.isEmpty(#strings.trim(user.firstName)) ? #strings.trim(user.firstName) : 'User'}">
+    <span class="role-label" th:text="${recruiter ? 'Recruiter' : 'Job seeker'}"></span>
+    <span class="avatar-container" data-avatar>
+        <span class="avatar" data-avatar-initial th:hidden="${user != null and user.photosImagePath != null}" aria-hidden="true" th:text="${#strings.toUpperCase(#strings.substring(displayName,0,1))}"></span>
+        <img class="avatar" th:if="${user != null and user.photosImagePath != null}" th:src="@{${user.photosImagePath}}" alt="Your profile photo">
+    </span>
+    <span class="account-name" th:text="${displayName}"></span>
+    <form class="header-logout" method="post" th:action="@{/logout}"><button type="submit" aria-label="Sign out"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></button></form>
+</div>
+<header class="workspace-header" th:fragment="header(section)">
+    <a class="brand" th:href="@{/dashboard/}"><span class="brand-icon"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span><span>hotdevjobs<span class="accent">.</span></span></a>
+    <nav aria-label="Main navigation"><a th:href="@{/dashboard/}">Dashboard</a><a th:if="${recruiter}" th:href="@{/dashboard/add}" th:classappend="${section == 'post' ? 'current' : ''}">Post a job</a><a th:unless="${recruiter}" th:href="@{/dashboard/(view='saved')}">Saved jobs</a><a th:href="${recruiter} ? @{/recruiter-profile/} : @{/job-seeker-profile/}">My profile</a></nav>
+    <div th:replace="~{fragments/portal :: account}"></div>
+</header>
+<section class="ai-card" id="ai-assistant" th:fragment="assistant(title, description, actionLabel, editor)">
+    <div class="ai-heading"><span class="ai-icon"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></span><span class="ai-label">YOUR AI WRITING PARTNER</span></div>
+    <h2 th:text="${title}"></h2><p th:text="${description}"></p>
+    <form id="ai-form" th:action="@{/api/ai/assist}">
+        <label for="ai-context" th:text="${recruiter ? 'Role, requirements & context' : 'Role & skills to practise'}"></label>
+        <textarea id="ai-context" name="context" rows="6" minlength="10" maxlength="3000" required th:text="${aiContext ?: ''}" placeholder="Describe the role, skills and experience level…"></textarea>
+        <button th:if="${editor}" class="ai-context-button" type="button" id="ai-from-form">Use job form details <span aria-hidden="true">↗</span></button>
+        <label class="consent"><input type="checkbox" id="ai-consent" required> Send this text to Google Gemini. Avoid personal or confidential information.</label>
+        <button class="button ai-button" type="submit"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i><span th:text="${actionLabel}"></span></button>
+    </form>
+    <p id="ai-status" class="ai-status" role="status" aria-live="polite"></p>
+    <div id="ai-result" class="ai-result" hidden></div>
+    <div class="ai-result-actions"><button id="ai-copy" class="button secondary" type="button" hidden>Copy result</button><button th:if="${editor}" id="ai-use" class="button primary" type="button" hidden>Replace description with draft</button></div>
+    <p id="copy-feedback" class="copy-feedback" role="status" aria-live="polite"></p>
+    <p class="ai-footnote">Review every draft. AI can make mistakes.</p>
+</section>
+</body>
+</html>

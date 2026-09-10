@@ -45,7 +45,7 @@ public class JobPostActivityService {
     }
 
     public JobPostActivity getOne(int id) {
-        return jobPostActivityRepository.findById(id).orElseThrow(()->new RuntimeException("Job not found"));
+        return jobPostActivityRepository.findById(id).orElseThrow(()->new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Job not found"));
     }
 
     public List<JobPostActivity> getAll() {

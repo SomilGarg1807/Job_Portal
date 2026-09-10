@@ -30,9 +30,13 @@ public class JobSeekerSaveService {
         return jobSeekerSaveRepository.findByJob(job);
     }
     
-    public void addNew(JobSeekerSave jobSeekerSave) {
-		
-			jobSeekerSaveRepository.save(jobSeekerSave);
-    	
-	}
+    public void addNew(JobSeekerSave entry) {
+        if (jobSeekerSaveRepository.findByUserIdAndJob(entry.getUserId(), entry.getJob()).isPresent()) return;
+        try {
+            jobSeekerSaveRepository.saveAndFlush(entry);
+        } catch (org.springframework.dao.DataIntegrityViolationException exception) {
+            // A concurrent request may already have inserted this user's record.
+            if (jobSeekerSaveRepository.findByUserIdAndJob(entry.getUserId(), entry.getJob()).isEmpty()) throw exception;
+        }
+    }
 }

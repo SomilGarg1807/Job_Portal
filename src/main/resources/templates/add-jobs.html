@@ -1,117 +1,54 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-
-
-    <link th:rel="stylesheet" type="text/css" media="all" th:href="@{/summernote/summernote-lite.min.css}"/>
-    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
-    <link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}"/>
-    <link rel="stylesheet" type="text/css" media="all" th:href="@{/webjars/font-awesome/css/all.css}"/>
-    <link rel="stylesheet" type="text/css" media="all"  th:href="@{/css/styles.css}" />
-    <meta charset="ISO-8859-1">
-    <title>Profile Setup</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${jobPostActivity.jobPostId != null ? 'Edit your job | HotDevJobs' : 'Post a job | HotDevJobs'}"></title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/summernote/summernote-lite.min.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/job-workspace.css}">
+    <script defer th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script defer th:src="@{/summernote/summernote-lite.min.js}"></script>
+    <script defer th:src="@{/js/portal.js}"></script>
+    <script defer th:src="@{/js/ai-assistant.js}"></script>
+    <script defer th:src="@{/js/job-editor.js}"></script>
 </head>
-
-<body>
-
-<div style="display: flex">
-    <div class="col-md-5 coffee_mug_background">
-        <div class="logo_left mt-3 pt-4 ms-5 pl-5">
-            <h2 class="logo" style="color: white">
-                hotdevjobs <span class="logo_com">.com</span>
-            </h2>
-        </div>
-    </div>
-    <div class="col-md-7 container myForm">
-        <form id="job-main-form" th:action="@{/dashboard/addNew}" th:object="${jobPostActivity}" method="post" class="job-add-form">
-            <input hidden type="text" th:field="*{jobPostId}" >
-            <input hidden type="text" th:field="*{jobLocationId.Id}" >
-            <input hidden type="text" th:field="*{jobCompanyId.Id}" >
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="d-flex justify-content-center pt-3">
-                        <h1 class="heading_font font-weight-bold">Post New Job</h1>
-                    </div>
+<body class="job-workspace">
+<a class="skip-link" href="#main">Skip to content</a>
+<header th:replace="~{fragments/portal :: header('post')}"></header>
+<main id="main" class="workspace-main">
+    <a class="breadcrumb" th:href="@{/dashboard/}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to your jobs</a>
+    <section class="editor-intro"><div><p class="eyebrow">BUILD YOUR NEXT GREAT TEAM</p><h1 th:text="${jobPostActivity.jobPostId != null ? 'Give your role a fresh start.' : 'Great people start with a great job post.'}"></h1><p>A clear role, the right details, and a little help getting the words right.</p></div><span class="intro-symbol" aria-hidden="true"><i class="fa-regular fa-pen-to-square"></i></span></section>
+    <div class="editor-grid">
+        <form id="job-main-form" th:action="@{/dashboard/addNew}" th:object="${jobPostActivity}" method="post" class="editor-form">
+            <input type="hidden" th:field="*{jobPostId}">
+            <div class="form-errors" role="alert" th:if="${formError != null}" th:text="${formError}"></div>
+            <section class="editor-section"><div class="step-heading"><span>01</span><div><h2>The essentials</h2><p>Help candidates understand the opportunity at a glance.</p></div></div>
+                <div class="field-grid">
+                    <label class="field full">Job title <span class="required">*</span><input id="title" th:field="*{jobTitle}" maxlength="160" required placeholder="e.g. Senior Java Developer"></label>
+                    <label class="field full">Company name <span class="required">*</span><input id="companyName" th:field="*{jobCompanyId.name}" maxlength="160" required placeholder="Your company or organisation"></label>
+                    <label class="field">Employment type <span class="required">*</span><select id="type" th:field="*{jobType}" required><option value="">Select a type</option><option value="Full-time">Full time</option><option value="Part-time">Part time</option><option value="Freelance">Freelance</option><option value="Internship">Internship</option></select></label>
+                    <label class="field">Workplace <span class="required">*</span><select id="remote" th:field="*{remote}" required><option value="">Select workplace</option><option value="Remote-Only">Remote</option><option value="Office-Only">On site</option><option value="Partial-Remote">Hybrid</option></select></label>
+                    <label class="field full">Salary range<input id="salary" th:field="*{salary}" maxlength="120" placeholder="e.g. INR 12–18 LPA or GBP 55,000–70,000 / year"><small>Include the currency and pay period. Leave blank if not disclosed.</small></label>
                 </div>
-            </div>
-            <label class="heading_font font_sub_heading_color">Job Details</label>
-            <div class="row" >
-                <div class="col-lg-12 form-group">
-                    <input id="title" type="text" th:field="*{jobTitle}" class="form-control" placeholder="Job Title">
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-4 form-group">
-                    <select id="type" th:field="*{jobType}" class="form-control">
-                        <option value="" >Employment Type</option>
-                        <option th:value="Full-time" >Full-time</option>
-                        <option th:value="Part-time" >Part-time</option>
-                        <option th:value="Freelance" >Freelance</option>
-                        <option th:value="Internship" >Internship</option>
-                    </select>
-                </div>
-                <div class="col-md-4 form-group">
-                    <select id="remote" th:field="*{remote}" class="form-control">
-                        <option value="">Select a Remote</option>
-                        <option th:value="Remote-Only">Remote-Only</option>
-                        <option th:value="Office-Only">Office-Only</option>
-                        <option th:value="Partial-Remote"> Partial-Remote</option>
-                    </select>
-                </div>
-                <div class="col-md-4 form-group">
-                    <input id="salary" th:field="*{salary}" type="text" class="form-control" placeholder="Salary">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 form-group">
-                    <label class="mt-2 heading_font font_sub_heading_color">Description</label>
-                    <textarea type="text" rows="4" id="content" placeholder="Content" class="form-control"
-                              th:field="*{descriptionOfJob}" autocomplete="off"></textarea>
-                </div>
-            </div>
-
-            <label class="mt-2 heading_font font_sub_heading_color">Location</label>
-            <div class="row" >
-                <div class="col-md-4 form-group">
-                    <input th:field="*{jobLocationId.city}" id="city" type="text"  class="form-control" placeholder="City">
-                </div>
-                <div class="col-md-4 form-group">
-                    <input id="state" th:field="*{jobLocationId.state}" type="text"  class="form-control" placeholder="State">
-                </div>
-                <div class="col-md-4 form-group">
-                    <input id="country" th:field="*{jobLocationId.country}" type="text"  class="form-control" placeholder="Country">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12 form-group">
-                    <label class="mt-2 heading_font font_sub_heading_color">Company</label>
-                    <input id="companyName" th:field="*{jobCompanyId.name}" type="text" class="form-control" placeholder="Company Name">
-                </div>
-            </div>
-
-            <div class="row mt-4" >
-                <div class="col d-flex justify-content-center">
-                    <button type="submit" name="submit" class="btn btn-primary base_button px-4 py-2 mb-5">Save</button>
-                </div>
-            </div>
+            </section>
+            <section class="editor-section"><div class="step-heading"><span>02</span><div><h2>Where the work happens</h2><p>For remote roles, specify the hiring location or time zone region.</p></div></div>
+                <div class="field-grid location-grid"><label class="field">City <span class="required">*</span><input id="city" th:field="*{jobLocationId.city}" required maxlength="100" placeholder="e.g. Bengaluru"></label><label class="field">State / region <span class="required">*</span><input id="state" th:field="*{jobLocationId.state}" required maxlength="100" placeholder="e.g. Karnataka"></label><label class="field">Country <span class="required">*</span><input id="country" th:field="*{jobLocationId.country}" required maxlength="100" list="countries" placeholder="e.g. India"></label></div>
+                <datalist id="countries"><option value="India"><option value="United Kingdom"><option value="United States"><option value="Canada"></datalist>
+            </section>
+            <section class="editor-section"><div class="step-heading"><span>03</span><div><h2>Tell the story of the role</h2><p>Include responsibilities, experience, skills, and what your team offers.</p></div></div>
+                <label class="field" for="content">Job description <span class="required">*</span></label><textarea rows="14" id="content" th:field="*{descriptionOfJob}" aria-describedby="description-help" placeholder="About the role&#10;&#10;What you will do&#10;&#10;Experience and skills&#10;&#10;What we offer"></textarea>
+                <div class="description-meta"><span id="description-help">Use the AI assistant for a first draft, then make it yours.</span><span id="description-count">10,000 character limit</span></div>
+                <p id="editor-feedback" class="editor-feedback" role="status" aria-live="polite"></p>
+            </section>
+            <div class="publish-bar"><p><i class="fa-regular fa-circle-check" aria-hidden="true"></i> Review the details before publishing.</p><div><a class="button secondary" th:href="@{/dashboard/}">Cancel</a><button class="button primary" type="submit" th:text="${jobPostActivity.jobPostId != null ? 'Save changes' : 'Publish job'}"></button></div></div>
         </form>
-
+        <aside class="editor-rail"><section th:replace="~{fragments/portal :: assistant('Find the right words.', 'Start with the role and skills. Get a structured draft you can review and edit before publishing.', 'Generate a job description', true)}"></section>
+            <section class="writing-tips"><p class="eyebrow">A STRONG POST CHECKLIST</p><h2>Make the opportunity clear.</h2><ul><li><i class="fa-solid fa-check" aria-hidden="true"></i> A specific, recognisable job title</li><li><i class="fa-solid fa-check" aria-hidden="true"></i> Essential skills and experience</li><li><i class="fa-solid fa-check" aria-hidden="true"></i> Location and working arrangement</li><li><i class="fa-solid fa-check" aria-hidden="true"></i> A transparent salary range</li></ul><p>Focus on the work and the skills needed to succeed. Keep requirements realistic and inclusive.</p></section>
+        </aside>
     </div>
-</div>
-
-<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
-<script type="text/javascript" th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
-<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
-<script type="text/javascript" th:src="@{/summernote/summernote-lite.min.js}"></script>
-<script type="text/javascript" th:src="@{/js/main.js}"></script>
-
-<script>
-console.log($('#content'));
-    $('#content').summernote({
-        height: 100
-    });
-</script>
-
+    <footer class="page-footer"><span>hotdevjobs<span class="accent">.</span></span><span>Better hiring starts with a better connection.</span></footer>
+</main>
 </body>
 </html>
