@@ -5,7 +5,7 @@ services:
     plan: free
     region: singapore
     dockerfilePath: ./Dockerfile
-    healthCheckPath: /
+    healthCheckPath: /health
     envVars:
       - key: DB_URL
         sync: false

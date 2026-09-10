@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -58,7 +61,9 @@ public class JobPostActivityController {
                              @RequestParam(value = "partialRemote", required = false) String partialRemote,
                              @RequestParam(value = "today", required = false) boolean today,
                              @RequestParam(value = "days7", required = false) boolean days7,
-                             @RequestParam(value = "days30", required = false) boolean days30
+                             @RequestParam(value = "days30", required = false) boolean days30,
+                             @RequestParam(defaultValue = "all") String view,
+                             @RequestParam(defaultValue = "newest") String sort
 
     ) {
 
@@ -121,13 +126,26 @@ public class JobPostActivityController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             String currentUsername = authentication.getName();
             model.addAttribute("username", currentUsername);
-            if (currentUserProfile instanceof RecruiterProfile recruiterProfile
-                    && !StringUtils.hasText(job) && !StringUtils.hasText(location)) {
+            if (currentUserProfile instanceof RecruiterProfile recruiterProfile) {
                 List<RecruiterJobsDto> recruiterJobs = jobPostActivityService.getRecruiterJobs(recruiterProfile.getUserAccountId());
-                model.addAttribute("jobPost", recruiterJobs);
+                model.addAttribute("totalJobs", recruiterJobs.size());
+                model.addAttribute("applicationCount", recruiterJobs.stream().mapToLong(j -> j.getTotalCandidates() == null ? 0 : j.getTotalCandidates()).sum());
+                model.addAttribute("withApplicants", recruiterJobs.stream().filter(j -> j.getTotalCandidates() != null && j.getTotalCandidates() > 0).count());
+                Set<Integer> matchingIds = jobPost.stream().map(JobPostActivity::getJobPostId).collect(Collectors.toSet());
+                Comparator<RecruiterJobsDto> order = "title".equals(sort)
+                        ? Comparator.comparing(j -> Objects.toString(j.getJobTitle(), ""), String.CASE_INSENSITIVE_ORDER)
+                        : "applicants".equals(sort)
+                        ? Comparator.comparing((RecruiterJobsDto j) -> Objects.requireNonNullElse(j.getTotalCandidates(), 0L)).reversed()
+                        : Comparator.comparing(RecruiterJobsDto::getJobPostId).reversed();
+                model.addAttribute("jobPost", recruiterJobs.stream().filter(j -> matchingIds.contains(j.getJobPostId())).sorted(order).toList());
+                model.addAttribute("profileCompletion", completion(recruiterProfile.getFirstName(), recruiterProfile.getLastName(), recruiterProfile.getCompany(), recruiterProfile.getDesignation(), recruiterProfile.getCompanyWebsite(), recruiterProfile.getCompanyDescription()));
             } else if (currentUserProfile instanceof JobSeekerProfile jobSeekerProfile) {
                 List<JobSeekerApply> jobSeekerApplyList = jobSeekerApplyService.getCandidatesJobs(jobSeekerProfile);
                 List<JobSeekerSave> jobSeekerSaveList = jobSeekerSaveService.getCandidatesJob(jobSeekerProfile);
+                model.addAttribute("totalJobs", jobPost.size());
+                model.addAttribute("applicationCount", jobSeekerApplyList.size());
+                model.addAttribute("savedCount", jobSeekerSaveList.size());
+                model.addAttribute("profileCompletion", completion(jobSeekerProfile.getFirstName(), jobSeekerProfile.getLastName(), jobSeekerProfile.getCity(), jobSeekerProfile.getDesiredJobTitle(), jobSeekerProfile.getProfessionalHeadline(), jobSeekerProfile.getResume()));
 
                 boolean exist;
                 boolean saved;
@@ -159,10 +177,21 @@ public class JobPostActivityController {
                     }
 
                 }
+                Comparator<JobPostActivity> order = "title".equals(sort)
+                        ? Comparator.comparing(j -> Objects.toString(j.getJobTitle(), ""), String.CASE_INSENSITIVE_ORDER)
+                        : Comparator.comparing(JobPostActivity::getPostedDate, Comparator.nullsLast(Comparator.reverseOrder()))
+                            .thenComparing(JobPostActivity::getJobPostId, Comparator.reverseOrder());
+                model.addAttribute("jobPost", jobPost.stream()
+                        .filter(j -> !"applied".equals(view) || Boolean.TRUE.equals(j.getIsActive()))
+                        .filter(j -> !"saved".equals(view) || Boolean.TRUE.equals(j.getIsSaved()))
+                        .sorted(order).toList());
             }
         }
 
         model.addAttribute("user", currentUserProfile);
+        model.addAttribute("view", view);
+        model.addAttribute("sort", sort);
+        model.addAttribute("recruiter", currentUserProfile instanceof RecruiterProfile);
 
         return "dashboard";
     }
@@ -268,5 +297,9 @@ public class JobPostActivityController {
 
     private boolean isFullTime(String value) {
         return "Full-Time".equalsIgnoreCase(value) || "Full-time".equalsIgnoreCase(value);
+    }
+
+    private int completion(String... fields) {
+        return (int) (Arrays.stream(fields).filter(StringUtils::hasText).count() * 100 / fields.length);
     }
 }
