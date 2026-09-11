@@ -36,10 +36,16 @@ public class UsersService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public Users addNew(Users users) {
+        users.setPassword(passwordEncoder.encode(users.getPassword()));
+        return addVerified(users);
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public Users addVerified(Users users) {
         users.setActive(true);
         users.setRegistrationDate(new Date(System.currentTimeMillis()));
-        users.setPassword(passwordEncoder.encode(users.getPassword()));
         Users savedUser = usersRepository.save(users);
         int userTypeId = users.getUserTypeId().getUserTypeId();
 

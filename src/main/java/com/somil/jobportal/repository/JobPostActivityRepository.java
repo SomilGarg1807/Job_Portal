@@ -12,6 +12,22 @@ import com.somil.jobportal.entity.JobPostActivity;
 
 public interface JobPostActivityRepository extends JpaRepository<JobPostActivity, Integer> {
 
+    @Query("select distinct j.jobTitle from JobPostActivity j left join j.jobCompanyId c "
+            + "where locate(lower(:q), lower(coalesce(j.jobTitle, ''))) > 0 "
+            + "or locate(lower(:q), lower(coalesce(j.descriptionOfJob, ''))) > 0 "
+            + "or locate(lower(:q), lower(coalesce(c.name, ''))) > 0 order by j.jobTitle")
+    List<String> suggestTitles(@Param("q") String query, org.springframework.data.domain.Pageable page);
+
+    @Query("select distinct c.name from JobPostActivity j join j.jobCompanyId c "
+            + "where locate(lower(:q), lower(c.name)) > 0 order by c.name")
+    List<String> suggestCompanies(@Param("q") String query, org.springframework.data.domain.Pageable page);
+
+    @Query("select distinct l from JobPostActivity j join j.jobLocationId l "
+            + "where locate(lower(:q), lower(coalesce(l.city, ''))) > 0 "
+            + "or locate(lower(:q), lower(coalesce(l.state, ''))) > 0 "
+            + "or locate(lower(:q), lower(coalesce(l.country, ''))) > 0 order by l.country, l.state, l.city")
+    List<com.somil.jobportal.entity.JobLocation> suggestLocations(@Param("q") String query, org.springframework.data.domain.Pageable page);
+
     @Query(value = " SELECT COUNT(s.user_id) as totalCandidates,j.job_post_id,j.job_title,l.id as locationId,l.city,l.state,l.country,c.id as companyId,c.name FROM job_post_activity j " +
             " inner join job_location l " +
             " on j.job_location_id = l.id " +

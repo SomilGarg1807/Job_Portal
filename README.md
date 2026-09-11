@@ -86,7 +86,13 @@ Open **http://localhost:8080**. Create a job seeker or recruiter account to expl
 
 For local development, the application also reads `application-secrets.properties` from the project root. This file is excluded from Git and Docker; configure deployment credentials through Render's environment settings.
 
+New registrations require email verification. Configure `RESEND_API_KEY` and `EMAIL_FROM` (for example, `HotDevJobs <verify@your-domain.com>`) before accepting signups. The sender domain must be verified with Resend. See the [email setup instructions](docs/operations.md#email-verification). Existing accounts continue to work without re-verification.
+
+The dashboard shows 12 jobs per page. Job seekers see relevant roles first using their target title, headline and skills, with preferred city/workplace as secondary signals; jobs without a profile match fall back to posting date. Filters and saved/applied views persist across pages. Job and company suggestions come from posted jobs; location suggestions combine posted locations with Open-Meteo/GeoNames.
+
 ## Validation
+
+Email verification tests use a mocked delivery provider and an isolated H2 database to verify account creation, expiry, replay prevention, persistent attempt limits and CSRF protection. No real emails are sent during tests.
 
 ```bash
 mvn test

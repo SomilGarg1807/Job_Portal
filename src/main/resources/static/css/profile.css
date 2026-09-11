@@ -30,8 +30,8 @@ a { text-decoration:none; }
 .form-message { display:flex; align-items:flex-start; gap:10px; margin-top:20px; padding:13px 15px; border-radius:11px; font-size:.8rem; line-height:1.5; }
 .form-message.info { color:#285578; border:1px solid #bed9ec; background:#eff8fe; }
 .form-message.error { color:#94372d; border:1px solid #f2c1b9; background:#fff0ed; }
-.profile-form fieldset { margin:0; padding:29px 0; border:0; border-bottom:1px solid var(--line); }
-.profile-form legend { width:100%; margin:0 0 18px; display:flex; align-items:center; gap:10px; color:#2f485f; font-size:.87rem; font-weight:800; }
+.profile-form fieldset { min-width:0; margin:28px 0 0; padding:0 0 28px; border:0; border-bottom:1px solid var(--line); }
+.profile-form legend { float:none; width:100%; padding:0; margin:0 0 18px; display:flex; align-items:center; gap:10px; color:#2f485f; font-size:.87rem; font-weight:800; }
 .profile-form legend>span { width:28px; height:28px; display:grid; place-items:center; border-radius:9px; color:#fff; background:var(--navy); font-size:.73rem; }
 .profile-form legend em { margin-left:auto; color:#8a98a6; font-size:.68rem; font-style:normal; font-weight:700; text-transform:uppercase; }
 .subsection-title { margin:22px 0 13px; color:#40586f; font-size:.78rem; font-weight:800; }

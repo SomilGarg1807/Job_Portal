@@ -40,6 +40,9 @@
 .note-editor.note-frame { border: 1px solid #dfe5ed; border-radius: 8px; margin-top: 10px; overflow: hidden; }
 .note-editor .note-toolbar { background: #f6f8fb; border-bottom: 1px solid var(--line); padding: 7px; }
 .note-editor .note-editable { padding: 18px !important; font-size: 13px; line-height: 1.8; }
+.note-editor .note-placeholder { padding:18px; font-size:13px; line-height:1.8; white-space:pre-line; pointer-events:none; color:#718194; }
+.note-editor:focus-within .note-placeholder { display:none!important; }
+.note-editor .note-editable p { margin-top:0; }
 .note-editor .note-btn { border-color: #e2e7ee; background: white; border-radius: 4px; }
 .publish-bar { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 10px 0; }
 .publish-bar > p { color: var(--muted); font-size: 11px; margin: 0; }

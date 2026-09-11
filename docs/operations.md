@@ -1,6 +1,28 @@
 # Deployment and operations
 
+## Email verification
+
+New accounts are created only after a six-digit email code is verified. Existing accounts remain usable. Codes expire after 10 minutes, are single-use, and are stored as BCrypt hashes alongside the hashed pending password. Pending registrations persist across restarts. Verification allows five incorrect attempts per hourly window; sending is limited to five codes per email per hour with at least 60 seconds between requests. Resending invalidates the old code without resetting failed attempts. Registration POSTs require CSRF tokens.
+
+Before accepting signups:
+
+1. Create a [Resend](https://resend.com) account and [verify a domain you own](https://resend.com/docs/dashboard/domains/introduction) by adding its DNS records. A Gmail address or the shared `onrender.com` domain cannot be your verified sender domain.
+2. Create a sending API key. In Render → your service → Environment, add `RESEND_API_KEY`.
+3. Add `EMAIL_FROM`, for example `HotDevJobs <verify@your-domain.com>`, using the verified domain. Keep `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `GEMINI_API_KEY`, and optional `GEMINI_MODEL`.
+4. Save and redeploy. Register a test account, confirm the code arrives, verify it, and sign in. Automated tests mock email delivery and do not verify the live sender.
+
+Delivery uses the [Resend HTTPS API](https://resend.com/docs/api-reference/emails/send-email), since [Render free services block SMTP ports](https://render.com/docs/free). No SMTP password is needed. Missing settings or delivery failure prevent new registration and show an error; existing users can still sign in. `/health` does not check email delivery. Check sending quotas in the provider dashboard.
+
+## Search and recommendations
+
+`GET /api/search/jobs?q=...` suggests titles, keywords and companies from posted jobs. `GET /api/search/locations?q=...` combines posted cities/states/countries with [Open-Meteo geocoding](https://open-meteo.com/en/docs/geocoding-api), based on GeoNames data. The demo's non-commercial geocoding endpoint needs no key; commercial use requires the appropriate provider plan. Results are bounded and cached; manual search works during provider failures.
+
+The dashboard renders 12 jobs per page and preserves filters, sort and applied/saved views while paging. Ranking runs locally using target role, headline and skills. Preferred city and workplace are secondary signals for relevant jobs; no profile data goes to an AI service. If nothing matches, posting date determines order. Explicit Newest and Title sorting remain available. The current implementation ranks the matching collection in memory before slicing the page; a larger catalogue should move ranking and paging into database queries.
+
+`scripts/seed_demo_jobs.py` previews 120 labelled demo opportunities by default; `--apply` inserts them and `--verify` checks the batch. Credentials come from environment variables or the ignored local secrets file. These are demonstration listings, not verified vacancies.
+
 ## Optional AI assistant
+
 
 The dashboard now includes two AI workflows:
 

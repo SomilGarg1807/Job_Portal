@@ -72,7 +72,8 @@ public class JobPostActivityController {
                              @RequestParam(value = "days7", required = false) boolean days7,
                              @RequestParam(value = "days30", required = false) boolean days30,
                              @RequestParam(defaultValue = "all") String view,
-                             @RequestParam(defaultValue = "newest") String sort
+                             @RequestParam(defaultValue = "relevance") String sort,
+                             @RequestParam(defaultValue = "1") int page
 
     ) {
 
@@ -129,6 +130,8 @@ public class JobPostActivityController {
         }
 
         Object currentUserProfile = usersService.getCurrentUserProfile();
+        if (!List.of("relevance", "newest", "title", "applicants").contains(sort)) sort = "relevance";
+        if (currentUserProfile instanceof RecruiterProfile && "relevance".equals(sort)) sort = "newest";
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         model.addAttribute("jobPost", jobPost);
 
@@ -190,6 +193,14 @@ public class JobPostActivityController {
                         ? Comparator.comparing(j -> Objects.toString(j.getJobTitle(), ""), String.CASE_INSENSITIVE_ORDER)
                         : Comparator.comparing(JobPostActivity::getPostedDate, Comparator.nullsLast(Comparator.reverseOrder()))
                             .thenComparing(JobPostActivity::getJobPostId, Comparator.reverseOrder());
+                if ("relevance".equals(sort)) {
+                    java.util.Map<Integer, Integer> scores = jobPost.stream().collect(Collectors.toMap(
+                            JobPostActivity::getJobPostId, j -> com.somil.jobportal.util.JobRelevance.score(jobSeekerProfile, j)));
+                    order = Comparator.comparingInt((JobPostActivity j) -> scores.get(j.getJobPostId())).reversed().thenComparing(order);
+                    model.addAttribute("rankingMessage", scores.values().stream().anyMatch(score -> score > 0)
+                            ? "Best matches for your target role and skills appear first."
+                            : "Showing the latest jobs. Add your target role and skills for better matches.");
+                }
                 model.addAttribute("jobPost", jobPost.stream()
                         .filter(j -> !"applied".equals(view) || Boolean.TRUE.equals(j.getIsActive()))
                         .filter(j -> !"saved".equals(view) || Boolean.TRUE.equals(j.getIsSaved()))
@@ -197,6 +208,17 @@ public class JobPostActivityController {
             }
         }
 
+        List<?> results = (List<?>) model.getAttribute("jobPost");
+        int resultCount = results.size();
+        int pages = Math.max(1, (resultCount + 11) / 12);
+        int currentPage = Math.min(Math.max(1, page), pages);
+        int start = (currentPage - 1) * 12;
+        model.addAttribute("jobPost", results.subList(start, Math.min(start + 12, resultCount)));
+        model.addAttribute("resultCount", resultCount);
+        model.addAttribute("page", currentPage);
+        model.addAttribute("totalPages", pages);
+        model.addAttribute("rangeStart", resultCount == 0 ? 0 : start + 1);
+        model.addAttribute("rangeEnd", Math.min(start + 12, resultCount));
         model.addAttribute("user", currentUserProfile);
         model.addAttribute("view", view);
         model.addAttribute("sort", sort);

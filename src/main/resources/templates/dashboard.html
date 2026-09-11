@@ -10,6 +10,7 @@
     <script defer th:src="@{/js/portal.js}"></script>
     <script defer th:src="@{/js/ai-assistant.js}"></script>
     <script defer th:src="@{/js/dashboard.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/search-suggestions.css}">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -44,16 +45,17 @@
         </section>
         <div class="content-grid">
             <section class="opportunities" id="openings" aria-labelledby="jobs-heading">
-                <div class="section-heading"><div><p class="eyebrow">YOUR NEXT OPPORTUNITY</p><h2 id="jobs-heading" th:text="${recruiter ? 'Manage your job posts' : 'Find your next role'}"></h2></div><span class="result-count" th:text="${#lists.size(jobPost) + ' results'}"></span></div>
+                <div class="section-heading"><div><p class="eyebrow">YOUR NEXT OPPORTUNITY</p><h2 id="jobs-heading" th:text="${recruiter ? 'Manage your job posts' : 'Find your next role'}"></h2></div><span class="result-count" th:text="${resultCount + ' results'}"></span></div>
+                <p class="ranking-message" th:if="${rankingMessage}" th:text="${rankingMessage}"></p>
                 <form id="search-form" class="search-form" method="get" th:action="@{/dashboard/}">
-                    <div class="search-row"><label class="search-field"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span class="sr-only">Job title</span><input type="search" name="job" th:value="${job}" placeholder="Job title or keyword"></label><label class="search-field location-field"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span class="sr-only">Location</span><input type="search" name="location" th:value="${location}" placeholder="City, state or country"></label><button class="button primary" type="submit">Search</button></div>
+                    <div class="search-row"><label class="search-field"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span class="sr-only">Job title</span><input type="search" name="job" th:value="${job}" placeholder="Job title or keyword" th:data-suggestions="@{/api/search/jobs}"></label><label class="search-field location-field"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span class="sr-only">Location</span><input type="search" name="location" th:value="${location}" placeholder="City, state or country" th:data-suggestions="@{/api/search/locations}"></label><button class="button primary" type="submit">Search</button></div>
                     <details class="filters" th:open="${partTime or fullTime or freelance or remoteOnly or officeOnly or partialRemote or today or days7 or days30}"><summary><i class="fa-solid fa-sliders" aria-hidden="true"></i> Refine your search</summary><div class="filter-grid">
                         <fieldset><legend>Employment type</legend><label><input type="checkbox" name="fullTime" value="Full-Time" th:checked="${fullTime}"> Full time</label><label><input type="checkbox" name="partTime" value="Part-Time" th:checked="${partTime}"> Part time</label><label><input type="checkbox" name="freelance" value="Freelance" th:checked="${freelance}"> Freelance</label></fieldset>
                         <fieldset><legend>Workplace</legend><label><input type="checkbox" name="remoteOnly" value="Remote-Only" th:checked="${remoteOnly}"> Remote</label><label><input type="checkbox" name="officeOnly" value="Office-Only" th:checked="${officeOnly}"> On site</label><label><input type="checkbox" name="partialRemote" value="Partial-Remote" th:checked="${partialRemote}"> Hybrid</label></fieldset>
                         <fieldset><legend>Posted within</legend><label><input class="date-filter" type="checkbox" name="today" value="true" th:checked="${today}"> Today</label><label><input class="date-filter" type="checkbox" name="days7" value="true" th:checked="${days7}"> Last 7 days</label><label><input class="date-filter" type="checkbox" name="days30" value="true" th:checked="${days30}"> Last 30 days</label></fieldset>
                     </div><div class="filter-actions"><a th:href="@{/dashboard/}">Clear search &amp; filters</a><button class="button secondary" type="submit">Apply filters</button></div></details>
-                    <div class="list-toolbar"><div class="tabs" th:unless="${recruiter}" aria-label="Job views"><button type="submit" name="view" value="all" th:classappend="${view != 'applied' and view != 'saved' ? 'active' : ''}">All jobs</button><button type="submit" name="view" value="applied" th:classappend="${view == 'applied' ? 'active' : ''}">Applied</button><button type="submit" name="view" value="saved" th:classappend="${view == 'saved' ? 'active' : ''}">Saved</button></div><span th:if="${recruiter}" class="muted">Only jobs posted by you</span><label class="sort-label">Sort by <select name="sort" id="sort"><option value="newest" th:selected="${sort == 'newest'}">Newest</option><option value="title" th:selected="${sort == 'title'}">Title A–Z</option><option th:if="${recruiter}" value="applicants" th:selected="${sort == 'applicants'}">Most applicants</option></select></label></div>
-                    <input id="current-view" type="hidden" th:value="${view}">
+                    <div class="list-toolbar"><div class="tabs" th:unless="${recruiter}" aria-label="Job views"><button type="submit" name="view" value="all" th:classappend="${view != 'applied' and view != 'saved' ? 'active' : ''}">All jobs</button><button type="submit" name="view" value="applied" th:classappend="${view == 'applied' ? 'active' : ''}">Applied</button><button type="submit" name="view" value="saved" th:classappend="${view == 'saved' ? 'active' : ''}">Saved</button></div><span th:if="${recruiter}" class="muted">Only jobs posted by you</span><label class="sort-label">Sort by <select name="sort" id="sort"><option th:unless="${recruiter}" value="relevance" th:selected="${sort == 'relevance'}">Best match</option><option value="newest" th:selected="${sort == 'newest'}">Newest</option><option value="title" th:selected="${sort == 'title'}">Title A–Z</option><option th:if="${recruiter}" value="applicants" th:selected="${sort == 'applicants'}">Most applicants</option></select></label></div>
+                    <input id="current-view" type="hidden" name="view" th:value="${view}">
                 </form>
                 <div class="job-list">
                     <article class="job-card" th:each="post : ${jobPost}">
@@ -63,6 +65,14 @@
                     </article>
                     <div class="empty-state" th:if="${#lists.isEmpty(jobPost)}"><span class="empty-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span><h3 th:text="${recruiter ? 'No job posts to show yet' : (view == 'applied' ? 'No applications in this view' : (view == 'saved' ? 'Your shortlist starts here' : 'Let’s try a different search'))}"></h3><p th:text="${recruiter ? 'Post your first role, or clear your filters to see your existing jobs.' : 'Try a broader title or location. You can apply for and save roles from the job details page.'}"></p><a class="button secondary" th:href="@{/dashboard/}">Clear search</a><a th:if="${recruiter}" class="button primary" th:href="@{/dashboard/add}">Post a job</a></div>
                 </div>
+                <nav class="job-pagination" aria-label="Job result pages" th:if="${resultCount > 0}">
+                    <span th:text="|Showing ${rangeStart}–${rangeEnd} of ${resultCount}|"></span>
+                    <div>
+                        <button form="search-form" type="submit" name="page" th:value="${page - 1}" th:disabled="${page == 1}">Previous</button>
+                        <span aria-live="polite" th:text="|Page ${page} of ${totalPages}|"></span>
+                        <button form="search-form" type="submit" name="page" th:value="${page + 1}" th:disabled="${page == totalPages}">Next</button>
+                    </div>
+                </nav>
             </section>
             <aside class="right-rail" aria-label="Tools and profile">
                 <section class="profile-card"><span class="eyebrow">PUT YOUR BEST FOOT FORWARD</span><h2 th:text="${recruiter ? 'Your company profile' : 'Your career profile'}"></h2><div class="progress-heading"><span>Profile essentials</span><strong th:text="${profileCompletion + '%'}"></strong></div><progress max="100" th:value="${profileCompletion}" aria-label="Profile essentials completion"></progress><p th:text="${profileCompletion == 100 ? 'Looking good! Keep your details current as your journey evolves.' : (recruiter ? 'Add your name, company, designation, website and company description.' : 'Add your name, city, target role, headline and resume.')} "></p><a class="text-link" th:href="${recruiter} ? @{/recruiter-profile/} : @{/job-seeker-profile/}">Complete my profile <span aria-hidden="true">→</span></a></section>
@@ -73,5 +83,6 @@
         <footer class="page-footer"><span>hotdevjobs<span class="accent">.</span></span><span th:text="${recruiter ? 'Better hiring starts with a better connection.' : 'Good work. Great possibilities.'}"></span></footer>
     </main>
 </div>
+<script th:src="@{/js/search-suggestions.js}" defer></script>
 </body>
 </html>

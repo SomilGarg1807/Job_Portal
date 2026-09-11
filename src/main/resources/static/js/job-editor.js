@@ -21,6 +21,8 @@
                 editable.setAttribute('role', 'textbox');
                 editable.setAttribute('aria-label', 'Job description');
                 editable.setAttribute('aria-multiline', 'true');
+                editable.setAttribute('aria-describedby', 'description-help');
+                document.querySelector('.note-placeholder')?.setAttribute('aria-hidden', 'true');
             } }
         });
     } else {

@@ -11,6 +11,7 @@
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/font-awesome/css/all.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/search-page.css}"/>
+    <link rel="stylesheet" th:href="@{/css/search-suggestions.css}"/>
 </head>
 
 <body class="jobs-page">
@@ -49,18 +50,19 @@
     <form class="results-search" th:action="@{/global-search/}" method="get">
         <label>
             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <input type="text" name="job" placeholder="Job title or keyword" th:value="${job}"/>
+            <input type="text" name="job" placeholder="Job title or keyword" th:value="${job}" th:data-suggestions="@{/api/search/jobs}" aria-label="Job title or keyword"/>
         </label>
         <label>
             <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-            <input type="text" name="location" placeholder="City, state or remote" th:value="${location}"/>
+            <input type="text" name="location" placeholder="City, state or country" th:value="${location}" th:data-suggestions="@{/api/search/locations}" aria-label="City, state or country"/>
         </label>
         <button type="submit">Search jobs</button>
     </form>
 </section>
 
 <main class="results-layout">
-    <aside class="filter-panel">
+    <details class="filter-panel" open>
+        <summary><i class="fa-solid fa-sliders" aria-hidden="true"></i> Filters</summary>
         <div class="filter-heading">
             <div>
                 <span>Refine search</span>
@@ -123,7 +125,7 @@
 
             <button class="apply-filters" type="submit">Apply filters</button>
         </form>
-    </aside>
+    </details>
 
     <section class="results-panel">
         <div class="results-heading">
@@ -178,12 +180,6 @@
     </section>
 </main>
 
-<script>
-    document.querySelectorAll('#filterForm input[type="checkbox"]').forEach(function (checkbox) {
-        checkbox.addEventListener('change', function () {
-            document.getElementById('filterForm').submit();
-        });
-    });
-</script>
+<script th:src="@{/js/search-suggestions.js}" defer></script>
 </body>
 </html>

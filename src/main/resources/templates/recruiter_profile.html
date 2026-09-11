@@ -82,7 +82,7 @@
                 <div class="form-grid two-columns">
                     <label class="form-field full-width">
                         <span>Company name *</span>
-                        <input th:field="*{company}" type="text" autocomplete="organization" placeholder="Your registered or trading name" required/>
+                        <input th:field="*{company}" type="text" autocomplete="organization" maxlength="160" pattern=".*\S.*" placeholder="Your registered or trading name" required/>
                         <small>Required for recruiter accounts.</small>
                     </label>
                     <label class="form-field">

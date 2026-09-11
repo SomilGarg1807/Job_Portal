@@ -9,6 +9,7 @@
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/font-awesome/css/all.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/home.css}"/>
+    <link rel="stylesheet" th:href="@{/css/search-suggestions.css}"/>
 </head>
 
 <body class="home-page">
@@ -55,7 +56,7 @@
                 <span>What</span>
                 <span class="field-control">
                     <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                    <input type="text" name="job" placeholder="Job title or keyword"/>
+                    <input type="text" name="job" placeholder="Job title or keyword" th:data-suggestions="@{/api/search/jobs}" aria-label="Job title or keyword"/>
                 </span>
             </label>
 
@@ -63,7 +64,7 @@
                 <span>Where</span>
                 <span class="field-control">
                     <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-                    <input type="text" name="location" placeholder="City, state or remote"/>
+                    <input type="text" name="location" placeholder="City, state or country" th:data-suggestions="@{/api/search/locations}" aria-label="City, state or country"/>
                 </span>
             </label>
 
@@ -85,5 +86,6 @@
     <span>&copy; 2026 HotDevJobs</span>
     <span>Careers and teams, connected.</span>
 </footer>
+<script th:src="@{/js/search-suggestions.js}" defer></script>
 </body>
 </html>

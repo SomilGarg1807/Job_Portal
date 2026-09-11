@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Verify your email | HotDevJobs</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/css/verify-email.css}">
+</head>
+<body>
+<main class="verification-card">
+    <a class="brand" th:href="@{/}">hotdevjobs<span>.com</span></a>
+    <th:block th:if="${verified}">
+        <div class="email-mark" aria-hidden="true">✓</div>
+        <h1>Email verified</h1>
+        <p>Your account is ready. Sign in to finish your profile.</p>
+        <a class="primary" th:href="@{/login}">Continue to sign in</a>
+    </th:block>
+    <th:block th:unless="${verified}">
+        <div class="email-mark" aria-hidden="true">✉</div>
+        <h1>Check your inbox</h1>
+        <p>Enter the six-digit code we sent to your email. It expires in 10 minutes.</p>
+        <p class="error" role="alert" th:if="${error}" th:text="${error}"></p>
+        <p class="notice" role="status" th:if="${message}" th:text="${message}"></p>
+        <form th:action="@{/register/verify}" method="post">
+            <label for="code">Verification code</label>
+            <input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" placeholder="000000" required autofocus>
+            <button class="primary" type="submit">Verify email</button>
+        </form>
+        <form th:action="@{/register/resend}" method="post">
+            <button class="secondary" type="submit">Send a new code</button>
+        </form>
+        <p class="hint">Check your spam folder. Please wait 60 seconds between requests.</p>
+        <a th:href="@{/register}">Use a different email</a>
+    </th:block>
+</main>
+</body>
+</html>

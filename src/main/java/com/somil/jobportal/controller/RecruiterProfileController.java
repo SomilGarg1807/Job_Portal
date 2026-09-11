@@ -66,6 +66,12 @@ public class RecruiterProfileController {
         }
         model.addAttribute("profile", recruiterProfile);
 
+        if (recruiterProfile.getCompany() != null) recruiterProfile.setCompany(recruiterProfile.getCompany().trim());
+        if (recruiterProfile.getCompany() != null && recruiterProfile.getCompany().length() > 160) {
+            model.addAttribute("error", "Company name must be 160 characters or fewer.");
+            return "recruiter_profile";
+        }
+
         if (!hasRequiredProfileFields(recruiterProfile)) {
             model.addAttribute("error", "Your name, company name, and headquarters location are required before you can continue.");
             model.addAttribute("onboarding", true);

@@ -109,6 +109,40 @@ class DashboardTests {
     }
 
     @Test @WithMockUser(authorities = "Job Seeker")
+    void pagesTwelveJobsAndClampsOutOfRangeRequests() throws Exception {
+        var many = java.util.stream.IntStream.rangeClosed(1, 26)
+                .mapToObj(i -> job(i, "Developer " + i, "Example")).toList();
+        when(jobs.getAll()).thenReturn(many);
+        seeker.setDesiredJobTitle(null);
+        String html = mvc.perform(get("/dashboard/").param("page", "2"))
+                .andExpect(model().attribute("jobPost", hasSize(12)))
+                .andExpect(model().attribute("resultCount", 26)).andExpect(model().attribute("totalPages", 3))
+                .andExpect(model().attribute("rangeStart", 13)).andExpect(model().attribute("rangeEnd", 24))
+                .andReturn().getResponse().getContentAsString();
+        preview("paged", html);
+        mvc.perform(get("/dashboard/").param("page", "999"))
+                .andExpect(model().attribute("page", 3)).andExpect(model().attribute("jobPost", hasSize(2)));
+        mvc.perform(get("/dashboard/").param("page", "-2"))
+                .andExpect(model().attribute("page", 1));
+    }
+
+    @Test @WithMockUser(authorities = "Job Seeker")
+    void ranksProfileMatchBeforeNewerJobsAndFallsBackWhenNothingMatches() throws Exception {
+        var oldMatch = job(1, "Java Backend Engineer", "Example");
+        oldMatch.setPostedDate(new Date(1000));
+        var newer = job(2, "Product Designer", "Example");
+        newer.setPostedDate(new Date(2000));
+        when(jobs.getAll()).thenReturn(List.of(newer, oldMatch));
+        seeker.setDesiredJobTitle("Java Backend Engineer");
+        mvc.perform(get("/dashboard/"))
+                .andExpect(model().attribute("jobPost", contains(oldMatch, newer)));
+        seeker.setDesiredJobTitle("Veterinarian");
+        mvc.perform(get("/dashboard/"))
+                .andExpect(model().attribute("jobPost", contains(newer, oldMatch)))
+                .andExpect(model().attribute("rankingMessage", containsString("latest jobs")));
+    }
+
+    @Test @WithMockUser(authorities = "Job Seeker")
     void emptyDashboardAndMissingOptionalFieldsRender() throws Exception {
         when(jobs.getAll()).thenReturn(List.of());
         when(users.getCurrentUserProfile()).thenReturn(new JobSeekerProfile());
@@ -196,5 +230,17 @@ class DashboardTests {
             Files.createDirectories(directory);
             Files.writeString(directory.resolve(role + ".html"), html);
         }
+    }
+
+    @Test @WithMockUser(authorities = "Recruiter")
+    void jobEditorRendersAccessibleDescription() throws Exception {
+        var recruiter = new RecruiterProfile();
+        recruiter.setUserAccountId(42);
+        recruiter.setFirstName("Alex");
+        recruiter.setCompany("Northstar Labs");
+        when(users.getCurrentUserProfile()).thenReturn(recruiter);
+        preview("editor", mvc.perform(get("/dashboard/add"))
+                .andExpect(status().isOk()).andExpect(content().string(containsString("description-help")))
+                .andReturn().getResponse().getContentAsString());
     }
 }
