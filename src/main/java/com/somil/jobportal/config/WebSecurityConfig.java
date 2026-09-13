@@ -27,7 +27,6 @@ public class WebSecurityConfig {
     private final String[] publicUrl = {"/",
             "/health",
             "/api/search/**",
-            "/api/search/**",
             "/global-search/**",
             "/register",
             "/register/**",
@@ -60,8 +59,10 @@ public class WebSecurityConfig {
                     logout.logoutSuccessUrl("/");
                 }).cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.requireCsrfProtectionMatcher(request ->
-                        request.getServletPath().startsWith("/register/")
-                        && !java.util.Set.of("GET", "HEAD", "OPTIONS", "TRACE").contains(request.getMethod())));
+                        (request.getServletPath().startsWith("/register/")
+                                || request.getServletPath().startsWith("/applications/")
+                                || request.getServletPath().startsWith("/resume-comparison/"))
+                                && !java.util.Set.of("GET", "HEAD", "OPTIONS", "TRACE").contains(request.getMethod())));
 
         return http.build();
     }

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Candidate board | HotDevJobs</title>
+<link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}">
+<link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
+<link rel="stylesheet" th:href="@{/css/dashboard.css}"><link rel="stylesheet" th:href="@{/css/job-workspace.css}">
+<link rel="stylesheet" th:href="@{/css/portal-controls.css}"><link rel="stylesheet" th:href="@{/css/hiring-workflow.css}">
+<script defer th:src="@{/js/portal.js}"></script><script defer th:src="@{/js/portal-controls.js}"></script>
+</head><body class="job-workspace"><a class="skip-link" href="#main">Skip to content</a>
+<header th:replace="~{fragments/portal :: header('applications')}"></header><main id="main" class="workspace-main hiring-main">
+
+<section class="workflow-intro"><p class="eyebrow">MAKE THE NEXT CONVERSATION COUNT</p><h1>Candidate board</h1><p>Review the people behind each application. Open a candidate to update their status and add private notes.</p></section>
+<form class="board-filters" id="board-filters" method="get" th:action="@{/recruiter/candidates}">
+<label>Name or skill<input name="keyword" maxlength="100" th:value="${keyword}" placeholder="Try Java, AWS or a name"></label>
+<label>Job<select name="jobId"><option value="0">All my jobs</option><option th:each="j : ${jobs}" th:value="${j.jobPostId}" th:selected="${jobId == j.jobPostId}" th:text="${j.jobTitle}"></option></select></label>
+<label>Status<select name="status"><option value="">All stages</option><option th:each="s : ${statuses}" th:value="${s}" th:selected="${selectedStatus == s}" th:text="${s.label}"></option></select></label>
+<label>Experience<select name="experience"><option value="">Any experience</option><option th:each="e : ${experienceOptions}" th:value="${e}" th:selected="${experience == e}" th:text="${e + ' years'}"></option></select></label>
+<button class="button primary" type="submit">Filter candidates</button><a th:href="@{/recruiter/candidates}" class="text-link">Reset</a>
+</form>
+<div class="board-caption"><strong th:text="${results.totalElements + ' matching applications'}"></strong><span th:unless="${results.empty}" th:text="${'Showing ' + results.numberOfElements + ' on this page, grouped by status'}"></span></div>
+<div class="workflow-empty" th:if="${results.empty}"><h2>No candidates to show yet.</h2><p>Try different filters, or share one of your job posts to invite applications.</p></div>
+<div class="candidate-board" th:unless="${results.empty}">
+<section class="board-column" th:each="column : ${columns}"><h2><span th:text="${column.key.label}"></span><span class="column-count" th:text="${#lists.size(column.value)}"></span></h2>
+<p class="column-empty" th:if="${#lists.isEmpty(column.value)}">No candidates on this page.</p>
+<article class="candidate-card" th:each="a : ${column.value}">
+<span class="candidate-initial" aria-hidden="true" th:text="${#strings.isEmpty(a.userId.firstName) ? 'C' : #strings.toUpperCase(#strings.substring(a.userId.firstName,0,1))}"></span>
+<h3><a th:href="@{/applications/{id}(id=${a.id})}" th:text="${(a.userId.firstName ?: 'Candidate') + ' ' + (a.userId.lastName ?: '')}"></a></h3><p class="candidate-role" th:text="${a.job.jobTitle}"></p>
+<p th:text="${a.userId.totalExperienceYears != null ? a.userId.totalExperienceYears + ' years experience' : 'Experience not specified'}"></p>
+<div class="candidate-skills"><span th:each="skill, iter : ${a.userId.skills}" th:if="${iter.index < 4}" th:text="${skill.name}"></span></div>
+<a class="text-link" th:href="@{/applications/{id}(id=${a.id})}">Review application &rarr;</a>
+</article></section></div>
+<nav class="workflow-pagination" th:unless="${results.empty}" aria-label="Candidate pages"><button class="button secondary" form="board-filters" name="page" th:value="${results.number}" th:disabled="${!results.hasPrevious()}">Previous</button><span th:text="${'Page ' + (results.number + 1) + ' of ' + results.totalPages}"></span><button class="button secondary" form="board-filters" name="page" th:value="${results.number + 2}" th:disabled="${!results.hasNext()}">Next</button></nav>
+
+</main></body></html>

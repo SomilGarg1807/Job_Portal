@@ -71,3 +71,15 @@ To export rendered dashboard fixtures for visual inspection, run `mvn test -Dtes
 See the official [UptimeRobot setup guide](https://help.uptimerobot.com/en/articles/11358364-how-to-create-your-first-monitor-on-uptimerobot-quick-setup-guide). The monitor must be created in your account; this code does not create it or deploy itself.
 
 [Render's free-service documentation](https://render.com/docs/free) specifies 15 minutes without inbound traffic before sleep and 750 free instance hours per workspace each month. Five-minute external checks should prevent ordinary inactivity sleep while they reach the service, but cannot guarantee uptime during restarts, outages or quota exhaustion. One service running continuously uses up to 744 hours in a 31-day month; other free services share the same allowance. Render's internal health checks do not replace the external monitor for this purpose.
+
+## Application workflow and resume comparison
+
+- `/applications` gives candidates their own applications, 12 per page, with per-application timelines.
+- `/recruiter/candidates` queries only the signed-in recruiter's applications, 24 per page, filtered in the database by job, status, name/skill and experience. Columns group the current page by status.
+- `/applications/{id}` is visible only to the applicant and posting recruiter. Only the posting recruiter can change status or private notes. Returning to an earlier status is allowed to correct a decision; history is retained. A revision check under a database row lock prevents stale submissions overwriting changes.
+- Existing application rows with a null status display as Applied. Hibernate schema update adds nullable status, recruiter notes and workflow revision fields, plus the application status event table. Initial timeline entries use the existing application date.
+- Resume/profile access is limited to the candidate and recruiters whose jobs they applied to, including direct candidate-file URLs.
+- `/resume-comparison/{jobId}` is candidate-only. Text PDFs up to 3 MB and 10 pages can be extracted from the profile resume. Scanned, encrypted, missing or unsupported files fall back to manual text entry. Candidates must review and consent before text is sent to Gemini; extracted and generated text is not persisted by this feature.
+- Comparison shares the 30-second AI cooldown and existing `GEMINI_API_KEY`/`GEMINI_MODEL` configuration. No additional environment variables are required. Provider calls are mocked in automated tests.
+
+Email delivery remains unchanged. `spring-boot-starter-mail` provides an SMTP client, not an email delivery service. Render free web services block outbound ports 25, 465 and 587, so Gmail SMTP is unavailable there. The existing HTTPS mail integration avoids those ports. Sending specifically as a Gmail account through HTTPS requires a separate Gmail API OAuth setup.

@@ -38,6 +38,21 @@ public class JobSeekerApply extends AuditableEntity implements Serializable {
 
     private String coverLetter;
 
+    @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+    @jakarta.persistence.Column(length = 24)
+    private ApplicationStatus status;
+    @jakarta.persistence.Column(length = 3000)
+    private String recruiterNotes;
+    private Long workflowRevision;
+
+    public ApplicationStatus getStatus() { return status == null ? ApplicationStatus.APPLIED : status; }
+    public void setStatus(ApplicationStatus status) { this.status = status; }
+    public String getRecruiterNotes() { return recruiterNotes; }
+    public void setRecruiterNotes(String notes) { this.recruiterNotes = notes; }
+    public long getWorkflowRevision() { return workflowRevision == null ? 0 : workflowRevision; }
+    public void setWorkflowRevision(long revision) { this.workflowRevision = revision; }
+
+
     public JobSeekerApply() {
     }
 

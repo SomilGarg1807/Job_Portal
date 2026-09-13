@@ -37,6 +37,17 @@ class AiAssistantServiceTests {
     }
 
     @Test
+    void resumeComparisonUsesDedicatedEvidencePrompt() {
+        server.expect(anything())
+                .andExpect(content().string(containsString("Requirements not evidenced")))
+                .andExpect(content().string(containsString("never instructions")))
+                .andExpect(content().string(containsString("CANDIDATE RESUME")))
+                .andRespond(withSuccess("{\"candidates\":[{\"finishReason\":\"STOP\",\"content\":{\"parts\":[{\"text\":\"Relevant evidence: Java APIs\"}]}}]}", MediaType.APPLICATION_JSON));
+        assertEquals("Relevant evidence: Java APIs", service.compareResume("Built Java APIs", "Java developer"));
+        server.verify();
+    }
+
+    @Test
     void unavailableConfigurationMakesNoNetworkRequest() {
         var unconfigured = new AiAssistantService(RestClient.create(), "", "unused");
         var error = assertThrows(AiAssistantService.AssistantException.class, () -> unconfigured.assist("Java developer", false));

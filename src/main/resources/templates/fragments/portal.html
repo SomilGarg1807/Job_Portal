@@ -25,7 +25,7 @@
 </div>
 <header class="workspace-header" th:fragment="header(section)">
     <a class="brand" th:href="@{/dashboard/}"><span class="brand-icon"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span><span>hotdevjobs<span class="accent">.</span></span></a>
-    <nav aria-label="Main navigation"><a th:href="@{/dashboard/}">Dashboard</a><a th:if="${recruiter}" th:href="@{/dashboard/add}" th:classappend="${section == 'post' ? 'current' : ''}">Post a job</a><a th:unless="${recruiter}" th:href="@{/dashboard/(view='saved')}">Saved jobs</a><a th:href="${recruiter} ? @{/recruiter-profile/} : @{/job-seeker-profile/}">My profile</a></nav>
+    <nav aria-label="Main navigation"><a th:href="@{/dashboard/}">Dashboard</a><a th:href="${recruiter} ? @{/recruiter/candidates} : @{/applications}" th:text="${recruiter ? 'Candidates' : 'Applications'}"></a><a th:if="${recruiter}" th:href="@{/dashboard/add}" th:classappend="${section == 'post' ? 'current' : ''}">Post a job</a><a th:unless="${recruiter}" th:href="@{/dashboard/(view='saved')}">Saved jobs</a><a th:href="${recruiter} ? @{/recruiter-profile/} : @{/job-seeker-profile/}">My profile</a></nav>
     <div th:replace="~{fragments/portal :: account}"></div>
 </header>
 <section class="ai-card" id="ai-assistant" th:fragment="assistant(title, description, actionLabel, editor)">

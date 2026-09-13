@@ -18,6 +18,9 @@ HotDevJobs brings job seekers and recruiters into one application. Candidates ca
 
 ## Features
 
+- **Application tracking:** Applied, Shortlisted, Interview, Offered and Rejected statuses, with dated candidate timelines.
+- **Recruiter candidate board:** filter applicants by job, status, name, skill and experience; review profiles and resumes, and keep private notes.
+- **Safe workflow updates:** recruiter ownership checks, CSRF protection, retained history and stale-update detection.
 - **Personalized discovery:** profile-based ordering prioritizes relevant roles and uses posting date when no useful match exists.
 - **Focused browsing:** 12 jobs per page in public search and the dashboard, with sorting and filters for experience, employment type, workplace, and posting date.
 - **Public job details:** visitors can read descriptions and requirements before signing in; applications, saved jobs, and recruiter tools require authentication.
@@ -28,11 +31,11 @@ HotDevJobs brings job seekers and recruiters into one application. Candidates ca
 - **Account verification:** email-code verification with expiry, resend limits, and single-use codes.
 - **Responsive design:** dedicated recruiter and job-seeker dashboards with profile completion, activity counts, and clear empty states.
 
-The catalogue includes a clearly identified sample collection spanning 50 roles across India, the UK, the US, and Canada, allowing the search and application workflows to be explored with varied data.
+The catalogue includes a varied sample collection across India, the UK, the US, and Canada, allowing the search and application workflows to be explored with realistic roles, skills, and experience levels.
 
 ## AI assistance
 
-Google Gemini supports two focused workflows: **job-description drafting** for recruiters and **interview preparation** for candidates.
+Google Gemini supports **job-description drafting**, **interview preparation**, and **resume-to-job comparison**. Candidates can review text extracted from their uploaded PDF, or paste relevant resume text, before comparing it with a selected job. The comparison highlights relevant evidence, requirements not evidenced, resume improvements and preparation topics.
 
 The backend selects the task from the signed-in user's role. Requests require consent, enforce input limits, and apply a cooldown. Generated content remains a draft for the user to review. Credentials stay on the server, and profiles and resumes are not automatically sent to the AI provider.
 

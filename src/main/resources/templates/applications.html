@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My applications | HotDevJobs</title>
+<link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}">
+<link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
+<link rel="stylesheet" th:href="@{/css/dashboard.css}"><link rel="stylesheet" th:href="@{/css/job-workspace.css}">
+<link rel="stylesheet" th:href="@{/css/portal-controls.css}"><link rel="stylesheet" th:href="@{/css/hiring-workflow.css}">
+<script defer th:src="@{/js/portal.js}"></script><script defer th:src="@{/js/portal-controls.js}"></script>
+</head><body class="job-workspace"><a class="skip-link" href="#main">Skip to content</a>
+<header th:replace="~{fragments/portal :: header('applications')}"></header><main id="main" class="workspace-main hiring-main">
+
+<section class="workflow-intro"><p class="eyebrow">YOUR NEXT CHAPTER</p><h1>My applications</h1><p>Follow every opportunity, from your first application to the next conversation.</p></section>
+<div class="workflow-empty" th:if="${results.empty}"><h2>Your next step starts here.</h2><p>Apply to a role to start tracking your progress.</p><a class="button primary" th:href="@{/dashboard/}">Explore jobs</a></div>
+<div class="application-list">
+<article class="application-summary" th:each="a : ${results.content}">
+<div><p class="eyebrow" th:text="${a.job.jobCompanyId?.name ?: 'Company'}"></p><h2><a th:href="@{/applications/{id}(id=${a.id})}" th:text="${a.job.jobTitle}"></a></h2><p th:if="${a.applyDate != null}" th:text="${'Applied ' + #dates.format(a.applyDate, 'dd MMM yyyy')}"></p></div>
+<span class="stage-badge" th:attr="data-stage=${a.status}" th:text="${a.status.label}"></span><a class="text-link" th:href="@{/applications/{id}(id=${a.id})}">View timeline &rarr;</a>
+</article></div>
+<nav class="workflow-pagination" th:unless="${results.empty}" aria-label="Application pages"><a class="button secondary" th:if="${results.hasPrevious()}" th:href="@{/applications(page=${results.number})}">Previous</a><span th:text="${'Page ' + (results.number + 1) + ' of ' + results.totalPages}"></span><a class="button secondary" th:if="${results.hasNext()}" th:href="@{/applications(page=${results.number + 2})}">Next</a></nav>
+
+</main></body></html>

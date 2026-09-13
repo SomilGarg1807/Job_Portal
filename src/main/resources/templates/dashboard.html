@@ -22,11 +22,12 @@
     <nav aria-label="Main navigation">
         <a class="nav-link" th:classappend="${view != 'applied' and view != 'saved' ? 'selected' : ''}" th:href="@{/dashboard/}" th:attr="aria-current=${view != 'applied' and view != 'saved' ? 'page' : null}"><i class="fa-solid fa-grip" aria-hidden="true"></i>Overview</a>
         <th:block th:unless="${recruiter}">
-            <a class="nav-link" th:classappend="${view == 'applied' ? 'selected' : ''}" th:attr="aria-current=${view == 'applied' ? 'page' : null}" th:href="@{/dashboard/(view='applied')}"><i class="fa-regular fa-paper-plane" aria-hidden="true"></i>My applications</a>
+            <a class="nav-link" th:classappend="${view == 'applied' ? 'selected' : ''}" th:attr="aria-current=${view == 'applied' ? 'page' : null}" th:href="@{/applications}"><i class="fa-regular fa-paper-plane" aria-hidden="true"></i>My applications</a>
             <a class="nav-link" th:classappend="${view == 'saved' ? 'selected' : ''}" th:attr="aria-current=${view == 'saved' ? 'page' : null}" th:href="@{/dashboard/(view='saved')}"><i class="fa-regular fa-bookmark" aria-hidden="true"></i>Saved jobs</a>
             <a class="nav-link" th:href="@{/job-seeker-profile/}"><i class="fa-regular fa-user" aria-hidden="true"></i>My profile</a>
         </th:block>
         <th:block th:if="${recruiter}">
+            <a class="nav-link" th:href="@{/recruiter/candidates}"><i class="fa-solid fa-users" aria-hidden="true"></i>Candidate board</a>
             <a class="nav-link" href="#openings"><i class="fa-solid fa-briefcase" aria-hidden="true"></i>My job posts</a>
             <a class="nav-link" th:href="@{/dashboard/add}"><i class="fa-solid fa-plus" aria-hidden="true"></i>Post a job</a>
             <a class="nav-link" th:href="@{/recruiter-profile/}"><i class="fa-regular fa-building" aria-hidden="true"></i>Company profile</a>

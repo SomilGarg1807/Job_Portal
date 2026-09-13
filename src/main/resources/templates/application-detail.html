@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Application timeline | HotDevJobs</title>
+<link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}">
+<link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
+<link rel="stylesheet" th:href="@{/css/dashboard.css}"><link rel="stylesheet" th:href="@{/css/job-workspace.css}">
+<link rel="stylesheet" th:href="@{/css/portal-controls.css}"><link rel="stylesheet" th:href="@{/css/hiring-workflow.css}">
+<script defer th:src="@{/js/portal.js}"></script><script defer th:src="@{/js/portal-controls.js}"></script>
+</head><body class="job-workspace"><a class="skip-link" href="#main">Skip to content</a>
+<header th:replace="~{fragments/portal :: header('applications')}"></header><main id="main" class="workspace-main hiring-main">
+
+<a class="breadcrumb" th:href="${recruiter} ? @{/recruiter/candidates} : @{/applications}">&larr; Back to applications</a>
+<section class="workflow-intro"><p class="eyebrow" th:text="${jobApplication.job.jobCompanyId?.name ?: 'APPLICATION'}"></p><h1 th:text="${jobApplication.job.jobTitle}"></h1><span class="stage-badge" th:attr="data-stage=${jobApplication.status}" th:text="${jobApplication.status.label}"></span><a class="text-link" th:href="@{/job-details-apply/{id}(id=${jobApplication.job.jobPostId})}">Read job description &rarr;</a></section>
+<p class="workflow-message" role="status" th:if="${message}" th:text="${message}"></p><p class="workflow-error" role="alert" th:if="${error}" th:text="${error}"></p>
+<div class="application-layout"><section class="workflow-panel"><h2>Application timeline</h2><p>Each update from the recruiter appears here.</p><ol class="application-timeline"><li th:each="event : ${timeline}"><span class="timeline-dot" aria-hidden="true"></span><div><h3 th:text="${event.status.label}"></h3><time th:if="${event.occurredAt != null}" th:text="${#dates.format(event.occurredAt,'dd MMM yyyy, HH:mm')}"></time></div></li></ol></section>
+<section class="workflow-panel" th:if="${recruiter}"><p class="eyebrow">CANDIDATE DETAILS</p><h2 th:text="${(jobApplication.userId.firstName ?: 'Candidate') + ' ' + (jobApplication.userId.lastName ?: '')}"></h2><p th:text="${jobApplication.userId.professionalHeadline}"></p><p th:text="${jobApplication.userId.totalExperienceYears != null ? jobApplication.userId.totalExperienceYears + ' years experience' : 'Experience not specified'}"></p><div class="candidate-skills"><span th:each="skill : ${jobApplication.userId.skills}" th:text="${skill.name}"></span></div>
+<div class="workflow-actions"><a class="button secondary" th:href="@{/job-seeker-profile/{id}(id=${jobApplication.userId.userAccountId})}">View profile</a><a class="button secondary" th:unless="${#strings.isEmpty(jobApplication.userId.resume)}" th:href="@{/job-seeker-profile/downloadResume(fileName=${jobApplication.userId.resume},userID=${jobApplication.userId.userAccountId})}">Download resume</a></div>
+<form class="workflow-form" method="post" th:action="@{/applications/{id}/update(id=${jobApplication.id})}"><input type="hidden" name="revision" th:value="${jobApplication.workflowRevision}"><label>Application status<select name="status"><option th:each="stage : ${statuses}" th:value="${stage}" th:selected="${stage == jobApplication.status}" th:text="${stage.label}"></option></select></label><p class="field-hint">The candidate sees status changes. You can return to an earlier stage to correct a decision; the history is retained.</p><label>Private recruiter notes<textarea name="notes" rows="5" maxlength="3000" th:text="${jobApplication.recruiterNotes}" placeholder="Record relevant skills, questions, and follow-up notes."></textarea></label><p class="field-hint">Visible only to you. Up to 3,000 characters.</p><button class="button primary" type="submit">Save update</button></form></section>
+<section class="workflow-panel" th:unless="${recruiter}"><p class="eyebrow">GET READY FOR WHAT COMES NEXT</p><h2>Prepare with purpose.</h2><p>Compare your resume with this role to find relevant evidence, missing details, and topics to practise.</p><a class="button primary" th:href="@{/resume-comparison/{id}(id=${jobApplication.job.jobPostId})}">Compare my resume with AI</a></section></div>
+
+</main></body></html>

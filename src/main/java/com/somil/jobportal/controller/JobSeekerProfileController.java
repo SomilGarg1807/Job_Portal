@@ -8,9 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -32,7 +30,6 @@ import com.somil.jobportal.entity.Skills;
 import com.somil.jobportal.entity.Users;
 import com.somil.jobportal.repository.UsersRepository;
 import com.somil.jobportal.services.JobSeekerProfileService;
-import com.somil.jobportal.util.FileDownloadUtil;
 import com.somil.jobportal.util.FileUploadUtil;
 
 @Controller
@@ -42,11 +39,13 @@ public class JobSeekerProfileController {
     private JobSeekerProfileService jobSeekerProfileService;
 
     private UsersRepository usersRepository;
+    private final com.somil.jobportal.services.CandidateAccessService candidateAccess;
 
     @Autowired
-    public JobSeekerProfileController(JobSeekerProfileService jobSeekerProfileService, UsersRepository usersRepository) {
+    public JobSeekerProfileController(JobSeekerProfileService jobSeekerProfileService, UsersRepository usersRepository, com.somil.jobportal.services.CandidateAccessService candidateAccess) {
         this.jobSeekerProfileService = jobSeekerProfileService;
         this.usersRepository = usersRepository;
+        this.candidateAccess = candidateAccess;
     }
 
     @GetMapping("/")
@@ -153,8 +152,7 @@ public class JobSeekerProfileController {
     @GetMapping("/{id}")
     public String candidateProfile(@PathVariable("id") int id, Model model) {
 
-        Optional<JobSeekerProfile> seekerProfile = jobSeekerProfileService.getOne(id);
-        model.addAttribute("profile", seekerProfile.get());
+        model.addAttribute("profile", candidateAccess.requireAccess(id));
         model.addAttribute("viewOnly", true);
         model.addAttribute("onboarding", false);
         return "job-seeker-profile";
@@ -163,27 +161,17 @@ public class JobSeekerProfileController {
     @GetMapping("/downloadResume")
     public ResponseEntity<?> downloadResume(@RequestParam(value = "fileName") String fileName, @RequestParam(value = "userID") String userId) {
 
-        FileDownloadUtil downloadUtil = new FileDownloadUtil();
-        Resource resource = null;
-
-        try {
-            resource = downloadUtil.getFileAsResourse("photos/candidate/" + userId, fileName);
-        } catch (IOException e) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        if (resource == null) {
-            return new ResponseEntity<>("File not found", HttpStatus.NOT_FOUND);
-        }
-
-        String contentType = "application/octet-stream";
-        String headerValue = "attachment; filename=\"" + resource.getFilename() + "\"";
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
-                .body(resource);
-
+        int id;
+        try { id = Integer.parseInt(userId); }
+        catch (NumberFormatException ex) { return ResponseEntity.badRequest().build(); }
+        var profile = candidateAccess.requireAccess(id);
+        if (!Objects.equals(fileName, profile.getResume())) return ResponseEntity.notFound().build();
+        var file = candidateAccess.file(profile, fileName);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .header(HttpHeaders.CONTENT_DISPOSITION, org.springframework.http.ContentDisposition.attachment()
+                        .filename(file.getFileName().toString(), java.nio.charset.StandardCharsets.UTF_8).build().toString())
+                .body(new org.springframework.core.io.FileSystemResource(file));
     }
 
     private boolean hasRequiredProfileFields(JobSeekerProfile profile) {
