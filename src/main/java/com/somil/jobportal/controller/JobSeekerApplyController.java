@@ -65,7 +65,7 @@ public class JobSeekerApplyController {
         }
         String description = JobContent.safeHtml(job.getDescriptionOfJob());
         model.addAttribute("safeDescription", description.isBlank() ? "No description has been provided yet." : description);
-        model.addAttribute("demoJob", (job.getPostedById() != null && "demo-publisher@hotdevjobs.invalid".equals(job.getPostedById().getEmail()))
+        model.addAttribute("demoJob", (job.getPostedById() != null && "demo-publisher@hotdevjobs".equals(job.getPostedById().getEmail()))
                 || (job.getJobCompanyId() != null && Objects.toString(job.getJobCompanyId().getName(), "").endsWith("(Demo)")));
         String context = "Role: " + Objects.toString(job.getJobTitle(), "") + "\nRequirements: " + JobContent.plainText(description);
         model.addAttribute("aiContext", context.substring(0, Math.min(context.length(), 2400)));
