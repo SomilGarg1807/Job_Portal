@@ -41,6 +41,14 @@ public class JobPostActivity extends AuditableEntity {
     @DateTimeFormat(pattern = "dd-MM-yyyy")
     private Date postedDate;
     private String jobTitle;
+    private Integer minExperienceYears;
+    private Integer maxExperienceYears;
+
+    public Integer getMinExperienceYears() { return minExperienceYears; }
+    public void setMinExperienceYears(Integer value) { minExperienceYears = value; }
+    public Integer getMaxExperienceYears() { return maxExperienceYears; }
+    public void setMaxExperienceYears(Integer value) { maxExperienceYears = value; }
+    public String getExperienceLabel() { return com.somil.jobportal.util.JobExperience.label(this); }
 
     public JobPostActivity() {
     }

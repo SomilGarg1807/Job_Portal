@@ -76,6 +76,7 @@
         <form id="filterForm" th:action="@{/global-search/}" method="get">
             <input type="hidden" name="job" th:value="${job}"/>
             <input type="hidden" name="location" th:value="${location}"/>
+            <div th:replace="~{fragments/portal :: experienceFilter}"></div>
 
             <fieldset>
                 <legend>Employment type</legend>
@@ -135,7 +136,7 @@
                 <span>Available roles</span>
                 <h2>Search results</h2>
             </div>
-            <span class="result-count" th:text="|${#lists.size(jobPost)} jobs|">0 jobs</span>
+            <span class="result-count" th:text="|${resultCount} jobs|">0 jobs</span>
         </div>
 
         <div class="empty-results" th:if="${#lists.isEmpty(jobPost)}">
@@ -156,6 +157,7 @@
                     <strong th:text="${jobPost.jobTitle}">Software Engineer</strong>
 
                     <span class="job-meta">
+                        <span><i class="fa-solid fa-user-tie" aria-hidden="true"></i> <span th:text="${jobPost.experienceLabel}"></span></span>
                         <span>
                             <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
                             <span th:text="|${jobPost.jobLocationId.city}, ${jobPost.jobLocationId.state}|">Location</span>
@@ -179,6 +181,14 @@
                 </span>
             </a>
         </div>
+        <nav class="job-pagination" aria-label="Job result pages" th:if="${resultCount > 0}">
+            <span th:text="|Showing ${rangeStart}–${rangeEnd} of ${resultCount}|"></span>
+            <div>
+                <button form="filterForm" type="submit" name="page" th:value="${page - 1}" th:disabled="${page == 1}">Previous</button>
+                <span aria-live="polite" th:text="|Page ${page} of ${totalPages}|"></span>
+                <button form="filterForm" type="submit" name="page" th:value="${page + 1}" th:disabled="${page == totalPages}">Next</button>
+            </div>
+        </nav>
     </section>
 </main>
 

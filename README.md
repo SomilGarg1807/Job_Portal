@@ -19,7 +19,8 @@ HotDevJobs brings job seekers and recruiters into one application. Candidates ca
 ## Features
 
 - **Personalized discovery:** profile-based ordering prioritizes relevant roles and uses posting date when no useful match exists.
-- **Focused browsing:** 12 jobs per dashboard page, with sorting, employment filters, workplace filters, and posting-date filters.
+- **Focused browsing:** 12 jobs per page in public search and the dashboard, with sorting and filters for experience, employment type, workplace, and posting date.
+- **Public job details:** visitors can read descriptions and requirements before signing in; applications, saved jobs, and recruiter tools require authentication.
 - **Search suggestions:** title and company suggestions come from posted jobs; location suggestions cover cities, states, and countries.
 - **Consistent controls:** keyboard-accessible location menus, responsive filters, clear selection states, and country/state/city inputs across profiles and job posting.
 - **Complete profiles:** skills, experience, employment preferences, resumes, and recruiter company information.

@@ -211,6 +211,78 @@ class DashboardTests {
         return "{\"context\":\"Java developer with Spring Boot\",\"consent\":" + consent + "}";
     }
 
+    @Test @WithMockUser(authorities = "Job Seeker")
+    void experienceFiltersBeforePaginationOnBothSearchPages() throws Exception {
+        var many = java.util.stream.IntStream.rangeClosed(1, 26).mapToObj(i -> {
+            var listing = job(i, "Engineer " + i, "Example");
+            listing.setDescriptionOfJob(i <= 13 ? "Bring 0-1 years of relevant experience." : "Bring 5-8 years of relevant experience.");
+            return listing;
+        }).toList();
+        when(jobs.getAll()).thenReturn(many);
+        for (String path : List.of("/global-search/", "/dashboard/")) {
+            String html = mvc.perform(get(path).param("experience", "0-1").param("page", "2"))
+                    .andExpect(status().isOk()).andExpect(model().attribute("resultCount", 13))
+                    .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals(1,
+                            result.getResponse().getContentAsString().split("name=\"experience\"", -1).length - 1))
+                    .andExpect(model().attribute("jobPost", hasSize(1))).andExpect(model().attribute("experience", "0-1"))
+                    .andReturn().getResponse().getContentAsString();
+            preview(path.contains("global") ? "experience-public" : "experience-dashboard", html);
+            mvc.perform(get(path).param("experience", "12+"))
+                    .andExpect(model().attribute("resultCount", 0));
+        }
+    }
+
+    @Test @WithMockUser(authorities = "Recruiter")
+    void rejectsReversedExperienceRangeBeforeSavingJob() throws Exception {
+        var recruiter = new RecruiterProfile(); recruiter.setUserAccountId(42); recruiter.setFirstName("Alex");
+        when(users.getCurrentUserProfile()).thenReturn(recruiter);
+        mvc.perform(post("/dashboard/addNew").param("minExperienceYears", "5").param("maxExperienceYears", "2"))
+                .andExpect(view().name("add-jobs"))
+                .andExpect(model().attribute("formError", containsString("valid experience range")));
+        verify(jobs, never()).addNew(any());
+    }
+
+    @Test
+    void publicSearchPaginatesNewestFirstAndHandlesBoundaries() throws Exception {
+        var many = java.util.stream.IntStream.rangeClosed(1, 26)
+                .mapToObj(i -> job(i, "Engineer " + i, "Example")).toList();
+        when(jobs.getAll()).thenReturn(many);
+        mvc.perform(get("/global-search/"))
+                .andExpect(model().attribute("jobPost", contains(many.subList(14, 26).stream().sorted(java.util.Comparator.comparing(JobPostActivity::getJobPostId).reversed()).toArray())))
+                .andExpect(model().attribute("resultCount", 26))
+                .andExpect(model().attribute("totalPages", 3));
+        String html = mvc.perform(get("/global-search/").param("page", "2"))
+                .andExpect(model().attribute("jobPost", hasSize(12)))
+                .andExpect(model().attribute("rangeStart", 13)).andExpect(model().attribute("rangeEnd", 24))
+                .andExpect(content().string(containsString("Showing 13–24 of 26")))
+                .andReturn().getResponse().getContentAsString();
+        preview("public-paged", html);
+        mvc.perform(get("/global-search/").param("page", "999"))
+                .andExpect(model().attribute("page", 3)).andExpect(model().attribute("jobPost", hasSize(2)));
+        mvc.perform(get("/global-search/").param("page", "-1"))
+                .andExpect(model().attribute("page", 1));
+        when(jobs.getAll()).thenReturn(List.of());
+        mvc.perform(get("/global-search/"))
+                .andExpect(model().attribute("resultCount", 0))
+                .andExpect(content().string(not(containsString("aria-label=\"Job result pages\""))));
+    }
+
+    @Test
+    void publicPaginationPreservesSearchAndFilters() throws Exception {
+        var many = java.util.stream.IntStream.rangeClosed(1, 13)
+                .mapToObj(i -> job(i, "Java Engineer " + i, "Example")).toList();
+        when(jobs.search(any(), any(), anyList(), anyList(), any(), anyBoolean(), anyBoolean())).thenReturn(many);
+        String html = mvc.perform(get("/global-search/").param("page", "2").param("job", "Java")
+                .param("location", "Pune").param("fullTime", "Full-Time").param("remoteOnly", "Remote-Only"))
+                .andExpect(model().attribute("jobPost", hasSize(1)))
+                .andExpect(model().attribute("job", "Java")).andExpect(model().attribute("location", "Pune"))
+                .andExpect(model().attribute("fullTime", true)).andExpect(model().attribute("remoteOnly", true))
+                .andExpect(content().string(containsString("form=\"filterForm\"")))
+                .andReturn().getResponse().getContentAsString();
+        preview("public-filtered", html);
+        verify(jobs).search(eq("Java"), eq("Pune"), anyList(), anyList(), isNull(), eq(true), eq(true));
+    }
+
     private JobPostActivity job(int id, String title, String company) {
         var job = new JobPostActivity();
         job.setJobPostId(id);

@@ -98,7 +98,7 @@
         input.addEventListener('blur', () => setTimeout(close, 150));
     });
     document.querySelectorAll('details.filter-panel, details.filters').forEach(panel => {
-        const count = panel.querySelectorAll('input:checked').length;
+        const count = panel.querySelectorAll('input:checked').length + (panel.querySelector('select[name="experience"]')?.value ? 1 : 0);
         const badge = document.createElement('span');
         badge.className = 'filter-count';
         badge.textContent = count ? ` (${count} active)` : '';

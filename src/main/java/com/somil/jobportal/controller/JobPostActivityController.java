@@ -73,7 +73,8 @@ public class JobPostActivityController {
                              @RequestParam(value = "days30", required = false) boolean days30,
                              @RequestParam(defaultValue = "all") String view,
                              @RequestParam(defaultValue = "relevance") String sort,
-                             @RequestParam(defaultValue = "1") int page
+                             @RequestParam(defaultValue = "1") int page,
+                             @RequestParam(defaultValue = "") String experience
 
     ) {
 
@@ -130,6 +131,9 @@ public class JobPostActivityController {
         }
 
         Object currentUserProfile = usersService.getCurrentUserProfile();
+        experience = com.somil.jobportal.util.JobExperience.normalize(experience);
+        jobPost = com.somil.jobportal.util.JobExperience.filter(jobPost, experience);
+        model.addAttribute("experience", experience);
         if (!List.of("relevance", "newest", "title", "applicants").contains(sort)) sort = "relevance";
         if (currentUserProfile instanceof RecruiterProfile && "relevance".equals(sort)) sort = "newest";
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -239,7 +243,9 @@ public class JobPostActivityController {
                                @RequestParam(value = "partialRemote", required = false) String partialRemote,
                                @RequestParam(value = "today", required = false) boolean today,
                                @RequestParam(value = "days7", required = false) boolean days7,
-                               @RequestParam(value = "days30", required = false) boolean days30) {
+                               @RequestParam(value = "days30", required = false) boolean days30,
+                               @RequestParam(defaultValue = "1") int page,
+                               @RequestParam(defaultValue = "") String experience) {
 
         model.addAttribute("partTime", Objects.equals(partTime, "Part-Time"));
         model.addAttribute("fullTime", isFullTime(fullTime));
@@ -293,13 +299,29 @@ public class JobPostActivityController {
                     Arrays.asList(remoteOnly, officeOnly, partialRemote), searchDate, typeFilter, remoteFilter);
         }
 
-        model.addAttribute("jobPost", jobPost);
+        experience = com.somil.jobportal.util.JobExperience.normalize(experience);
+        model.addAttribute("experience", experience);
+        List<JobPostActivity> ordered = com.somil.jobportal.util.JobExperience.filter(jobPost, experience).stream()
+                .sorted(Comparator.comparing(JobPostActivity::getPostedDate, Comparator.nullsLast(Comparator.reverseOrder()))
+                        .thenComparing(JobPostActivity::getJobPostId, Comparator.reverseOrder()))
+                .toList();
+        int resultCount = ordered.size();
+        int totalPages = Math.max(1, (resultCount + 11) / 12);
+        int currentPage = Math.min(Math.max(1, page), totalPages);
+        int start = (currentPage - 1) * 12;
+        model.addAttribute("jobPost", ordered.subList(start, Math.min(start + 12, resultCount)));
+        model.addAttribute("resultCount", resultCount);
+        model.addAttribute("page", currentPage);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("rangeStart", resultCount == 0 ? 0 : start + 1);
+        model.addAttribute("rangeEnd", Math.min(start + 12, resultCount));
         return "global-search";
     }
 
     @InitBinder("jobPostActivity")
     public void bindJobFields(WebDataBinder binder) {
         binder.setAllowedFields("jobPostId", "jobTitle", "jobType", "remote", "salary", "descriptionOfJob",
+                "minExperienceYears", "maxExperienceYears",
                 "jobCompanyId.name", "jobLocationId.city", "jobLocationId.state", "jobLocationId.country");
     }
 
@@ -337,6 +359,8 @@ public class JobPostActivityController {
         job.setRemote(submitted.getRemote());
         job.setSalary(Objects.toString(submitted.getSalary(), "").trim());
         job.setDescriptionOfJob(JobContent.safeHtml(submitted.getDescriptionOfJob()));
+        job.setMinExperienceYears(submitted.getMinExperienceYears());
+        job.setMaxExperienceYears(submitted.getMaxExperienceYears());
         // Copy locations/companies into new records when edited so shared demo records are not overwritten.
         job.setJobCompanyId(new JobCompany(null, submitted.getJobCompanyId().getName().trim(), ""));
         job.setJobLocationId(new JobLocation(null, submitted.getJobLocationId().getCity().trim(),
@@ -381,6 +405,10 @@ public class JobPostActivityController {
     }
 
     private String validateJob(JobPostActivity job) {
+        Integer min = job.getMinExperienceYears(), max = job.getMaxExperienceYears();
+        if ((min == null && max != null) || (min != null && (min < 0 || min > 50))
+                || (max != null && (max < 0 || max > 50 || max < min)))
+            return "Enter a valid experience range from 0 to 50 years; maximum must be at least the minimum.";
         if (!validText(job.getJobTitle(), 160) || job.getJobCompanyId() == null || !validText(job.getJobCompanyId().getName(), 160))
             return "Enter a job title and company name (up to 160 characters each).";
         if (!List.of("Full-time", "Part-time", "Freelance", "Internship").contains(Objects.toString(job.getJobType(), ""))

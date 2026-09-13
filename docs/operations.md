@@ -15,6 +15,10 @@ Delivery uses the [Resend HTTPS API](https://resend.com/docs/api-reference/email
 
 ## Search and recommendations
 
+Public search and dashboard results are paginated in groups of 12. Experience filters match jobs whose stated requirement range overlaps the selected years; jobs without stated experience appear under “Not specified”. New job posts support nullable `min_experience_years` and `max_experience_years` columns, created through the existing Hibernate schema-update configuration. Existing posts use explicit year ranges in their descriptions until a recruiter supplies structured values.
+
+Only GET requests for `/job-details-apply/{id}` are public. Applying, saving, editing and accessing profiles remain authenticated; applicant lists are rendered only for the posting recruiter.
+
 The September 13 expansion added 350 sample postings (200 India; 50 each UK, US and Canada) and cleaned the repeated demo wording from the original 120. Six description bullets and a short sample notice remain. The catalogue now contains 478 jobs, including the eight original non-seeded postings.
 
 `GET /api/search/jobs?q=...` suggests titles, keywords and companies from posted jobs. `GET /api/search/locations?q=...` combines posted cities/states/countries with [Open-Meteo geocoding](https://open-meteo.com/en/docs/geocoding-api), based on GeoNames data. The demo's non-commercial geocoding endpoint needs no key; commercial use requires the appropriate provider plan. Results are bounded and cached; manual search works during provider failures.

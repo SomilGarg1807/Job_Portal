@@ -34,6 +34,8 @@
                     <label class="field">Employment type <span class="required">*</span><select id="type" th:field="*{jobType}" required><option value="">Select a type</option><option value="Full-time">Full time</option><option value="Part-time">Part time</option><option value="Freelance">Freelance</option><option value="Internship">Internship</option></select></label>
                     <label class="field">Workplace <span class="required">*</span><select id="remote" th:field="*{remote}" required><option value="">Select workplace</option><option value="Remote-Only">Remote</option><option value="Office-Only">On site</option><option value="Partial-Remote">Hybrid</option></select></label>
                     <label class="field full">Salary range<input id="salary" th:field="*{salary}" maxlength="120" placeholder="e.g. INR 12–18 LPA or GBP 55,000–70,000 / year"><small>Include the currency and pay period. Leave blank if not disclosed.</small></label>
+                    <label class="field">Minimum experience (years)<input id="minExperienceYears" th:field="*{minExperienceYears}" type="number" min="0" max="50" step="1" placeholder="e.g. 0"><small>Leave blank if experience is not specified.</small></label>
+                    <label class="field">Maximum experience (years)<input id="maxExperienceYears" th:field="*{maxExperienceYears}" type="number" min="0" max="50" step="1" placeholder="e.g. 3"><small>Leave blank for no upper limit.</small></label>
                 </div>
             </section>
             <section class="editor-section"><div class="step-heading"><span>02</span><div><h2>Where the work happens</h2><p>For remote roles, specify the hiring location or time zone region.</p></div></div>

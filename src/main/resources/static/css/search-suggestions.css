@@ -8,6 +8,8 @@
 .suggestion-status { padding:8px; font-size:11px; color:#64748b; }
 .filter-panel>summary { padding:0 0 18px; color:#152a40; cursor:pointer; font-weight:800; }
 .filter-count { font-size:.78rem; font-weight:600; }
+.experience-filter,.filter-grid .experience-filter{display:grid;gap:8px;margin:0 0 20px;font-size:12px;font-weight:700;color:#40566d;align-content:start}
+.experience-filter select{width:100%;min-height:42px;padding:9px 12px;font:inherit;font-weight:500}
 .ranking-message{font-size:12px;color:#64748b;margin:0 0 16px}
 .job-pagination{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:22px;font-size:12px;color:#526478}
 .job-pagination>div{display:flex;align-items:center;gap:12px}

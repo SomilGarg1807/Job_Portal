@@ -45,7 +45,10 @@ public class JobSeekerApplyController {
     @GetMapping("job-details-apply/{id}")
     public String display(@PathVariable("id") int id, Model model) {
         JobPostActivity job = jobPostActivityService.getOne(id);
-        Object profile = usersService.getCurrentUserProfile();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean guest = authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken;
+        Object profile = guest ? null : usersService.getCurrentUserProfile();
+        model.addAttribute("guest", guest);
         boolean recruiter = profile instanceof RecruiterProfile;
         boolean owner = recruiter && job.getPostedById() != null
                 && ((RecruiterProfile) profile).getUserAccountId() == job.getPostedById().getUserId();
