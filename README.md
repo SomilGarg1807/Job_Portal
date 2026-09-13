@@ -1,109 +1,85 @@
 # HotDevJobs
 
-**A full-stack job portal connecting job seekers with recruiters, with AI assistance built into both workflows.**
+**A full-stack recruitment portal with personalized job discovery, recruiter workflows, and AI-assisted career preparation.**
 
-[Live application](https://job-portal-0lgp.onrender.com/) · [Setup and operations](docs/operations.md)
+[Explore the application](https://job-portal-0lgp.onrender.com/)
 
-Built with Java 17 and Spring Boot, HotDevJobs brings job discovery, applications, recruiter job management, and career preparation into a single application.
+HotDevJobs brings job seekers and recruiters into one application. Candidates can discover relevant roles, build a professional profile, save opportunities, and apply. Recruiters can publish openings, review applicants, and manage their company profile.
 
-## Product overview
+## Core workflows
 
 | Job seekers | Recruiters |
 | --- | --- |
-| Search by title, location, employment type, workplace, and posting date | Publish and edit job openings |
-| Track submitted applications and saved opportunities | Review applicants for their job posts |
-| Build a professional profile with skills and a resume | Maintain a company and recruiter profile |
-| View application counts and profile completion | View job-post and application counts |
-| Generate interview questions and a practice plan | Generate a job-description draft for review |
+| Discover jobs matched to a target role and skills | Publish and edit detailed job postings |
+| Search by keyword, company, location, and work arrangement | Review candidates who applied to their openings |
+| Save opportunities and track submitted applications | View posting and application counts |
+| Maintain skills, experience, preferences, and a resume | Maintain a recruiter and company profile |
+| Prepare for interviews with AI-generated practice plans | Draft job descriptions with AI assistance |
 
-Both dashboards use responsive layouts with job cards, sorting, filters, and clear empty states. Registration and login use Spring Security, with separate job seeker and recruiter account types.
+## Features
+
+- **Personalized discovery:** profile-based ordering prioritizes relevant roles and uses posting date when no useful match exists.
+- **Focused browsing:** 12 jobs per dashboard page, with sorting, employment filters, workplace filters, and posting-date filters.
+- **Search suggestions:** title and company suggestions come from posted jobs; location suggestions cover cities, states, and countries.
+- **Consistent controls:** keyboard-accessible location menus, responsive filters, clear selection states, and country/state/city inputs across profiles and job posting.
+- **Complete profiles:** skills, experience, employment preferences, resumes, and recruiter company information.
+- **Job management:** rich-text descriptions, ownership checks for editing, candidate review, and saved/applied views.
+- **Account verification:** email-code verification with expiry, resend limits, and single-use codes.
+- **Responsive design:** dedicated recruiter and job-seeker dashboards with profile completion, activity counts, and clear empty states.
+
+The catalogue includes a clearly identified sample collection spanning 50 roles across India, the UK, the US, and Canada, allowing the search and application workflows to be explored with varied data.
 
 ## AI assistance
 
-The assistant supports two focused tasks: **interview preparation** for job seekers and **job-description drafting** for recruiters.
+Google Gemini supports two focused workflows: **job-description drafting** for recruiters and **interview preparation** for candidates.
 
-Requests pass through the Spring Boot backend to Google Gemini. The signed-in user's role determines the task, and only text explicitly entered into the assistant is sent. Profiles, resumes, and application records are not automatically included.
+The backend selects the task from the signed-in user's role. Requests require consent, enforce input limits, and apply a cooldown. Generated content remains a draft for the user to review. Credentials stay on the server, and profiles and resumes are not automatically sent to the AI provider.
 
-- API credentials stay on the server.
-- Requests require consent, enforce input limits, and apply a session-based cooldown.
-- Timeouts and provider-error handling keep failures visible and recoverable.
-- Generated text is displayed as a draft for human review; it is not automatically published or used to rank applicants.
+Job recommendations use local profile matching rather than AI-generated suitability scores.
 
-The rest of the portal works without AI configuration.
-
-## Technical design
+## Architecture
 
 ```mermaid
 flowchart LR
-    Browser["Browser: Thymeleaf, CSS, JavaScript"] --> Security["Spring Security"]
-    Security --> MVC["Spring MVC controllers"]
-    MVC --> Services["Application services"]
-    Services --> JPA["Spring Data JPA / Hibernate"]
-    JPA --> Database[("MySQL-compatible database")]
-    Services --> Gemini["Google Gemini API"]
+    UI["Thymeleaf · CSS · JavaScript"] --> Security["Spring Security"]
+    Security --> Controllers["Spring MVC controllers"]
+    Controllers --> Services["Application services"]
+    Services --> Persistence["Spring Data JPA · Hibernate"]
+    Persistence --> Database[("MySQL / TiDB")]
+    Services --> AI["Google Gemini"]
+    Services --> Locations["Location API"]
 ```
 
-| Layer | Technology |
+Controllers handle requests, services coordinate application behavior, and repositories manage persistence. Entity relationships connect accounts, profiles, companies, locations, job posts, applications, and saved opportunities.
+
+| Area | Technologies |
 | --- | --- |
-| Backend | Java 17, Spring Boot 3.4, Spring MVC |
-| Authentication | Spring Security, BCrypt password hashing |
-| Persistence | Spring Data JPA, Hibernate, MySQL-compatible database / TiDB Cloud |
-| Frontend | Thymeleaf, HTML, CSS, JavaScript, Bootstrap |
-| AI | Google Gemini REST API |
-| Testing | JUnit 5, Mockito, MockMvc, H2 |
-| Build and deployment | Maven, Docker, Render |
+| Backend | Java 17, Spring Boot, Spring MVC |
+| Security | Spring Security, BCrypt |
+| Persistence | Spring Data JPA, Hibernate, MySQL-compatible database |
+| Frontend | Thymeleaf, JavaScript, CSS, Bootstrap |
+| AI integration | Google Gemini REST API |
+| Tests | JUnit 5, Mockito, MockMvc, H2 |
+| Build and delivery | Maven, Docker, Render |
 
-The code separates controllers, services, repositories, and entities. Persisted records include creation and update timestamps. A public `/health` endpoint provides a lightweight liveness check without invoking the database or AI provider.
+## Quality and validation
 
-## Run locally
+Automated tests cover application startup, authentication redirects, recruiter ownership, dashboard rendering, profile validation, pagination, recommendation ordering, search-provider failures, AI request handling, and email verification.
 
-**Prerequisites:** Java 17+, Maven, and a MySQL-compatible database.
+Browser checks cover desktop and mobile layouts, keyboard navigation, location selection, filter controls, and the rich-text editor. The public `/health` endpoint supports service monitoring.
 
-Configure these environment variables in your terminal or IDE:
+## Getting started
 
-```text
-DB_URL=jdbc:mysql://your-host:4000/jobportal?sslMode=VERIFY_IDENTITY
-DB_USERNAME=your-username
-DB_PASSWORD=your-password
-```
-
-To enable the optional assistant, also configure:
-
-```text
-GEMINI_API_KEY=your-key
-GEMINI_MODEL=gemini-3.5-flash-lite
-```
-
-The model is configurable. Obtain a key from [Google AI Studio](https://aistudio.google.com/apikey) and check the provider's current quotas and data-use policy before enabling it for users.
-
-Start the application:
+Use Java 17 and a MySQL-compatible database. Follow the [configuration guide](docs/operations.md) for database and integration settings.
 
 ```bash
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
-Open **http://localhost:8080**. Create a job seeker or recruiter account to explore the corresponding workflow.
+Open `http://localhost:8080`. On Windows, use `mvnw.cmd`.
 
-For local development, the application also reads `application-secrets.properties` from the project root. This file is excluded from Git and Docker; configure deployment credentials through Render's environment settings.
-
-New registrations require email verification. Configure `RESEND_API_KEY` and `EMAIL_FROM` (for example, `HotDevJobs <verify@your-domain.com>`) before accepting signups. The sender domain must be verified with Resend. See the [email setup instructions](docs/operations.md#email-verification). Existing accounts continue to work without re-verification.
-
-The dashboard shows 12 jobs per page. Job seekers see relevant roles first using their target title, headline and skills, with preferred city/workplace as secondary signals; jobs without a profile match fall back to posting date. Filters and saved/applied views persist across pages. Job and company suggestions come from posted jobs; location suggestions combine posted locations with Open-Meteo/GeoNames.
-
-## Validation
-
-Email verification tests use a mocked delivery provider and an isolated H2 database to verify account creation, expiry, replay prevention, persistent attempt limits and CSRF protection. No real emails are sent during tests.
+Run the automated tests:
 
 ```bash
-mvn test
+./mvnw test
 ```
-
-The test suite covers application startup, profile schema initialization, authentication redirects, dashboard rendering, recruiter search ownership, applied/saved views, sorting, and the public health endpoint. AI tests cover authorization, consent, input validation, throttling, response parsing, and provider failures using mocked API responses.
-
-Dashboard layouts have also been checked at desktop, tablet, and mobile widths using rendered test fixtures.
-
-## Deployment
-
-The repository includes a multi-stage Docker build and a Render blueprint with `/health` configured as its health-check path. The container runs as a non-root user and accepts the port supplied by Render.
-
-The demo uses Render's free tier, so startup delays can occur after inactivity. Deployment configuration, AI setup, monitoring instructions, and current implementation limits are documented in the [operations guide](docs/operations.md).

@@ -23,17 +23,19 @@
         if (locationDataPromise) return locationDataPromise;
 
         locationDataPromise = (async function () {
-            const cached = sessionStorage.getItem(CACHE_KEY);
-            if (cached) return JSON.parse(cached);
+            try {
+                const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || 'null');
+                if (Array.isArray(cached)) return cached;
+            } catch (_) { /* Suggestions also work when storage is unavailable. */ }
 
-            const response = await fetch(STATES_URL);
+            const response = await fetch(STATES_URL, {signal: AbortSignal.timeout(8000)});
             if (!response.ok) throw new Error('Unable to load countries');
             const payload = await response.json();
             if (payload.error || !Array.isArray(payload.data)) throw new Error('Invalid location response');
 
-            sessionStorage.setItem(CACHE_KEY, JSON.stringify(payload.data));
+            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(payload.data)); } catch (_) { }
             return payload.data;
-        })();
+        })().catch(error => { locationDataPromise = null; throw error; });
 
         return locationDataPromise;
     }
@@ -41,6 +43,7 @@
     async function loadCities(country, state) {
         const response = await fetch(CITIES_URL, {
             method: 'POST',
+            signal: AbortSignal.timeout(8000),
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ country: country, state: state })
         });
@@ -60,6 +63,7 @@
         const status = picker.querySelector('[data-location-status]');
 
         if (!countryInput || countryInput.disabled) return;
+        let cityRequest = 0;
 
         function updateStatus(message, className) {
             if (!status) return;
@@ -73,6 +77,7 @@
             const states = country && Array.isArray(country.states) ? country.states.map(item => item.name) : [];
             setOptions(stateOptions, states);
             if (clearDependentFields) {
+                cityRequest++;
                 stateInput.value = '';
                 cityInput.value = '';
                 setOptions(cityOptions, []);
@@ -81,14 +86,19 @@
         }
 
         async function populateCities(clearCity) {
+            const request = ++cityRequest;
+            setOptions(cityOptions, []);
             if (clearCity) cityInput.value = '';
             if (!countryInput.value.trim() || !stateInput.value.trim()) return;
+            const country = countryInput.value.trim(), state = stateInput.value.trim();
             updateStatus('Loading city suggestions…', 'loading');
             try {
-                const cities = await loadCities(countryInput.value.trim(), stateInput.value.trim());
+                const cities = await loadCities(country, state);
+                if (request !== cityRequest || countryInput.value.trim() !== country || stateInput.value.trim() !== state) return;
                 setOptions(cityOptions, cities);
                 updateStatus(cities.length ? 'City suggestions are ready. You can also type manually.' : 'No city list was returned; type your city manually.');
             } catch (error) {
+                if (request !== cityRequest) return;
                 updateStatus('City suggestions are temporarily unavailable; type your city manually.', 'error');
             }
         }

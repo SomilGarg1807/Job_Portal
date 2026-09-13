@@ -1,5 +1,7 @@
 HELP.md
 target/
+__pycache__/
+*.pyc
 /bin/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/

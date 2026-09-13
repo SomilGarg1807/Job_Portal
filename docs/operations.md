@@ -15,14 +15,13 @@ Delivery uses the [Resend HTTPS API](https://resend.com/docs/api-reference/email
 
 ## Search and recommendations
 
+The September 13 expansion added 350 sample postings (200 India; 50 each UK, US and Canada) and cleaned the repeated demo wording from the original 120. Six description bullets and a short sample notice remain. The catalogue now contains 478 jobs, including the eight original non-seeded postings.
+
 `GET /api/search/jobs?q=...` suggests titles, keywords and companies from posted jobs. `GET /api/search/locations?q=...` combines posted cities/states/countries with [Open-Meteo geocoding](https://open-meteo.com/en/docs/geocoding-api), based on GeoNames data. The demo's non-commercial geocoding endpoint needs no key; commercial use requires the appropriate provider plan. Results are bounded and cached; manual search works during provider failures.
 
 The dashboard renders 12 jobs per page and preserves filters, sort and applied/saved views while paging. Ranking runs locally using target role, headline and skills. Preferred city and workplace are secondary signals for relevant jobs; no profile data goes to an AI service. If nothing matches, posting date determines order. Explicit Newest and Title sorting remain available. The current implementation ranks the matching collection in memory before slicing the page; a larger catalogue should move ranking and paging into database queries.
 
-`scripts/seed_demo_jobs.py` previews 120 labelled demo opportunities by default; `--apply` inserts them and `--verify` checks the batch. Credentials come from environment variables or the ignored local secrets file. These are demonstration listings, not verified vacancies.
-
 ## Optional AI assistant
-
 
 The dashboard now includes two AI workflows:
 

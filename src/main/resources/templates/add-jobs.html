@@ -13,6 +13,9 @@
     <script defer th:src="@{/js/portal.js}"></script>
     <script defer th:src="@{/js/ai-assistant.js}"></script>
     <script defer th:src="@{/js/job-editor.js}"></script>
+    <script defer th:src="@{/js/location-picker.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/portal-controls.css}">
+    <script defer th:src="@{/js/portal-controls.js}"></script>
 </head>
 <body class="job-workspace">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -34,8 +37,14 @@
                 </div>
             </section>
             <section class="editor-section"><div class="step-heading"><span>02</span><div><h2>Where the work happens</h2><p>For remote roles, specify the hiring location or time zone region.</p></div></div>
-                <div class="field-grid location-grid"><label class="field">City <span class="required">*</span><input id="city" th:field="*{jobLocationId.city}" required maxlength="100" placeholder="e.g. Bengaluru"></label><label class="field">State / region <span class="required">*</span><input id="state" th:field="*{jobLocationId.state}" required maxlength="100" placeholder="e.g. Karnataka"></label><label class="field">Country <span class="required">*</span><input id="country" th:field="*{jobLocationId.country}" required maxlength="100" list="countries" placeholder="e.g. India"></label></div>
-                <datalist id="countries"><option value="India"><option value="United Kingdom"><option value="United States"><option value="Canada"></datalist>
+                <div class="field-grid location-grid" data-location-picker>
+                    <label class="field">Country <span class="required">*</span><input id="country" th:field="*{jobLocationId.country}" data-location-country required maxlength="100" list="job-countries" placeholder="e.g. India"></label>
+                    <label class="field">State / region <span class="required">*</span><input id="state" th:field="*{jobLocationId.state}" data-location-state required maxlength="100" list="job-states" placeholder="e.g. Karnataka"></label>
+                    <label class="field">City <span class="required">*</span><input id="city" th:field="*{jobLocationId.city}" data-location-city required maxlength="100" list="job-cities" placeholder="e.g. Bengaluru"></label>
+                    <datalist id="job-countries" data-country-options><option value="India"><option value="United Kingdom"><option value="United States"><option value="Canada"></datalist>
+                    <datalist id="job-states" data-state-options></datalist><datalist id="job-cities" data-city-options></datalist>
+                    <p class="location-status full-width" data-location-status role="status"></p>
+                </div>
             </section>
             <section class="editor-section"><div class="step-heading"><span>03</span><div><h2>Tell the story of the role</h2><p>Include responsibilities, experience, skills, and what your team offers.</p></div></div>
                 <label class="field" for="content">Job description <span class="required">*</span></label><textarea rows="14" id="content" th:field="*{descriptionOfJob}" aria-describedby="description-help" placeholder="About the role&#10;&#10;What you will do&#10;&#10;Experience and skills&#10;&#10;What we offer"></textarea>
