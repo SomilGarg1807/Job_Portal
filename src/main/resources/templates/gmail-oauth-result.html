@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gmail connection | HotDevJobs</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+</head>
+<body class="login-page">
+<main class="login-shell">
+    <section class="login-panel">
+        <div class="login-card">
+            <span class="eyebrow">Gmail API</span>
+            <h2 th:if="${refreshToken != null}">Refresh token created</h2>
+            <h2 th:if="${error != null}">Connection failed</h2>
+            <p class="form-intro" th:if="${refreshToken != null}">Add this value in Render as <strong>GMAIL_REFRESH_TOKEN</strong>, then redeploy.</p>
+            <p class="form-intro" th:if="${error != null}" th:text="${error}"></p>
+            <div class="form-field" th:if="${refreshToken != null}">
+                <label for="refreshToken">GMAIL_REFRESH_TOKEN</label>
+                <div class="input-wrap">
+                    <input id="refreshToken" type="text" readonly th:value="${refreshToken}">
+                </div>
+            </div>
+            <a class="login-submit" th:href="@{/}">Back to HotDevJobs</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

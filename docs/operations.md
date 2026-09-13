@@ -4,15 +4,26 @@
 
 New accounts are created only after a six-digit email code is verified. Existing accounts remain usable. Codes expire after 10 minutes, are single-use, and are stored as BCrypt hashes alongside the hashed pending password. Pending registrations persist across restarts. Verification allows five incorrect attempts per hourly window; sending is limited to five codes per email per hour with at least 60 seconds between requests. Resending invalidates the old code without resetting failed attempts. Registration POSTs require CSRF tokens.
 
-Before accepting signups:
+Gmail API is preferred when these environment variables are present:
+
+- `GMAIL_CLIENT_ID`
+- `GMAIL_CLIENT_SECRET`
+- `GMAIL_REDIRECT_URI`
+- `GMAIL_REFRESH_TOKEN`
+- `GMAIL_FROM`, defaulting to `hotdevjobs.co@gmail.com`
+
+The OAuth client ID, client secret and redirect URI identify the app. The refresh token is created once when `hotdevjobs.co@gmail.com` authorizes the app with the `https://www.googleapis.com/auth/gmail.send` scope. Without `GMAIL_REFRESH_TOKEN`, Gmail cannot send unattended OTP emails from Render.
+
+After `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET` and `GMAIL_REDIRECT_URI` are deployed, open `/oauth2/gmail/start`, sign in as `hotdevjobs.co@gmail.com`, approve access, then copy the returned value into Render as `GMAIL_REFRESH_TOKEN`. Redeploy after adding it.
+
+Resend remains supported as a fallback when Gmail variables are not complete:
 
 1. Create a [Resend](https://resend.com) account and [verify a domain you own](https://resend.com/docs/dashboard/domains/introduction) by adding its DNS records. A Gmail address or the shared `onrender.com` domain cannot be your verified sender domain.
-2. Create a sending API key. In Render → your service → Environment, add `RESEND_API_KEY`.
+2. Create a sending API key. In Render -> your service -> Environment, add `RESEND_API_KEY`.
 3. Add `EMAIL_FROM`, for example `HotDevJobs <verify@your-domain.com>`, using the verified domain. Keep `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `GEMINI_API_KEY`, and optional `GEMINI_MODEL`.
 4. Save and redeploy. Register a test account, confirm the code arrives, verify it, and sign in. Automated tests mock email delivery and do not verify the live sender.
 
-Delivery uses the [Resend HTTPS API](https://resend.com/docs/api-reference/emails/send-email), since [Render free services block SMTP ports](https://render.com/docs/free). No SMTP password is needed. Missing settings or delivery failure prevent new registration and show an error; existing users can still sign in. `/health` does not check email delivery. Check sending quotas in the provider dashboard.
-
+Delivery uses HTTPS APIs, since [Render free services block SMTP ports](https://render.com/docs/free). No SMTP password is needed. Missing settings or delivery failure prevent new registration and show an error; existing users can still sign in. `/health` does not check email delivery. Check sending quotas in the provider dashboard.
 ## Search and recommendations
 
 Public search and dashboard results are paginated in groups of 12. Experience filters match jobs whose stated requirement range overlaps the selected years; jobs without stated experience appear under “Not specified”. New job posts support nullable `min_experience_years` and `max_experience_years` columns, created through the existing Hibernate schema-update configuration. Existing posts use explicit year ranges in their descriptions until a recruiter supplies structured values.
