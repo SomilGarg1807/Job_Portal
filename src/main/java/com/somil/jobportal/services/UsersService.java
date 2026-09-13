@@ -99,5 +99,10 @@ public class UsersService {
     public Optional<Users> getUserByEmail(String email) {
         return usersRepository.findByEmail(email);
     }
-    
+
+    @org.springframework.transaction.annotation.Transactional
+    public void updatePassword(Users user, String rawPassword) {
+        user.setPassword(passwordEncoder.encode(rawPassword));
+        usersRepository.save(user);
+    }
 }

@@ -57,8 +57,24 @@ public class VerificationMailService {
     }
 
     public void send(String email, String code, String deliveryId) {
+        deliver(email, deliveryId,
+                "Verify your HotDevJobs email",
+                "Your HotDevJobs verification code is: " + code
+                        + "\r\n\r\nThis code expires in 10 minutes. Do not share it."
+                        + "\r\nIf you did not request an account, you can ignore this email.");
+    }
+
+    public void sendPasswordReset(String email, String code, String deliveryId) {
+        deliver(email, deliveryId,
+                "Reset your HotDevJobs password",
+                "Your HotDevJobs password reset code is: " + code
+                        + "\r\n\r\nThis code expires in 10 minutes. Do not share it."
+                        + "\r\nIf you did not request a password reset, you can ignore this email.");
+    }
+
+    private void deliver(String email, String deliveryId, String subject, String body) {
         if (gmailConfigured()) {
-            sendWithGmail(email, code);
+            sendWithGmail(email, subject, body);
             return;
         }
         if (resendApiKey.isBlank() || resendSender.isBlank())
@@ -66,10 +82,7 @@ public class VerificationMailService {
         try {
             client.post().uri("https://api.resend.com/emails").header("Authorization", "Bearer " + resendApiKey)
                     .header("Idempotency-Key", deliveryId)
-                    .body(Map.of("from", resendSender, "to", List.of(email), "subject", "Verify your HotDevJobs email",
-                            "text", "Your HotDevJobs verification code is: " + code
-                                    + "\n\nThis code expires in 10 minutes. Do not share it."
-                                    + "\nIf you did not request an account, you can ignore this email."))
+                    .body(Map.of("from", resendSender, "to", List.of(email), "subject", subject, "text", body))
                     .retrieve().toBodilessEntity();
         } catch (RestClientException failure) {
             // Provider errors can contain recipient details; never expose/log the response body.
@@ -82,10 +95,10 @@ public class VerificationMailService {
                 && !gmailRefreshToken.isBlank() && !gmailSender.isBlank();
     }
 
-    private void sendWithGmail(String email, String code) {
+    private void sendWithGmail(String email, String subject, String body) {
         try {
             String accessToken = refreshAccessToken();
-            String raw = Base64.getUrlEncoder().withoutPadding().encodeToString(mime(email, code).getBytes(StandardCharsets.UTF_8));
+            String raw = Base64.getUrlEncoder().withoutPadding().encodeToString(mime(email, subject, body).getBytes(StandardCharsets.UTF_8));
             client.post().uri("https://gmail.googleapis.com/gmail/v1/users/me/messages/send")
                     .header("Authorization", "Bearer " + accessToken)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -112,16 +125,14 @@ public class VerificationMailService {
         return value;
     }
 
-    private String mime(String email, String code) {
+    private String mime(String email, String subject, String body) {
         return "From: HotDevJobs <" + gmailSender + ">\r\n"
                 + "To: " + email + "\r\n"
-                + "Subject: Verify your HotDevJobs email\r\n"
+                + "Subject: " + subject + "\r\n"
                 + "MIME-Version: 1.0\r\n"
                 + "Content-Type: text/plain; charset=UTF-8\r\n"
                 + "\r\n"
-                + "Your HotDevJobs verification code is: " + code
-                + "\r\n\r\nThis code expires in 10 minutes. Do not share it."
-                + "\r\nIf you did not request an account, you can ignore this email.";
+                + body;
     }
 
     private String encode(String value) {

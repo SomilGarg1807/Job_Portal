@@ -49,3 +49,7 @@ a { text-decoration:none; }
 
 .login-submit:not(:disabled), .password-toggle { cursor: pointer; }
 .login-submit:disabled { cursor: wait; }
+
+.forgot-link { margin: 10px 0 0; text-align: right; font-size: .82rem; }
+.forgot-link a { color: var(--orange-dark); font-weight: 800; }
+

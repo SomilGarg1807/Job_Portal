@@ -44,6 +44,10 @@
                 <i class="fa-solid fa-circle-check"></i>
                 <span>You have signed out successfully.</span>
             </div>
+            <div class="login-alert success" role="status" th:if="${param.reset}">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Your password was updated. Sign in with your new password.</span>
+            </div>
             <form th:action="@{/login}" method="post">
                 <div class="form-field">
                     <label for="username">Email address</label>
@@ -59,6 +63,7 @@
                         <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required/>
                         <button class="password-toggle" type="button" id="passwordToggle" aria-label="Show password"><i class="fa-solid fa-eye"></i></button>
                     </div>
+                    <p class="forgot-link"><a th:href="@{/forgot-password}">Forgot password?</a></p>
                 </div>
                 <button class="login-submit" type="submit">Sign in <i class="fa-solid fa-arrow-right"></i></button>
             </form>

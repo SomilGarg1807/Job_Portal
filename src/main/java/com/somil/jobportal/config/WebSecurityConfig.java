@@ -32,6 +32,8 @@ public class WebSecurityConfig {
             "/global-search/**",
             "/register",
             "/register/**",
+            "/forgot-password",
+            "/forgot-password/**",
             "/webjars/**",
             "/resources/**",
             "/assets/**",
@@ -62,6 +64,7 @@ public class WebSecurityConfig {
                 }).cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.requireCsrfProtectionMatcher(request ->
                         (request.getServletPath().startsWith("/register/")
+                                || request.getServletPath().startsWith("/forgot-password")
                                 || request.getServletPath().startsWith("/applications/")
                                 || request.getServletPath().startsWith("/resume-comparison/"))
                                 && !java.util.Set.of("GET", "HEAD", "OPTIONS", "TRACE").contains(request.getMethod())));
