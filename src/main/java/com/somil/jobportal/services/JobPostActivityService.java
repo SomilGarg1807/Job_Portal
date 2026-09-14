@@ -48,6 +48,10 @@ public class JobPostActivityService {
         return jobPostActivityRepository.findById(id).orElseThrow(()->new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Job not found"));
     }
 
+    public long countAll() {
+        return jobPostActivityRepository.count();
+    }
+
     public List<JobPostActivity> getAll() {
         return jobPostActivityRepository.findAll();
     }

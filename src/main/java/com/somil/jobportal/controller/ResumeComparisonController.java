@@ -19,9 +19,15 @@ public class ResumeComparisonController {
     private final CandidateAccessService files;
     private final ResumeTextService resumes;
     private final AiAssistantService ai;
+    private final AtsScoreService ats;
     public ResumeComparisonController(UsersService users, JobPostActivityService jobs, CandidateAccessService files,
-                                      ResumeTextService resumes, AiAssistantService ai) {
-        this.users = users; this.jobs = jobs; this.files = files; this.resumes = resumes; this.ai = ai;
+                                      ResumeTextService resumes, AiAssistantService ai, AtsScoreService ats) {
+        this.users = users; this.jobs = jobs; this.files = files; this.resumes = resumes; this.ai = ai; this.ats = ats;
+    }
+    @GetMapping("/{id}/ats-score") @ResponseBody
+    public ResponseEntity<AtsScoreService.AtsReport> atsScore(@PathVariable int id) {
+        var profile = seeker();
+        return ResponseEntity.ok().header("Cache-Control", "no-store").body(ats.score(profile, jobs.getOne(id)));
     }
     private JobSeekerProfile seeker() {
         if (!(users.getCurrentUserProfile() instanceof JobSeekerProfile profile))

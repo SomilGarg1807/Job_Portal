@@ -68,6 +68,16 @@ class DashboardTests {
     }
 
     @Test @WithMockUser(authorities = "Job Seeker")
+    void seekerStatShowsTotalOpenOpportunitiesNotFilteredCount() throws Exception {
+        when(jobs.countAll()).thenReturn(57L);
+        when(jobs.search(any(), any(), anyList(), anyList(), any(), anyBoolean(), anyBoolean())).thenReturn(List.of(listings.get(1)));
+        mvc.perform(get("/dashboard/").param("job", "Java"))
+                .andExpect(status().isOk()).andExpect(model().attribute("totalJobs", 57L))
+                .andExpect(content().string(containsString("Open opportunities")))
+                .andExpect(content().string(not(containsString("Matching opportunities"))));
+    }
+
+    @Test @WithMockUser(authorities = "Job Seeker")
     void appliedAndSavedViewsFilterJobsWithoutChangingTotals() throws Exception {
         mvc.perform(get("/dashboard/").param("view", "applied"))
                 .andExpect(status().isOk()).andExpect(model().attribute("jobPost", hasSize(1)))

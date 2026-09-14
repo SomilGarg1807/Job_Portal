@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Candidate profile | HotDevJobs</title>
+<link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}">
+<link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
+<link rel="stylesheet" th:href="@{/css/dashboard.css}"><link rel="stylesheet" th:href="@{/css/job-workspace.css}">
+<link rel="stylesheet" th:href="@{/css/portal-controls.css}"><link rel="stylesheet" th:href="@{/css/hiring-workflow.css}">
+<script defer th:src="@{/js/portal.js}"></script><script defer th:src="@{/js/portal-controls.js}"></script>
+</head><body class="job-workspace"><a class="skip-link" href="#main">Skip to content</a>
+<header th:replace="~{fragments/portal :: header('applications')}"></header><main id="main" class="workspace-main hiring-main"
+      th:with="c=${candidate}, fullName=${#strings.trim((c.firstName ?: 'Candidate') + ' ' + (c.lastName ?: ''))}">
+
+<a class="breadcrumb" th:href="@{/applications/{id}(id=${jobApplication.id})}">&larr; Back to application</a>
+
+<section class="workflow-panel workflow-intro candidate-hero">
+    <img class="candidate-avatar" th:if="${c.photosImagePath != null}" th:src="@{'/' + ${c.photosImagePath}}" alt="">
+    <span class="candidate-avatar" th:unless="${c.photosImagePath != null}" aria-hidden="true" th:text="${#strings.toUpperCase(#strings.substring(fullName,0,1))}">C</span>
+    <div>
+        <p class="eyebrow" th:text="${'APPLIED FOR ' + #strings.toUpperCase(jobApplication.job.jobTitle)}"></p>
+        <h1 th:text="${fullName}">Candidate</h1>
+        <p th:text="${c.professionalHeadline ?: (c.desiredJobTitle ?: 'No headline added')}"></p>
+        <div class="candidate-meta">
+            <span th:if="${c.city != null}"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span th:text="${c.city + (c.country != null ? ', ' + c.country : '')}"></span></span>
+            <span><i class="fa-solid fa-briefcase" aria-hidden="true"></i><span th:text="${c.totalExperienceYears != null ? c.totalExperienceYears + ' years experience' : 'Experience not specified'}"></span></span>
+            <span th:if="${c.currentCompany != null and !#strings.isEmpty(c.currentCompany)}"><i class="fa-solid fa-building" aria-hidden="true"></i><span th:text="${c.currentCompany}"></span></span>
+            <span th:if="${jobApplication.applyDate != null}"><i class="fa-regular fa-calendar" aria-hidden="true"></i><span th:text="${'Applied ' + #dates.format(jobApplication.applyDate,'dd MMM yyyy')}"></span></span>
+        </div>
+    </div>
+    <span class="stage-badge" th:attr="data-stage=${jobApplication.status}" th:text="${jobApplication.status.label}"></span>
+</section>
+
+<div class="candidate-grid">
+<div>
+    <section class="workflow-panel">
+        <p class="eyebrow">ATS SCORE FOR THIS JOB</p>
+        <div class="ats-head">
+            <div class="ats-ring" th:style="${'--score:' + ats.score}" role="img" th:attr="aria-label=${'ATS score ' + ats.score + ' out of 100'}"><strong th:text="${ats.score}">0</strong><small>/100</small></div>
+            <div><p class="ats-band" th:text="${ats.band}"></p><p class="field-hint" th:text="${ats.note}"></p></div>
+        </div>
+        <div class="ats-bars">
+            <div class="ats-bar"><span>Keyword match</span><b th:text="${ats.keywordScore + '%'}"></b><i><em th:style="${'width:' + ats.keywordScore + '%'}"></em></i></div>
+            <div class="ats-bar"><span>Role alignment</span><b th:text="${ats.roleScore + '%'}"></b><i><em th:style="${'width:' + ats.roleScore + '%'}"></em></i></div>
+            <div class="ats-bar"><span>Experience fit</span><b th:text="${ats.experienceScore + '%'}"></b><i><em th:style="${'width:' + ats.experienceScore + '%'}"></em></i></div>
+            <div class="ats-bar"><span>Resume structure</span><b th:text="${ats.resumeScore + '%'}"></b><i><em th:style="${'width:' + ats.resumeScore + '%'}"></em></i></div>
+        </div>
+        <div class="ats-keywords"><h3>Keywords found</h3><div class="ats-chips found"><span th:each="k : ${ats.matched}" th:text="${k}"></span><span class="ats-empty" th:if="${#lists.isEmpty(ats.matched)}">No job keywords found yet.</span></div></div>
+        <div class="ats-keywords"><h3>Keywords missing</h3><div class="ats-chips missing"><span th:each="k : ${ats.missing}" th:text="${k}"></span><span class="ats-empty" th:if="${#lists.isEmpty(ats.missing)}">Every detected keyword is covered.</span></div></div>
+        <p class="field-hint">A keyword-based screening aid. Missing keywords do not prove a missing skill, so review the resume before deciding.</p>
+    </section>
+
+    <section class="workflow-panel">
+        <h2>Skills</h2>
+        <p th:if="${#lists.isEmpty(c.skills)}">No skills added to this profile.</p>
+        <div style="overflow-x:auto" th:unless="${#lists.isEmpty(c.skills)}"><table class="skill-table">
+            <thead><tr><th>Skill</th><th>Level</th><th>Years</th></tr></thead>
+            <tbody><tr th:each="s : ${c.skills}"><td th:text="${s.name}"></td><td th:text="${s.experienceLevel ?: '—'}"></td><td th:text="${s.yearsOfExperience ?: '—'}"></td></tr></tbody>
+        </table></div>
+    </section>
+</div>
+<div>
+    <section class="workflow-panel">
+        <h2>Contact and documents</h2>
+        <div class="contact-links">
+            <a th:if="${c.userId != null}" th:href="${'mailto:' + c.userId.email}"><i class="fa-regular fa-envelope" aria-hidden="true"></i><span th:text="${c.userId.email}"></span></a>
+            <a th:if="${c.phoneNumber != null and !#strings.isEmpty(c.phoneNumber)}" th:href="${'tel:' + c.phoneNumber}"><i class="fa-solid fa-phone" aria-hidden="true"></i><span th:text="${c.phoneNumber}"></span></a>
+            <a th:if="${c.linkedInUrl != null and #strings.startsWith(c.linkedInUrl,'http')}" th:href="${c.linkedInUrl}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin" aria-hidden="true"></i><span>LinkedIn profile</span></a>
+            <a th:if="${c.portfolioUrl != null and #strings.startsWith(c.portfolioUrl,'http')}" th:href="${c.portfolioUrl}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-link" aria-hidden="true"></i><span>Portfolio / GitHub</span></a>
+        </div>
+        <div class="workflow-actions">
+            <a class="button primary" th:unless="${#strings.isEmpty(c.resume)}" th:href="@{/job-seeker-profile/downloadResume(fileName=${c.resume},userID=${c.userAccountId})}"><i class="fa-solid fa-download" aria-hidden="true"></i> Download resume</a>
+            <a class="button secondary" th:href="@{/applications/{id}(id=${jobApplication.id})}">Update status</a>
+        </div>
+    </section>
+
+    <section class="workflow-panel">
+        <h2>Work preferences</h2>
+        <dl class="info-list">
+            <div><dt>Desired role</dt><dd th:text="${c.desiredJobTitle ?: 'Not specified'}"></dd></div>
+            <div><dt>Employment type</dt><dd th:text="${c.employmentType ?: 'Not specified'}"></dd></div>
+            <div><dt>Workplace</dt><dd th:text="${c.remotePreference ?: 'No preference'}"></dd></div>
+            <div><dt>Work authorization</dt><dd th:text="${c.workAuthorization ?: 'Not specified'}"></dd></div>
+            <div><dt>Willing to relocate</dt><dd th:text="${c.willingToRelocate == null ? 'Not specified' : (c.willingToRelocate ? 'Yes' : 'No')}"></dd></div>
+            <div><dt>Notice period</dt><dd th:text="${c.noticePeriodDays != null ? c.noticePeriodDays + ' days' : 'Not specified'}"></dd></div>
+            <div><dt>Expected pay</dt><dd th:text="${c.expectedCtc != null ? c.expectedCtc + ' ' + (c.compensationCurrency ?: '') : 'Not specified'}"></dd></div>
+            <div><dt>Preferred location</dt><dd th:text="${c.preferredJobCity ?: (c.preferredLocations ?: 'Not specified')}"></dd></div>
+        </dl>
+    </section>
+</div>
+</div>
+
+</main></body></html>

@@ -127,6 +127,32 @@ class HiringWorkflowTests {
                 .andExpect(status().isOk()).andExpect(content().string(containsString("private interview questions")))
                 .andReturn().getResponse().getContentAsString(); preview("application-recruiter",html);
     }
+    @Test void atsScoreAndCandidateProfileRespectApplicationAccess() throws Exception {
+        var recruiterAuth=user(owner.getEmail()).authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("Recruiter"));
+        var candidateAuth=user(candidate.getEmail()).authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("Job Seeker"));
+        var outsiderAuth=user(outsider.getEmail()).authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("Recruiter"));
+        String score="/applications/"+application.getId()+"/ats-score";
+        for (var auth : List.of(recruiterAuth, candidateAuth))
+            mvc.perform(get(score).with(auth)).andExpect(status().isOk()).andExpect(header().string("Cache-Control","no-store"))
+                    .andExpect(jsonPath("$.score").isNumber()).andExpect(jsonPath("$.matched[0]").value("java"));
+        mvc.perform(get(score).with(outsiderAuth)).andExpect(status().isForbidden());
+        String detail=mvc.perform(get("/applications/"+application.getId()).with(recruiterAuth)).andExpect(status().isOk())
+                .andExpect(content().string(containsString("/applications/"+application.getId()+"/candidate")))
+                .andExpect(content().string(containsString("Check ATS score"))).andReturn().getResponse().getContentAsString();
+        preview("application-recruiter-ats",detail);
+        String page="/applications/"+application.getId()+"/candidate";
+        String html=mvc.perform(get(page).with(recruiterAuth)).andExpect(status().isOk())
+                .andExpect(content().string(containsString("ATS SCORE FOR THIS JOB")))
+                .andExpect(content().string(containsString("Aarav Example")))
+                .andExpect(content().string(not(containsString("private hiring notes"))))
+                .andReturn().getResponse().getContentAsString(); preview("candidate-profile",html);
+        mvc.perform(get(page).with(candidateAuth)).andExpect(status().isForbidden());
+        mvc.perform(get(page).with(outsiderAuth)).andExpect(status().isForbidden());
+        mvc.perform(get("/resume-comparison/"+job.getJobPostId()+"/ats-score").with(candidateAuth)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.band").isString());
+        mvc.perform(get("/resume-comparison/"+job.getJobPostId()+"/ats-score").with(recruiterAuth)).andExpect(status().isForbidden());
+        verifyNoInteractions(ai);
+    }
     @Test void updatesRequireOwnershipAndCsrfAndRejectInvalidInput() throws Exception {
         String path="/applications/"+application.getId()+"/update";
         mvc.perform(post(path).servletPath(path).with(user(owner.getEmail()).authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("Recruiter")))

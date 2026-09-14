@@ -20,9 +20,26 @@ public class ApplicationWorkflowController {
     private final JobSeekerApplyRepository applications;
     private final ApplicationWorkflowService workflow;
     private final JobPostActivityService jobs;
+    private final AtsScoreService ats;
     public ApplicationWorkflowController(UsersService users, JobSeekerApplyRepository applications,
-                                         ApplicationWorkflowService workflow, JobPostActivityService jobs) {
-        this.users = users; this.applications = applications; this.workflow = workflow; this.jobs = jobs;
+                                         ApplicationWorkflowService workflow, JobPostActivityService jobs, AtsScoreService ats) {
+        this.users = users; this.applications = applications; this.workflow = workflow; this.jobs = jobs; this.ats = ats;
+    }
+    @GetMapping("/applications/{id}/ats-score") @ResponseBody
+    public org.springframework.http.ResponseEntity<AtsScoreService.AtsReport> atsScore(@PathVariable int id) {
+        var application = workflow.accessible(id, users.getCurrentUserProfile());
+        return org.springframework.http.ResponseEntity.ok().header("Cache-Control", "no-store")
+                .body(ats.score(application.getUserId(), application.getJob()));
+    }
+    @GetMapping("/applications/{id}/candidate")
+    public String candidate(@PathVariable int id, Model model) {
+        Object profile = users.getCurrentUserProfile();
+        var application = workflow.accessible(id, profile);
+        if (!workflow.owns(application, profile)) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        model.addAttribute("jobApplication", application); model.addAttribute("candidate", application.getUserId());
+        model.addAttribute("ats", ats.score(application.getUserId(), application.getJob()));
+        model.addAttribute("user", profile); model.addAttribute("recruiter", true);
+        return "candidate-profile";
     }
     @GetMapping("/applications")
     public String applications(@RequestParam(defaultValue = "1") int page, Model model) {

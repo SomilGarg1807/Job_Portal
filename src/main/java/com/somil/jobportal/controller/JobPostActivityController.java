@@ -158,7 +158,7 @@ public class JobPostActivityController {
             } else if (currentUserProfile instanceof JobSeekerProfile jobSeekerProfile) {
                 List<JobSeekerApply> jobSeekerApplyList = jobSeekerApplyService.getCandidatesJobs(jobSeekerProfile);
                 List<JobSeekerSave> jobSeekerSaveList = jobSeekerSaveService.getCandidatesJob(jobSeekerProfile);
-                model.addAttribute("totalJobs", jobPost.size());
+                model.addAttribute("totalJobs", jobPostActivityService.countAll());
                 model.addAttribute("applicationCount", jobSeekerApplyList.size());
                 model.addAttribute("savedCount", jobSeekerSaveList.size());
                 model.addAttribute("profileCompletion", completion(jobSeekerProfile.getFirstName(), jobSeekerProfile.getLastName(), jobSeekerProfile.getCity(), jobSeekerProfile.getDesiredJobTitle(), jobSeekerProfile.getProfessionalHeadline(), jobSeekerProfile.getResume()));
