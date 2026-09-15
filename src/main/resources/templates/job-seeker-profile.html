@@ -230,7 +230,7 @@
                 <a class="download-resume" th:if="${profile.resume != null and !#strings.isEmpty(profile.resume)}" th:href="@{/job-seeker-profile/downloadResume(fileName=${profile.resume},userID=${profile.userAccountId})}"><i class="fa-solid fa-download"></i> Download current resume</a>
             </fieldset>
 
-            <button class="save-profile" th:unless="${viewOnly}" type="submit">Save job seeker profile <i class="fa-solid fa-arrow-right"></i></button>
+            <button class="save-profile" th:unless="${viewOnly}" type="submit">Save profile <i class="fa-solid fa-arrow-right"></i></button>
         </form>
     </section>
 </main>

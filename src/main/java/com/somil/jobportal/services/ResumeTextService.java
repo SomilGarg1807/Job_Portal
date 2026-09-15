@@ -10,6 +10,9 @@ public class ResumeTextService {
         if (Files.size(file) > 3 * 1024 * 1024) throw new IOException("PDF exceeds 3 MB");
         byte[] bytes;
         try (var stream = Files.newInputStream(file)) { bytes = stream.readNBytes(3 * 1024 * 1024 + 1); }
+        return extract(bytes);
+    }
+    public String extract(byte[] bytes) throws IOException {
         if (bytes.length > 3 * 1024 * 1024) throw new IOException("PDF exceeds 3 MB");
         try (var document = Loader.loadPDF(bytes)) {
             if (document.getNumberOfPages() > 10 || document.isEncrypted()) throw new IOException("Unsupported PDF");

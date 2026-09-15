@@ -20,7 +20,7 @@ import com.somil.jobportal.entity.RecruiterProfile;
 import com.somil.jobportal.entity.Users;
 import com.somil.jobportal.repository.UsersRepository;
 import com.somil.jobportal.services.RecruiterProfileService;
-import com.somil.jobportal.util.FileUploadUtil;
+import com.somil.jobportal.services.FileStorageService;
 
 @Controller
 @RequestMapping("/recruiter-profile")
@@ -28,10 +28,13 @@ public class RecruiterProfileController {
 
     private final UsersRepository usersRepository;
     private final RecruiterProfileService recruiterProfileService;
+    private final FileStorageService fileStorage;
 
-    public RecruiterProfileController(UsersRepository usersRepository, RecruiterProfileService recruiterProfileService) {
+    public RecruiterProfileController(UsersRepository usersRepository, RecruiterProfileService recruiterProfileService,
+                                      FileStorageService fileStorage) {
         this.usersRepository = usersRepository;
         this.recruiterProfileService = recruiterProfileService;
+        this.fileStorage = fileStorage;
     }
 
     @GetMapping("/")
@@ -83,21 +86,18 @@ public class RecruiterProfileController {
             return "recruiter_profile";
         }
 
-        String fileName = "";
-        if (!multipartFile.isEmpty()) {
-            fileName = StringUtils.cleanPath(Objects.requireNonNull(multipartFile.getOriginalFilename()));
-            recruiterProfile.setProfilePhoto(fileName);
+        FileStorageService.Upload photo = null;
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            try {
+                photo = fileStorage.preparePhoto(multipartFile);
+            } catch (IllegalArgumentException ex) {
+                model.addAttribute("error", ex.getMessage());
+                return "recruiter_profile";
+            }
+            recruiterProfile.setProfilePhoto(photo.name());
         }
         RecruiterProfile savedUser = recruiterProfileService.addNew(recruiterProfile);
-
-        String uploadDir = "photos/recruiter/" + savedUser.getUserAccountId();
-        if (!multipartFile.isEmpty()) {
-            try {
-                FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
+        if (photo != null) fileStorage.store(FileStorageService.RECRUITER_PHOTO, savedUser.getUserAccountId(), photo);
 
         return "redirect:/dashboard/";
     }

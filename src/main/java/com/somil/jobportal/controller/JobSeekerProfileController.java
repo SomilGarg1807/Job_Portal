@@ -30,7 +30,7 @@ import com.somil.jobportal.entity.Skills;
 import com.somil.jobportal.entity.Users;
 import com.somil.jobportal.repository.UsersRepository;
 import com.somil.jobportal.services.JobSeekerProfileService;
-import com.somil.jobportal.util.FileUploadUtil;
+import com.somil.jobportal.services.FileStorageService;
 
 @Controller
 @RequestMapping("/job-seeker-profile")
@@ -40,12 +40,15 @@ public class JobSeekerProfileController {
 
     private UsersRepository usersRepository;
     private final com.somil.jobportal.services.CandidateAccessService candidateAccess;
+    private final FileStorageService fileStorage;
 
     @Autowired
-    public JobSeekerProfileController(JobSeekerProfileService jobSeekerProfileService, UsersRepository usersRepository, com.somil.jobportal.services.CandidateAccessService candidateAccess) {
+    public JobSeekerProfileController(JobSeekerProfileService jobSeekerProfileService, UsersRepository usersRepository, com.somil.jobportal.services.CandidateAccessService candidateAccess,
+                                      FileStorageService fileStorage) {
         this.jobSeekerProfileService = jobSeekerProfileService;
         this.usersRepository = usersRepository;
         this.candidateAccess = candidateAccess;
+        this.fileStorage = fileStorage;
     }
 
     @GetMapping("/")
@@ -118,33 +121,21 @@ public class JobSeekerProfileController {
             skills.setJobSeekerProfile(jobSeekerProfile);
         }
 
-        String imageName = "";
-        String resumeName = "";
-
-        if (!Objects.equals(image.getOriginalFilename(), "")) {
-            imageName = StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename()));
-            jobSeekerProfile.setProfilePhoto(imageName);
+        FileStorageService.Upload photo = null;
+        FileStorageService.Upload resume = null;
+        try {
+            if (image != null && !image.isEmpty()) photo = fileStorage.preparePhoto(image);
+            if (pdf != null && !pdf.isEmpty()) resume = fileStorage.prepareResume(pdf);
+        } catch (IllegalArgumentException ex) {
+            model.addAttribute("error", ex.getMessage());
+            return "job-seeker-profile";
         }
-
-        if (!Objects.equals(pdf.getOriginalFilename(), "")) {
-            resumeName = StringUtils.cleanPath(Objects.requireNonNull(pdf.getOriginalFilename()));
-            jobSeekerProfile.setResume(resumeName);
-        }
+        if (photo != null) jobSeekerProfile.setProfilePhoto(photo.name());
+        if (resume != null) jobSeekerProfile.setResume(resume.name());
 
         JobSeekerProfile seekerProfile = jobSeekerProfileService.addNew(jobSeekerProfile);
-
-        try {
-            String uploadDir = "photos/candidate/" + jobSeekerProfile.getUserAccountId();
-            if (!Objects.equals(image.getOriginalFilename(), "")) {
-                FileUploadUtil.saveFile(uploadDir, imageName, image);
-            }
-            if (!Objects.equals(pdf.getOriginalFilename(), "")) {
-                FileUploadUtil.saveFile(uploadDir, resumeName, pdf);
-            }
-        }
-        catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+        if (photo != null) fileStorage.store(FileStorageService.CANDIDATE_PHOTO, seekerProfile.getUserAccountId(), photo);
+        if (resume != null) fileStorage.store(FileStorageService.CANDIDATE_RESUME, seekerProfile.getUserAccountId(), resume);
 
         return "redirect:/dashboard/";
     }
@@ -170,8 +161,8 @@ public class JobSeekerProfileController {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
                 .header(HttpHeaders.CONTENT_DISPOSITION, org.springframework.http.ContentDisposition.attachment()
-                        .filename(file.getFileName().toString(), java.nio.charset.StandardCharsets.UTF_8).build().toString())
-                .body(new org.springframework.core.io.FileSystemResource(file));
+                        .filename(file.getFileName(), java.nio.charset.StandardCharsets.UTF_8).build().toString())
+                .body(file.getData());
     }
 
     private boolean hasRequiredProfileFields(JobSeekerProfile profile) {

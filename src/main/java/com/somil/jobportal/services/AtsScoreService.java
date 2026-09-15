@@ -47,7 +47,7 @@ public class AtsScoreService {
         String text = "";
         String resume = profile.getResume();
         if (resume != null && resume.toLowerCase(Locale.ROOT).endsWith(".pdf")) {
-            try { text = resumes.extract(files.file(profile, resume)); }
+            try { text = resumes.extract(files.file(profile, resume).getData()); }
             catch (java.io.IOException | RuntimeException ignored) { text = ""; }
         }
         return score(profile, job, text);

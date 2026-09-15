@@ -98,6 +98,16 @@ Values are stored as plain JSON. Configuration lives in `config/CacheConfig.java
 - **Local:** run `docker run -d --name redis -p 6379:6379 redis`, start the app, load the dashboard, then inspect with `docker exec -it redis redis-cli` → `KEYS *`, `GET jobCount::all`, `TTL jobCount::all`.
 - **Disable caching:** set `CACHE_TYPE=none` (or `simple` for an in-memory cache without Redis).
 
+## Uploaded files
+
+Profile photos and resumes are stored in the database (`stored_file` table), not on disk, because Render's free disk is wiped on every deploy.
+
+- One row per user and file type: re-uploading replaces the previous file, so storage does not grow with repeat uploads.
+- Photos (candidate and recruiter) are re-encoded to a JPEG with the longest side 320px, typically 10–40 KB, whatever the original size.
+- Resumes must be real PDFs (checked by file signature) of at most 3 MB, the same limit as resume text extraction. They are stored unchanged so ATS scoring can read the text.
+- Candidate photos and resumes are only served to the candidate and recruiters they applied to. Recruiter photos are public and cached by browsers for a week; each upload gets a new name, so a new photo shows immediately.
+- Files uploaded before this change lived on the old disk and are gone; affected users need to re-upload. Profiles without a stored photo show their initial.
+
 ## Application workflow and resume comparison
 
 - `/applications` gives candidates their own applications, 12 per page, with per-application timelines.

@@ -43,7 +43,7 @@ public class ResumeComparisonController {
         String hint = "Paste relevant experience, projects and skills from your resume below.";
         if (profile.getResume() != null && profile.getResume().toLowerCase(Locale.ROOT).endsWith(".pdf")) {
             try {
-                text = resumes.extract(files.file(profile, profile.getResume()));
+                text = resumes.extract(files.file(profile, profile.getResume()).getData());
                 hint = text.isBlank() ? "This PDF has no readable text. Paste your resume text below; scanned PDFs are not supported."
                         : "Text loaded from your profile resume. Check the extraction and remove contact details before continuing.";
             } catch (java.io.IOException | RuntimeException ex) {
