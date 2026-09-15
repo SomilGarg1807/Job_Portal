@@ -79,6 +79,20 @@ class PublicJobDetailsTests {
                 .andExpect(status().isOk()).andExpect(model().attribute("owner", true))
                 .andExpect(content().string(containsString("applicants-card")));
     }
+    @Test void postingRecruiterSeesPageWithApplicants() throws Exception {
+        var profile = new RecruiterProfile(); profile.setUserAccountId(42); profile.setFirstName("Alex");
+        when(users.getCurrentUserProfile()).thenReturn(profile);
+        var named = new JobSeekerProfile(); named.setUserAccountId(5); named.setFirstName("Priya");
+        var unnamed = new JobSeekerProfile(); unnamed.setUserAccountId(6);
+        when(applications.getJobCandidates(job)).thenReturn(List.of(
+                new JobSeekerApply(1, named, job, new java.sql.Timestamp(System.currentTimeMillis()), null),
+                new JobSeekerApply(2, unnamed, job, null, null),
+                new JobSeekerApply(3, null, job, new java.util.Date(), null)));
+        mvc.perform(get("/job-details-apply/7").with(user("owner").authorities(() -> "Recruiter")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Priya")))
+                .andExpect(content().string(containsString("/job-seeker-profile/6")));
+    }
     @Test void missingPublicJobReturns404() throws Exception {
         when(jobs.getOne(999)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
         mvc.perform(get("/job-details-apply/999")).andExpect(status().isNotFound());
