@@ -83,6 +83,21 @@ See the official [UptimeRobot setup guide](https://help.uptimerobot.com/en/artic
 
 [Render's free-service documentation](https://render.com/docs/free) specifies 15 minutes without inbound traffic before sleep and 750 free instance hours per workspace each month. Five-minute external checks should prevent ordinary inactivity sleep while they reach the service, but cannot guarantee uptime during restarts, outages or quota exhaustion. One service running continuously uses up to 744 hours in a 31-day month; other free services share the same allowance. Render's internal health checks do not replace the external monitor for this purpose.
 
+## Redis caching
+
+Two read-heavy queries are cached in Redis via Spring's `@Cacheable`:
+
+| Cache | Method | Key | TTL | Evicted when |
+|---|---|---|---|---|
+| `jobCount` | `JobPostActivityService.countAll()` | `jobCount::all` | 10 min | a job is created or edited |
+| `recruiterJobs` | `JobPostActivityService.getRecruiterJobs(id)` | `recruiterJobs::<recruiterId>` | 5 min | a job is created/edited or a candidate applies |
+
+Values are stored as plain JSON. Configuration lives in `config/CacheConfig.java`. If Redis is down, cache errors are logged and requests fall back to the database.
+
+- **Render:** the blueprint creates a free Key Value instance `jobportal-cache` (25 MB, no persistence, internal-only) and injects its internal URL as `REDIS_URL`. For a manually managed service, create a Key Value instance in the same region and set `REDIS_URL` to its **Internal Key Value URL**.
+- **Local:** run `docker run -d --name redis -p 6379:6379 redis`, start the app, load the dashboard, then inspect with `docker exec -it redis redis-cli` → `KEYS *`, `GET jobCount::all`, `TTL jobCount::all`.
+- **Disable caching:** set `CACHE_TYPE=none` (or `simple` for an in-memory cache without Redis).
+
 ## Application workflow and resume comparison
 
 - `/applications` gives candidates their own applications, 12 per page, with per-application timelines.

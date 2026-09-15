@@ -6,8 +6,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
+import com.somil.jobportal.config.CacheConfig;
 import com.somil.jobportal.entity.IRecruiterJobs;
 import com.somil.jobportal.entity.JobCompany;
 import com.somil.jobportal.entity.JobLocation;
@@ -24,10 +28,16 @@ public class JobPostActivityService {
         this.jobPostActivityRepository = jobPostActivityRepository;
     }
 
+    // Creating or editing a job changes the total count and the recruiter's job list.
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.JOB_COUNT, allEntries = true),
+            @CacheEvict(value = CacheConfig.RECRUITER_JOBS, allEntries = true)
+    })
     public JobPostActivity addNew(JobPostActivity jobPostActivity) {
         return jobPostActivityRepository.save(jobPostActivity);
     }
 
+    @Cacheable(value = CacheConfig.RECRUITER_JOBS, key = "#recruiter")
     public List<RecruiterJobsDto> getRecruiterJobs(int recruiter) {
 
         List<IRecruiterJobs> recruiterJobsDtos = jobPostActivityRepository.getRecruiterJobs(recruiter);
@@ -48,6 +58,7 @@ public class JobPostActivityService {
         return jobPostActivityRepository.findById(id).orElseThrow(()->new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Job not found"));
     }
 
+    @Cacheable(value = CacheConfig.JOB_COUNT, key = "'all'")
     public long countAll() {
         return jobPostActivityRepository.count();
     }

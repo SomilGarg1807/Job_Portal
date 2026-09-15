@@ -17,3 +17,14 @@ services:
         sync: false
       - key: EMAIL_FROM
         sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: jobportal-cache
+          property: connectionString
+  - type: keyvalue
+    name: jobportal-cache
+    plan: free
+    region: singapore
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []

@@ -8,6 +8,10 @@ public class RecruiterJobsDto {
     private JobLocation jobLocationId;
     private JobCompany jobCompanyId;
 
+    // Needed so Jackson can rebuild this DTO when it is read back from the Redis cache.
+    public RecruiterJobsDto() {
+    }
+
     public RecruiterJobsDto(Long totalCandidates, Integer jobPostId, String jobTitle, JobLocation jobLocationId, JobCompany jobCompanyId) {
         this.totalCandidates = totalCandidates;
         this.jobPostId = jobPostId;
