@@ -91,7 +91,8 @@ class PublicJobDetailsTests {
         mvc.perform(get("/job-details-apply/7").with(user("owner").authorities(() -> "Recruiter")))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Priya")))
-                .andExpect(content().string(containsString("/job-seeker-profile/6")));
+                .andExpect(content().string(containsString("/applications/2/candidate")))
+                .andExpect(content().string(not(containsString("/job-seeker-profile/6"))));
     }
     @Test void missingPublicJobReturns404() throws Exception {
         when(jobs.getOne(999)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
