@@ -192,7 +192,7 @@ public class RecruiterProfile extends AuditableEntity {
 
     @Transient
     public String getPhotosImagePath() {
-        if (profilePhoto == null) return null;
+        if (profilePhoto == null || profilePhoto.isBlank()) return null;
         return "/photos/recruiter/" + userAccountId + "/" + profilePhoto;
     }
 

@@ -144,6 +144,7 @@ class HiringWorkflowTests {
         String html=mvc.perform(get(page).with(recruiterAuth)).andExpect(status().isOk())
                 .andExpect(content().string(containsString("ATS SCORE FOR THIS JOB")))
                 .andExpect(content().string(containsString("Aarav Example")))
+                .andExpect(content().string(containsString("data-avatar-initial")))
                 .andExpect(content().string(not(containsString("private hiring notes"))))
                 .andReturn().getResponse().getContentAsString(); preview("candidate-profile",html);
         mvc.perform(get(page).with(candidateAuth)).andExpect(status().isForbidden());

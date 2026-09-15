@@ -317,7 +317,7 @@ public class JobSeekerProfile extends AuditableEntity {
 
     @Transient
     public String getPhotosImagePath() {
-        if (profilePhoto == null || userAccountId == null) return null;
+        if (profilePhoto == null || profilePhoto.isBlank() || userAccountId == null) return null;
         return "photos/candidate/" + userAccountId + "/" + profilePhoto;
     }
 

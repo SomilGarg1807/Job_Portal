@@ -14,8 +14,10 @@
 <a class="breadcrumb" th:href="@{/applications/{id}(id=${jobApplication.id})}">&larr; Back to application</a>
 
 <section class="workflow-panel workflow-intro candidate-hero">
-    <img class="candidate-avatar" th:if="${c.photosImagePath != null}" th:src="@{'/' + ${c.photosImagePath}}" alt="">
-    <span class="candidate-avatar" th:unless="${c.photosImagePath != null}" aria-hidden="true" th:text="${#strings.toUpperCase(#strings.substring(fullName,0,1))}">C</span>
+    <span class="avatar-container" data-avatar>
+        <span class="candidate-avatar" data-avatar-initial th:hidden="${c.photosImagePath != null}" aria-hidden="true" th:text="${#strings.toUpperCase(#strings.substring(fullName,0,1))}">C</span>
+        <img class="candidate-avatar" th:if="${c.photosImagePath != null}" th:src="@{'/' + ${c.photosImagePath}}" alt="">
+    </span>
     <div>
         <p class="eyebrow" th:text="${'APPLIED FOR ' + #strings.toUpperCase(jobApplication.job.jobTitle)}"></p>
         <h1 th:text="${fullName}">Candidate</h1>
