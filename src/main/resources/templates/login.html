@@ -65,6 +65,7 @@
                     </div>
                     <p class="forgot-link"><a th:href="@{/forgot-password}">Forgot password?</a></p>
                 </div>
+                <label class="remember-me"><input type="checkbox" name="remember-me" checked/> Keep me signed in for 7 days</label>
                 <button class="login-submit" type="submit">Sign in <i class="fa-solid fa-arrow-right"></i></button>
             </form>
             <div class="account-note">
@@ -83,6 +84,19 @@
         passwordInput.type = isVisible ? 'password' : 'text';
         passwordToggle.setAttribute('aria-label', isVisible ? 'Show password' : 'Hide password');
         passwordToggle.querySelector('i').className = isVisible ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+    });
+    // Checking the password takes a moment on the server; show progress and prevent double submits.
+    const loginForm = passwordInput.form;
+    const loginSubmit = loginForm.querySelector('.login-submit');
+    const loginLabel = loginSubmit.innerHTML;
+    loginForm.addEventListener('submit', function () {
+        loginSubmit.disabled = true;
+        loginSubmit.textContent = 'Signing in…';
+    });
+    // Re-enable the button if the browser restores this page from its back/forward cache.
+    window.addEventListener('pageshow', function () {
+        loginSubmit.disabled = false;
+        loginSubmit.innerHTML = loginLabel;
     });
 </script>
 </body>

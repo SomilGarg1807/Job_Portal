@@ -127,6 +127,16 @@ class HiringWorkflowTests {
                 .andExpect(status().isOk()).andExpect(content().string(containsString("private interview questions")))
                 .andReturn().getResponse().getContentAsString(); preview("application-recruiter",html);
     }
+    @Test void rememberMeKeepsUsersSignedInForSevenDaysWithoutThePassword() throws Exception {
+        owner.setPassword(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("Secret#123"));
+        users.saveAndFlush(owner);
+        var signIn = mvc.perform(post("/login").param("username", owner.getEmail()).param("password", "Secret#123").param("remember-me", "on"))
+                .andExpect(status().is3xxRedirection()).andExpect(cookie().maxAge("remember-me", 7 * 24 * 60 * 60)).andReturn();
+        mvc.perform(get("/recruiter/candidates").cookie(signIn.getResponse().getCookie("remember-me"))).andExpect(status().isOk());
+        mvc.perform(get("/recruiter/candidates")).andExpect(status().is3xxRedirection());
+        mvc.perform(post("/login").param("username", owner.getEmail()).param("password", "Secret#123"))
+                .andExpect(status().is3xxRedirection()).andExpect(cookie().doesNotExist("remember-me"));
+    }
     @Test void databaseHealthIsPublicAndQueriesTheDatabase() throws Exception {
         mvc.perform(get("/health/db")).andExpect(status().isOk()).andExpect(jsonPath("$.database").value("UP"))
                 .andExpect(jsonPath("$.latencyMs").isNumber()).andExpect(header().string("Cache-Control","no-store"));

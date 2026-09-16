@@ -83,6 +83,12 @@ See the official [UptimeRobot setup guide](https://help.uptimerobot.com/en/artic
 
 [Render's free-service documentation](https://render.com/docs/free) specifies 15 minutes without inbound traffic before sleep and 750 free instance hours per workspace each month. Five-minute external checks should prevent ordinary inactivity sleep while they reach the service, but cannot guarantee uptime during restarts, outages or quota exhaustion. One service running continuously uses up to 744 hours in a 31-day month; other free services share the same allowance. Render's internal health checks do not replace the external monitor for this purpose.
 
+## Remember me (7 days)
+
+The login form has a "Keep me signed in for 7 days" checkbox, ticked by default. It sets a signed `remember-me` cookie so returning users are signed in without the password check, which takes 1-2 s on Render's free CPU. Signing out, or changing/resetting the password, invalidates the cookie.
+
+- **`REMEMBER_ME_KEY`** signs the cookie and must stay the same across deploys. The Render blueprint generates it once (`generateValue: true`). For a manually managed service, add it under Environment with a long random value (e.g. `openssl rand -hex 32`). If it is missing, the app logs a warning and uses a random key, so every deploy signs remembered users out.
+
 ## Database keep-warm probe
 
 `GET /health/db` is public, uncached, and runs `SELECT 1` against TiDB, returning `{"status":"UP","database":"UP","latencyMs":N}` or `503` with `DOWN`. Add it as a second UptimeRobot HTTP monitor (5-minute interval) to keep the database and connection pool warm and to get alerts when the database is unreachable. Keep Render's health check on `/health`, which never touches the database, so a database hiccup cannot restart the service or fail a deploy. The probe costs a negligible share of TiDB Starter's free 50M monthly Request Units.

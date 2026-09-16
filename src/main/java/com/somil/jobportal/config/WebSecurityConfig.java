@@ -47,7 +47,8 @@ public class WebSecurityConfig {
             "/fonts**", "/favicon.ico", "/resources/**", "/error"};
 
     @Bean
-    protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    protected SecurityFilterChain securityFilterChain(HttpSecurity http,
+            @org.springframework.beans.factory.annotation.Value("${app.remember-me.key:}") String rememberMeKey) throws Exception {
 
         http.authenticationProvider(authenticationProvider());
 
@@ -59,6 +60,10 @@ public class WebSecurityConfig {
 
         http.formLogin(form->form.loginPage("/login").permitAll()
                 .successHandler(customAuthenticationSuccessHandler))
+                // A signed 7-day cookie lets returning users skip the slow password check entirely.
+                .rememberMe(remember -> remember.key(rememberMeKey(rememberMeKey))
+                        .tokenValiditySeconds((int) java.time.Duration.ofDays(7).toSeconds())
+                        .userDetailsService(customUserDetailsService))
                 .logout(logout-> {
                     logout.logoutUrl("/logout");
                     logout.logoutSuccessUrl("/");
@@ -71,6 +76,16 @@ public class WebSecurityConfig {
                                 && !java.util.Set.of("GET", "HEAD", "OPTIONS", "TRACE").contains(request.getMethod())));
 
         return http.build();
+    }
+
+    // The key signs remember-me cookies; it must be stable across deploys or every deploy signs everyone out.
+    private static String rememberMeKey(String configured) {
+        if (configured != null && !configured.isBlank()) return configured;
+        org.slf4j.LoggerFactory.getLogger(WebSecurityConfig.class)
+                .warn("REMEMBER_ME_KEY is not set; remember-me logins will not survive a restart.");
+        byte[] random = new byte[32];
+        new java.security.SecureRandom().nextBytes(random);
+        return java.util.HexFormat.of().formatHex(random);
     }
 
     @Bean
