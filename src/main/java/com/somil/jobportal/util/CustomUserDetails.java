@@ -19,6 +19,11 @@ public class CustomUserDetails implements UserDetails {
         this.user = user;
     }
 
+    /** The account loaded at sign-in, so later requests can use its id without another query. */
+    public Users getUser() {
+        return user;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         UsersType usersType = user.getUserTypeId();

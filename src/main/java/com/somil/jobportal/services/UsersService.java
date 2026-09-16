@@ -65,15 +65,16 @@ public class UsersService {
 
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             String username = authentication.getName();
-            Users users = usersRepository.findByEmail(username).orElseThrow(()-> new UsernameNotFoundException("Could not found " + "user"));
-            int userId = users.getUserId();
+            // Signed-in users carry their account id, so a page load only needs the profile query.
+            int userId = authentication.getPrincipal() instanceof com.somil.jobportal.util.CustomUserDetails details
+                    ? details.getUser().getUserId() : findByEmail(username).getUserId();
             if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("Recruiter"))) {
                 return recruiterProfileRepository.findById(userId)
-                        .orElseGet(() -> recruiterProfileRepository.save(new RecruiterProfile(users)));
+                        .orElseGet(() -> recruiterProfileRepository.save(new RecruiterProfile(findByEmail(username))));
             }
 
             return jobSeekerProfileRepository.findById(userId)
-                    .orElseGet(() -> jobSeekerProfileRepository.save(new JobSeekerProfile(users)));
+                    .orElseGet(() -> jobSeekerProfileRepository.save(new JobSeekerProfile(findByEmail(username))));
         }
 
         return null;

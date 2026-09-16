@@ -26,6 +26,7 @@ public class WebSecurityConfig {
 
     private final String[] publicUrl = {"/",
             "/health",
+            "/health/db",
             "/api/search/**",
             "/oauth2/gmail/start",
             "/oauth2/callback/gmail",

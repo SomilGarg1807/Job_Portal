@@ -127,6 +127,10 @@ class HiringWorkflowTests {
                 .andExpect(status().isOk()).andExpect(content().string(containsString("private interview questions")))
                 .andReturn().getResponse().getContentAsString(); preview("application-recruiter",html);
     }
+    @Test void databaseHealthIsPublicAndQueriesTheDatabase() throws Exception {
+        mvc.perform(get("/health/db")).andExpect(status().isOk()).andExpect(jsonPath("$.database").value("UP"))
+                .andExpect(jsonPath("$.latencyMs").isNumber()).andExpect(header().string("Cache-Control","no-store"));
+    }
     @Test void atsScoreAndCandidateProfileRespectApplicationAccess() throws Exception {
         var recruiterAuth=user(owner.getEmail()).authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("Recruiter"));
         var candidateAuth=user(candidate.getEmail()).authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("Job Seeker"));

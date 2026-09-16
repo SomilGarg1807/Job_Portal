@@ -14,6 +14,7 @@ import com.somil.jobportal.entity.Users;
 import com.somil.jobportal.repository.JobSeekerProfileRepository;
 import com.somil.jobportal.repository.RecruiterProfileRepository;
 import com.somil.jobportal.repository.UsersRepository;
+import com.somil.jobportal.util.CustomUserDetails;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,11 +38,12 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String username = userDetails.getUsername();
         boolean hasJobSeekerRole = authentication.getAuthorities().stream().anyMatch(r->r.getAuthority().equals("Job Seeker"));
         boolean hasRecruiterRole = authentication.getAuthorities().stream().anyMatch(r->r.getAuthority().equals("Recruiter"));
 
-        Users user = usersRepository.findByEmail(username).orElse(null);
+        // The account was just loaded to check the password; reuse it instead of querying again.
+        Users user = userDetails instanceof CustomUserDetails details ? details.getUser()
+                : usersRepository.findByEmail(userDetails.getUsername()).orElse(null);
 
         if (hasRecruiterRole && user != null) {
             RecruiterProfile profile = recruiterProfileRepository.findById(user.getUserId()).orElse(null);
