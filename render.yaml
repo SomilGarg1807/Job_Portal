@@ -1,10 +1,14 @@
 services:
   - type: web
     name: jobportal
-    runtime: docker
+    # The image is built, smoke-tested and published by GitHub Actions, so Render
+    # only pulls it. That removes Render's build step and guarantees the image that
+    # was tested is the image that runs.
+    runtime: image
+    image:
+      url: ghcr.io/somilgarg1807/jobportal:latest
     plan: free
     region: singapore
-    dockerfilePath: ./Dockerfile
     healthCheckPath: /health
     envVars:
       - key: DB_URL
