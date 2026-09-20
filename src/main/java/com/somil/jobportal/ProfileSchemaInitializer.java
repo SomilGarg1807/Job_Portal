@@ -7,9 +7,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,9 +61,13 @@ public class ProfileSchemaInitializer implements ApplicationContextInitializer<C
             return;
         }
 
+        // One metadata round trip for the whole table: asking per column cost two
+        // round trips each, which is slow against a remote database.
+        Set<String> existingColumns = existingColumns(connection, tableName);
+
         List<String> additions = new ArrayList<>();
         for (Map.Entry<String, String> column : expectedColumns.entrySet()) {
-            if (!columnExists(connection, tableName, column.getKey())) {
+            if (!existingColumns.contains(column.getKey().toLowerCase(Locale.ROOT))) {
                 additions.add("ADD COLUMN `" + column.getKey() + "` " + column.getValue());
             }
         }
@@ -88,23 +95,30 @@ public class ProfileSchemaInitializer implements ApplicationContextInitializer<C
                 || hasTable(metadata, null, tableName);
     }
 
-    private static boolean columnExists(Connection connection, String tableName, String columnName)
-            throws SQLException {
+    /** Lower-cased column names already on the table, so lookups are local and case-insensitive. */
+    private static Set<String> existingColumns(Connection connection, String tableName) throws SQLException {
         DatabaseMetaData metadata = connection.getMetaData();
-        return hasColumn(metadata, connection.getCatalog(), tableName, columnName)
-                || hasColumn(metadata, null, tableName, columnName);
+        Set<String> names = collectColumns(metadata, connection.getCatalog(), tableName);
+        if (names.isEmpty()) {
+            names = collectColumns(metadata, null, tableName);
+        }
+        return names;
+    }
+
+    private static Set<String> collectColumns(DatabaseMetaData metadata, String catalog, String tableName)
+            throws SQLException {
+        Set<String> names = new HashSet<>();
+        try (ResultSet columns = metadata.getColumns(catalog, null, tableName, null)) {
+            while (columns.next()) {
+                names.add(columns.getString("COLUMN_NAME").toLowerCase(Locale.ROOT));
+            }
+        }
+        return names;
     }
 
     private static boolean hasTable(DatabaseMetaData metadata, String catalog, String tableName) throws SQLException {
         try (ResultSet tables = metadata.getTables(catalog, null, tableName, new String[]{"TABLE"})) {
             return tables.next();
-        }
-    }
-
-    private static boolean hasColumn(DatabaseMetaData metadata, String catalog, String tableName, String columnName)
-            throws SQLException {
-        try (ResultSet columns = metadata.getColumns(catalog, null, tableName, columnName)) {
-            return columns.next();
         }
     }
 

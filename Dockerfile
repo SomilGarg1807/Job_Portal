@@ -14,7 +14,9 @@ WORKDIR /app
 COPY --from=build /workspace/target/jobportal-0.0.1-SNAPSHOT.jar app.jar
 
 USER jobportal
-ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:+UseSerialGC"
+# TieredStopAtLevel=1 skips the optimising JIT tiers, which compete with startup
+# work on a shared-CPU instance. Peak throughput drops; startup gets much faster.
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=50.0 -XX:+UseSerialGC -XX:TieredStopAtLevel=1"
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
