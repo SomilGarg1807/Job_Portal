@@ -10,3 +10,8 @@ photos.recruiter
 application-secrets.properties
 *.iml
 *.log
+
+application-local.properties
+application-local.yml
+application-local.yaml
+.env

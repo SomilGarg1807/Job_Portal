@@ -1,0 +1,41 @@
+# Local development configuration template.
+#
+# Copy this file to application-local.properties (git-ignored) and fill in your
+# own values, or set the same names as environment variables. Never commit real
+# credentials: this repository is public.
+#
+#   cp application-local.properties.example application-local.properties
+#
+# See the "Configuration" section of README.md and docs/operations.md.
+
+# --- Required: database (MySQL-compatible, e.g. TiDB Cloud or local MySQL) ---
+DB_URL=
+DB_USERNAME=
+DB_PASSWORD=
+
+# --- Required in production: signs the 7-day "keep me signed in" cookie ---
+# Must stay stable across deploys. Generate with: openssl rand -hex 32
+REMEMBER_ME_KEY=
+
+# --- Optional: AI assistant and resume comparison (features disable themselves if unset) ---
+GEMINI_API_KEY=
+GEMINI_MODEL=
+
+# --- Optional: email delivery for signup codes. Use Resend OR Gmail, not both. ---
+# Resend
+RESEND_API_KEY=
+EMAIL_FROM=
+
+# Gmail API (preferred when all four are present)
+GMAIL_CLIENT_ID=
+GMAIL_CLIENT_SECRET=
+GMAIL_REDIRECT_URI=
+GMAIL_REFRESH_TOKEN=
+GMAIL_FROM=
+
+# --- Optional: cache. Leave REDIS_URL unset and set CACHE_TYPE=none to run without Redis. ---
+CACHE_TYPE=
+REDIS_URL=
+
+# --- Optional: HTTP port (defaults to 8080) ---
+PORT=

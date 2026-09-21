@@ -41,3 +41,11 @@ application-secrets.properties
 # User-uploaded files are private and must use cloud storage in production
 /photos/
 /photos.recruiter/
+
+# Local configuration overrides (never commit; use the .example file as a template)
+application-local.properties
+application-local.yml
+application-local.yaml
+.env
+.env.*
+!application-local.properties.example
