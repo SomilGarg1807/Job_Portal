@@ -96,6 +96,7 @@ All credentials are supplied at runtime through environment variables. Nothing s
 | --- | --- |
 | `GEMINI_API_KEY` | Enables the AI assistant and resume comparison |
 | `GEMINI_MODEL` | Overrides the default Gemini model |
+| `AI_EMBEDDING_ENABLED` and related `GEMINI_EMBEDDING_*` / `AI_*` settings | Semantic job matching with TiDB vector search (off by default); see [the AI package README](src/main/java/com/somil/jobportal/ai/README.md) |
 | `RESEND_API_KEY`, `EMAIL_FROM` | Sends signup verification codes through Resend |
 | `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REDIRECT_URI`, `GMAIL_REFRESH_TOKEN`, `GMAIL_FROM` | Sends signup codes through the Gmail API (preferred when all are present) |
 | `REDIS_URL`, `CACHE_TYPE` | Cache backend; set `CACHE_TYPE=none` to run without Redis |

@@ -1,6 +1,7 @@
 package com.somil.jobportal.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -47,6 +48,8 @@ public class WebSecurityConfig {
             "/fonts**", "/favicon.ico", "/resources/**", "/error"};
 
     @Bean
+    // The embedding backfill (profile "backfill") runs without a web server, where there is no HttpSecurity.
+    @ConditionalOnWebApplication
     protected SecurityFilterChain securityFilterChain(HttpSecurity http,
             @org.springframework.beans.factory.annotation.Value("${app.remember-me.key:}") String rememberMeKey) throws Exception {
 

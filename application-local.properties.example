@@ -21,6 +21,17 @@ REMEMBER_ME_KEY=
 GEMINI_API_KEY=
 GEMINI_MODEL=
 
+# --- Optional: semantic job matching (see src/main/java/com/somil/jobportal/ai/README.md) ---
+# Leave these commented out to use the defaults shown; an empty value would override the default.
+# AI_EMBEDDING_ENABLED=false
+# GEMINI_EMBEDDING_MODEL=gemini-embedding-001
+# GEMINI_EMBEDDING_DIMENSIONS=768
+# AI_EMBEDDING_BATCH_SIZE=50
+# AI_EMBEDDING_MAX_RETRIES=5
+# AI_EMBEDDING_BACKOFF_MS=2000
+# AI_JOB_STRATEGIES=job_full_v1,job_req_v1
+# AI_CANDIDATE_STRATEGIES=cand_profile_v1
+
 # --- Optional: email delivery for signup codes. Use Resend OR Gmail, not both. ---
 # Resend
 RESEND_API_KEY=
