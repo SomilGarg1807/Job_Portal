@@ -33,6 +33,7 @@
             <a class="nav-link" th:href="@{/recruiter-profile/}"><i class="fa-regular fa-building" aria-hidden="true"></i>Company profile</a>
         </th:block>
         <a class="nav-link" href="#ai-assistant"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>AI assistant <span class="mini-tag">NEW</span></a>
+        <form class="mobile-logout" method="post" th:action="@{/logout}"><button type="submit"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Sign out</button></form>
     </nav>
     <div class="sidebar-note"><span class="note-icon">↗</span><h3 th:text="${recruiter ? 'Great teams start here.' : 'Your next chapter awaits.'}"></h3><p th:text="${recruiter ? 'Build a clear company profile to help candidates get to know you.' : 'Give recruiters a fuller picture of what you bring to the team.'}"></p><a th:href="${recruiter} ? @{/recruiter-profile/} : @{/job-seeker-profile/}">Update profile <span aria-hidden="true">→</span></a></div>
     <form class="logout" method="post" th:action="@{/logout}"><button type="submit"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Sign out</button></form>
