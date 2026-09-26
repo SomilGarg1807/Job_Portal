@@ -30,7 +30,7 @@ Public search and dashboard results are paginated in groups of 12. Experience fi
 
 Only GET requests for `/job-details-apply/{id}` are public. Applying, saving, editing and accessing profiles remain authenticated; applicant lists are rendered only for the posting recruiter.
 
-The September 13 expansion added 350 sample postings (200 India; 50 each UK, US and Canada) and cleaned the repeated demo wording from the original 120. Six description bullets and a short sample notice remain. The catalogue now contains 478 jobs, including the eight original non-seeded postings.
+The September 13 expansion added 350 sample postings (200 India; 50 each UK, US and Canada). The catalogue contains 478 jobs, including the eight original non-seeded postings. On September 26, the sample notices and hidden demo markers were removed from the 470 seeded descriptions, and the `(Demo)` suffix was removed from 20 company names.
 
 `GET /api/search/jobs?q=...` suggests titles, keywords and companies from posted jobs. `GET /api/search/locations?q=...` combines posted cities/states/countries with [Open-Meteo geocoding](https://open-meteo.com/en/docs/geocoding-api), based on GeoNames data. The demo's non-commercial geocoding endpoint needs no key; commercial use requires the appropriate provider plan. Results are bounded and cached; manual search works during provider failures.
 

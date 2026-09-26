@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How the embeddings change works | Job Portal</title>
+  <style>
+    :root { color-scheme: light; --ink:#17233b; --muted:#54627a; --line:#dce4ee; --paper:#fff; --blue:#305bdb; --pale:#edf3ff; --mint:#e9f7f1; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#f5f7fb; color:var(--ink); font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+    main { max-width:1060px; margin:auto; padding:48px 24px 80px; }
+    h1,h2,h3 { line-height:1.2; letter-spacing:-.025em; }
+    h1 { font-size:clamp(2rem,5vw,3.4rem); margin:.25rem 0 1rem; }
+    h2 { margin:0 0 1rem; font-size:1.55rem; }
+    p { margin:.6rem 0 1rem; }
+    .eyebrow { color:var(--blue); font-size:.78rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .lead { font-size:1.18rem; max-width:760px; color:#344560; }
+    .meta { color:var(--muted); font-size:.9rem; }
+    .card { background:var(--paper); border:1px solid var(--line); border-radius:18px; padding:28px; margin:24px 0; box-shadow:0 6px 24px #16244308; }
+    .callout { background:var(--pale); border-left:4px solid var(--blue); padding:16px 20px; border-radius:0 12px 12px 0; }
+    .flow { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:20px 0; }
+    .step { padding:16px; border:1px solid #cbd9f5; border-radius:12px; background:#f7faff; min-height:100px; }
+    .step strong { display:block; color:#2343a6; margin-bottom:5px; }
+    .step small { display:block; color:var(--muted); line-height:1.4; }
+    .step:last-child { background:var(--mint); border-color:#b8e0cc; }
+    .arrow { text-align:center; color:var(--blue); font-weight:800; margin:-9px 0 4px; }
+    .table-wrap { overflow-x:auto; }
+    table { border-collapse:collapse; width:100%; min-width:620px; }
+    th,td { text-align:left; vertical-align:top; padding:12px 14px; border-bottom:1px solid var(--line); }
+    th { background:#f2f5fa; font-size:.83rem; text-transform:uppercase; letter-spacing:.06em; }
+    tr:last-child td { border-bottom:0; }
+    code { padding:.12em .34em; border-radius:4px; background:#edf0f5; font-size:.9em; }
+    ul,ol { padding-left:1.35rem; }
+    li { margin:.45rem 0; }
+    a { color:#254ec4; text-decoration-thickness:1px; text-underline-offset:3px; }
+    .tag { display:inline-block; padding:4px 10px; background:#e9f7f1; color:#196044; border-radius:999px; font-size:.78rem; font-weight:700; }
+    footer { color:var(--muted); font-size:.9rem; margin-top:36px; }
+    @media(max-width:700px) { main { padding:30px 16px 60px; } .card { padding:20px; } .flow { grid-template-columns:1fr 1fr; } }
+    @media(max-width:430px) { .flow { grid-template-columns:1fr; } }
+    @media print { body { background:white; } main { padding:0; } .card { box-shadow:none; break-inside:avoid; } a { color:inherit; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Job Portal · code walkthrough</div>
+    <h1>How the embeddings change works</h1>
+    <p class="lead">The branch prepares jobs and candidate profiles for semantic matching. Gemini turns selected text into vectors; TiDB stores them for a future matching feature.</p>
+    <p><span class="tag">Stage 2: data preparation</span></p>
+    <p class="meta">Based on local commit <code>f9f9f62</code> on <code>claude/trusting-allen-qomxod</code>, compared with <code>main</code> at <code>32964b4</code>.</p>
+  </header>
+
+  <section class="card">
+    <h2>The idea in plain language</h2>
+    <p>An <strong>embedding</strong> is a list of numbers that represents a piece of text's meaning. This change asks the Gemini embedding API for a <strong>768-number vector</strong> for each chosen job or candidate text. Those vectors go into <strong>TiDB</strong>, the project's SQL database, in <code>VECTOR(768)</code> columns. There is no separate vector database service such as Pinecone or Chroma in this change.</p>
+    <div class="callout"><strong>Current limit:</strong> this commit stores and refreshes vectors. It does not yet compare vectors, calculate match scores, rank jobs, expose a recommendation endpoint, or add a matching UI.</div>
+  </section>
+
+  <section class="card">
+    <h2>Follow a save through the system</h2>
+    <p>A backfill command can also enter at step 3 to process records that already exist.</p>
+    <div class="flow" aria-label="Embedding data flow">
+      <div class="step"><strong>1. Save</strong><small>A job or candidate profile is saved. A change event is published.</small></div>
+      <div class="step"><strong>2. Queue</strong><small>After the save, a background queue collects IDs for about three seconds.</small></div>
+      <div class="step"><strong>3. Check</strong><small>The indexer builds text and compares its source hash with the stored hash.</small></div>
+      <div class="step"><strong>4. Embed</strong><small>Changed text goes to Gemini in batches. Unchanged text is skipped.</small></div>
+      <div class="step"><strong>5. Store</strong><small>The returned vector is checked, normalized, and written to TiDB.</small></div>
+    </div>
+    <p class="meta">The API call runs outside the user's save request, so saving a job does not wait for Gemini. If an update fails, a later save or backfill can retry it.</p>
+  </section>
+
+  <section class="card">
+    <h2>Which text is embedded?</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Strategy</th><th>Text sent to Gemini</th></tr></thead>
+      <tbody>
+        <tr><td><code>job_full_v1</code></td><td>Job title, employment type, work mode, experience, and the full plain-text description.</td></tr>
+        <tr><td><code>job_req_v1</code></td><td>Job title, experience, and requirement-like sections. If those cannot be found, it falls back to bullets or the full description.</td></tr>
+        <tr><td><code>cand_profile_v1</code></td><td>Professional headline, desired role, experience, employment and work-mode preferences, and skills. Profiles without a headline, desired role, or skills are skipped.</td></tr>
+      </tbody>
+    </table></div>
+    <p>Candidate name, contact details, pay, work authorization, and resume text are excluded. Job location, salary, and company are excluded from embedding text. The code describes structured filtering as future matching work; that filtering is not implemented here.</p>
+  </section>
+
+  <section class="card">
+    <h2>What the main files do</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Component</th><th>Responsibility</th></tr></thead>
+      <tbody>
+        <tr><td><code>EmbeddingTexts</code></td><td>Builds the exact job or candidate text sent to Gemini.</td></tr>
+        <tr><td><code>EmbeddingStrategy</code></td><td>Names the three text recipes so stored vectors can be tied to a specific recipe.</td></tr>
+        <tr><td><code>SourceHash</code></td><td>Fingerprints recipe, model, dimensions, and text. Matching hashes avoid repeat API calls.</td></tr>
+        <tr><td><code>EmbeddingIndexer</code></td><td>Loads records, identifies stale vectors, batches Gemini calls, and saves results.</td></tr>
+        <tr><td><code>GeminiEmbeddingClient</code> and <code>EmbeddingService</code></td><td>Make HTTP requests, retry temporary failures, check vector size, normalize values, and log usage.</td></tr>
+        <tr><td><code>JdbcEmbeddingStore</code></td><td>Writes vectors with SQL because the project's JPA mapping does not handle TiDB's <code>VECTOR</code> type.</td></tr>
+        <tr><td><code>EmbeddingUpdateQueue</code></td><td>Processes saved records on one background thread.</td></tr>
+        <tr><td><code>BackfillJob</code></td><td>Pages through existing records; supports a dry run and resuming.</td></tr>
+        <tr><td><code>AiSchemaMigrator</code></td><td>Applies versioned AI SQL scripts and records applied versions.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>What TiDB stores</h2>
+    <p>The SQL creates <code>ai_job_embedding</code> and <code>ai_candidate_embedding</code>. A row is identified by the source record ID plus its strategy. It stores the model, dimensions, source hash, source character count, vector, and embedding time. A job normally gets two rows; a candidate with enough profile content gets one. There is <strong>no vector index</strong> in this version.</p>
+    <p><strong>Example:</strong> a job mentioning “Java backend engineer; Spring Boot and SQL required” creates a full-description input and a requirements input. A candidate profile mentioning “Backend engineer; Java, Spring Boot, SQL” creates a candidate input. Gemini turns them into vectors and TiDB stores them. A later feature could compare those vectors to suggest a match; this commit stops at storage.</p>
+  </section>
+
+  <section class="card">
+    <h2>When does it run?</h2>
+    <ul>
+      <li>The website defaults to <code>AI_EMBEDDING_ENABLED=false</code>. When enabled, startup applies the AI table migration and saved jobs or profiles enter the background queue.</li>
+      <li>The <code>backfill</code> Spring profile enables embedding without starting a web server or Redis. It walks existing records by ID.</li>
+      <li>A backfill dry run checks which records need embedding without calling Gemini or writing vectors. Startup may still create the AI tables.</li>
+      <li>Gemini requests default to 50 texts per batch. The client retries selected temporary errors and rejects responses with the wrong vector length.</li>
+      <li>Completed batches are saved as they finish. Running backfill again skips rows whose source hash is unchanged.</li>
+    </ul>
+    <div class="callout">A real backfill writes to the configured database and uses Gemini API quota. This guide did not run one.</div>
+  </section>
+
+  <section class="card">
+    <h2>Read the code in this order</h2>
+    <ol>
+      <li><code>src/main/java/com/somil/jobportal/ai/README.md</code> — design and run instructions.</li>
+      <li><code>src/main/java/com/somil/jobportal/ai/text/EmbeddingTexts.java</code> — the text sent to Gemini.</li>
+      <li><code>src/main/java/com/somil/jobportal/ai/index/EmbeddingIndexer.java</code> — skip, embed, and save decisions.</li>
+      <li><code>src/main/java/com/somil/jobportal/ai/embedding/GeminiEmbeddingClient.java</code> — API request and retries.</li>
+      <li><code>src/main/resources/db/ai/V1__embedding_tables.sql</code> — TiDB tables.</li>
+      <li><code>src/main/java/com/somil/jobportal/ai/backfill/BackfillJob.java</code> — existing-record processing.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>Practical notes</h2>
+    <ul>
+      <li>The background queue is in memory. A failed or lost update remains stale until a later save or backfill; this commit does not schedule automatic catch-up.</li>
+      <li>The change adds tests for the new pieces, but its package README says some live Gemini response details had not been confirmed during development.</li>
+      <li>The repository README mentions “TiDB vector search” as the intended direction. The current code has vector columns and writes, but no similarity search query.</li>
+    </ul>
+  </section>
+
+  <footer>Local Git showed <code>HEAD</code> matching the locally recorded <code>origin/claude/trusting-allen-qomxod</code>. GitHub was unreachable during review, so the live state of PR #4 and remote branches was not verified.</footer>
+</main>
+</body>
+</html>
