@@ -9,8 +9,11 @@ import java.util.stream.Collectors;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import com.somil.jobportal.ai.EmbeddingSourceChanged;
 import com.somil.jobportal.config.CacheConfig;
 import com.somil.jobportal.entity.IRecruiterJobs;
 import com.somil.jobportal.entity.JobCompany;
@@ -23,9 +26,16 @@ import com.somil.jobportal.repository.JobPostActivityRepository;
 public class JobPostActivityService {
 
     private final JobPostActivityRepository jobPostActivityRepository;
+    private final ApplicationEventPublisher events;
 
     public JobPostActivityService(JobPostActivityRepository jobPostActivityRepository) {
+        this(jobPostActivityRepository, event -> { });
+    }
+
+    @Autowired
+    public JobPostActivityService(JobPostActivityRepository jobPostActivityRepository, ApplicationEventPublisher events) {
         this.jobPostActivityRepository = jobPostActivityRepository;
+        this.events = events;
     }
 
     // Creating or editing a job changes the total count and the recruiter's job list.
@@ -34,7 +44,10 @@ public class JobPostActivityService {
             @CacheEvict(value = CacheConfig.RECRUITER_JOBS, allEntries = true)
     })
     public JobPostActivity addNew(JobPostActivity jobPostActivity) {
-        return jobPostActivityRepository.save(jobPostActivity);
+        JobPostActivity saved = jobPostActivityRepository.save(jobPostActivity);
+        // Refreshes the job's embedding in the background when semantic matching is enabled.
+        if (saved != null && saved.getJobPostId() != null) events.publishEvent(EmbeddingSourceChanged.job(saved.getJobPostId()));
+        return saved;
     }
 
     @Cacheable(value = CacheConfig.RECRUITER_JOBS, key = "#recruiter")

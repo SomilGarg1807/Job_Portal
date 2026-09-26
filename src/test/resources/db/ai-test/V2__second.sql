@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS migration_two (
+    id INT PRIMARY KEY
+);
