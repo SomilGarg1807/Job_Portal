@@ -74,8 +74,6 @@
 .detail-tags > span { padding: 7px 11px; border-radius: 6px; background: #f4f6f9; color: #5e6e80; font-size: 11px; }
 .detail-tags i { margin-right: 5px; }
 .detail-tags .applied-tag { background: #e9f5ec; color: #38774d; }
-.demo-notice { display: flex; gap: 10px; border-top: 1px solid #eee3d9; margin-top: 23px; padding-top: 17px; color: #8a6542; font-size: 11px; }
-.demo-notice > i { margin-top: 3px; }
 .detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 27px; align-items: start; }
 .detail-main, .detail-rail { display: grid; gap: 22px; min-width: 0; }
 .description-card, .overview-card, .applicants-card { border: 1px solid var(--line); border-radius: 14px; padding: 28px; background: white; }
