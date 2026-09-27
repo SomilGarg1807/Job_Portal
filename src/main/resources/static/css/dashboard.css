@@ -38,3 +38,15 @@
 .ai-result-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .ai-result-actions .button { white-space: normal; }
 .ai-context-button { padding: 7px 0; border: 0; background: none; color: #ffd6bc; font-size: 11px; text-align: left; }
+
+/* The profile summary stays visible; details are available on demand. */
+.profile-panel summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none}
+.profile-panel summary::-webkit-details-marker{display:none}
+.profile-panel summary:focus-visible{outline:3px solid var(--orange);outline-offset:4px}
+.profile-panel-title{display:grid;gap:3px;min-width:0}
+.profile-panel-title strong{font-size:15px;line-height:1.35}
+.profile-panel-progress{margin-left:auto;color:var(--orange);font-size:12px;font-weight:750}
+.profile-panel summary i{color:var(--muted);font-size:11px;transition:transform .18s}
+.profile-panel[open] summary i{transform:rotate(180deg)}
+.profile-panel-body{padding-top:16px}
+.profile-panel .progress-heading{margin-top:2px}

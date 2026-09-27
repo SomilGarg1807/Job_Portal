@@ -65,3 +65,18 @@ a { text-decoration:none; }
 .save-profile i { margin-left:7px; }
 @media (max-width:920px) { .profile-layout{grid-template-columns:1fr}.profile-aside{position:relative;top:auto}.profile-aside h1{max-width:580px}.profile-points{grid-template-columns:repeat(3,1fr)} }
 @media (max-width:680px) { .profile-header{padding-inline:14px}.profile-brand>span:last-child{display:none}.profile-header nav a:first-child{font-size:0}.profile-header nav a:first-child i{font-size:.9rem}.profile-layout{width:calc(100% - 28px);margin-top:18px}.profile-card{padding:21px 16px}.profile-aside{padding:27px 22px}.profile-points{grid-template-columns:1fr}.card-heading{flex-direction:column}.two-columns,.three-columns,.upload-grid{grid-template-columns:1fr}.skill-row{grid-template-columns:1fr 1fr}.skill-row .form-field:first-of-type{grid-column:1/-1}.remove-skill{height:45px}.upload-field{align-items:flex-start;flex-wrap:wrap}.upload-field input{width:100%;max-width:none;margin-left:0} }
+
+/* Compact, keyboard-accessible profile form sections. */
+.profile-section{margin-top:14px;border:1px solid var(--line);border-radius:13px;background:#fff;overflow:hidden}
+.profile-section:first-of-type{margin-top:24px}
+.profile-section summary{display:flex;align-items:center;gap:11px;min-height:59px;padding:13px 17px;cursor:pointer;color:#2f485f;font-size:.87rem;font-weight:800;list-style:none}
+.profile-section summary::-webkit-details-marker{display:none}
+.profile-section summary:hover{background:#f8fafc}
+.profile-section summary:focus-visible{outline:3px solid var(--orange);outline-offset:-3px}
+.profile-section summary i{margin-left:auto;color:#667b8e;transition:transform .18s}
+.profile-section[open] summary i{transform:rotate(180deg)}
+.profile-section .section-number{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:9px;background:var(--navy);color:#fff;font-size:.73rem}
+.profile-section summary em{margin-left:5px;color:#8a98a6;font-size:.68rem;font-style:normal;font-weight:700;text-transform:uppercase}
+.profile-form .profile-section fieldset{margin:0;padding:2px 17px 19px;border:0}
+.profile-form .profile-section legend.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:680px){.profile-section summary{padding-inline:14px}.profile-form .profile-section fieldset{padding-inline:14px}}

@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/profile.css}"/>
     <link rel="stylesheet" th:href="@{/css/portal-controls.css}">
     <script defer th:src="@{/js/portal-controls.js}"></script>
+    <script defer th:src="@{/js/profile-sections.js}"></script>
 </head>
 <body class="profile-page">
 <header class="profile-header">
@@ -58,8 +59,10 @@
             <input type="hidden" th:field="*{profilePhoto}"/>
             <input type="hidden" th:field="*{resume}"/>
 
-            <fieldset>
-                <legend><span>1</span> About you</legend>
+            <details class="profile-section" open>
+                <summary><span class="section-number">1</span><span>About you</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                <fieldset>
+                    <legend class="visually-hidden">About you</legend>
                 <div class="form-grid two-columns">
                     <label class="form-field">
                         <span>First name *</span>
@@ -82,10 +85,13 @@
                         <input th:field="*{currentCompany}" th:disabled="${viewOnly}" type="text" placeholder="Optional"/>
                     </label>
                 </div>
-            </fieldset>
+                </fieldset>
+            </details>
 
-            <fieldset>
-                <legend><span>2</span> Current location</legend>
+            <details class="profile-section">
+                <summary><span class="section-number">2</span><span>Current location</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                <fieldset>
+                    <legend class="visually-hidden">Current location</legend>
                 <div class="location-picker form-grid three-columns" data-location-picker>
                     <label class="form-field">
                         <span>Country *</span>
@@ -104,10 +110,13 @@
                     </label>
                     <p class="location-status full-width" data-location-status th:unless="${viewOnly}">Start typing or choose a suggested location.</p>
                 </div>
-            </fieldset>
+                </fieldset>
+            </details>
 
-            <fieldset>
-                <legend><span>3</span> Job preferences</legend>
+            <details class="profile-section">
+                <summary><span class="section-number">3</span><span>Job preferences</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                <fieldset>
+                    <legend class="visually-hidden">Job preferences</legend>
                 <div class="form-grid two-columns">
                     <label class="form-field">
                         <span>Desired job title</span>
@@ -171,10 +180,13 @@
                         <small>Separate multiple locations with semicolons.</small>
                     </label>
                 </div>
-            </fieldset>
+                </fieldset>
+            </details>
 
-            <fieldset>
-                <legend><span>4</span> Experience and compensation <em>Optional</em></legend>
+            <details class="profile-section">
+                <summary><span class="section-number">4</span><span>Experience and compensation <em>Optional</em></span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                <fieldset>
+                    <legend class="visually-hidden">Experience and compensation</legend>
                 <div class="form-grid three-columns">
                     <label class="form-field">
                         <span>Total experience (years)</span>
@@ -201,10 +213,13 @@
                         <input th:field="*{noticePeriodDays}" th:disabled="${viewOnly}" type="number" min="0" max="365" step="1" placeholder="30"/>
                     </label>
                 </div>
-            </fieldset>
+                </fieldset>
+            </details>
 
-            <fieldset>
-                <legend><span>5</span> Skills</legend>
+            <details class="profile-section">
+                <summary><span class="section-number">5</span><span>Skills</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                <fieldset>
+                    <legend class="visually-hidden">Skills</legend>
                 <div id="skillsContainer" class="skills-list" th:attr="data-skill-count=${profile.skills == null ? 0 : #lists.size(profile.skills)}">
                     <div class="skill-row" th:each="skill,iter : *{skills}">
                         <input type="hidden" th:field="*{skills[__${iter.index}__].id}"/>
@@ -215,10 +230,13 @@
                     </div>
                 </div>
                 <button class="add-skill" th:unless="${viewOnly}" type="button" id="addSkill"><i class="fa-solid fa-plus"></i> Add another skill</button>
-            </fieldset>
+                </fieldset>
+            </details>
 
-            <fieldset>
-                <legend><span>6</span> Links and documents</legend>
+            <details class="profile-section">
+                <summary><span class="section-number">6</span><span>Links and documents</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                <fieldset>
+                    <legend class="visually-hidden">Links and documents</legend>
                 <div class="form-grid two-columns">
                     <label class="form-field"><span>LinkedIn URL</span><input th:field="*{linkedInUrl}" th:disabled="${viewOnly}" type="url" placeholder="https://linkedin.com/in/you"/></label>
                     <label class="form-field"><span>Portfolio or GitHub URL</span><input th:field="*{portfolioUrl}" th:disabled="${viewOnly}" type="url" placeholder="https://github.com/you"/></label>
@@ -228,7 +246,8 @@
                     <label class="upload-field"><i class="fa-solid fa-file-pdf"></i><span><strong>Resume</strong><small>PDF. Leave empty to keep the current resume.</small></span><input type="file" name="pdf" accept="application/pdf"/></label>
                 </div>
                 <a class="download-resume" th:if="${profile.resume != null and !#strings.isEmpty(profile.resume)}" th:href="@{/job-seeker-profile/downloadResume(fileName=${profile.resume},userID=${profile.userAccountId})}"><i class="fa-solid fa-download"></i> Download current resume</a>
-            </fieldset>
+                </fieldset>
+            </details>
 
             <button class="save-profile" th:unless="${viewOnly}" type="submit">Save profile <i class="fa-solid fa-arrow-right"></i></button>
         </form>

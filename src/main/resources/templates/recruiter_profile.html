@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/profile.css}"/>
     <link rel="stylesheet" th:href="@{/css/portal-controls.css}">
     <script defer th:src="@{/js/portal-controls.js}"></script>
+    <script defer th:src="@{/js/profile-sections.js}"></script>
 </head>
 <body class="profile-page">
 <header class="profile-header">
@@ -57,8 +58,10 @@
             <input type="hidden" th:field="*{userAccountId}"/>
             <input type="hidden" th:field="*{profilePhoto}"/>
 
-            <fieldset>
-                <legend><span>1</span> Your details</legend>
+            <details class="profile-section" open>
+                <summary><span class="section-number">1</span><span>Your details</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                <fieldset>
+                    <legend class="visually-hidden">Your details</legend>
                 <div class="form-grid two-columns">
                     <label class="form-field">
                         <span>First name *</span>
@@ -77,10 +80,13 @@
                         <input th:field="*{phoneNumber}" type="tel" autocomplete="tel" placeholder="+91 98765 43210"/>
                     </label>
                 </div>
-            </fieldset>
+                </fieldset>
+            </details>
 
-            <fieldset>
-                <legend><span>2</span> Company information</legend>
+            <details class="profile-section">
+                <summary><span class="section-number">2</span><span>Company information</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                <fieldset>
+                    <legend class="visually-hidden">Company information</legend>
                 <div class="form-grid two-columns">
                     <label class="form-field full-width">
                         <span>Company name *</span>
@@ -104,10 +110,13 @@
                         <textarea th:field="*{companyDescription}" rows="4" maxlength="2000" placeholder="What does your company build, and why should someone join?"></textarea>
                     </label>
                 </div>
-            </fieldset>
+                </fieldset>
+            </details>
 
-            <fieldset>
-                <legend><span>3</span> Headquarters and offices</legend>
+            <details class="profile-section">
+                <summary><span class="section-number">3</span><span>Headquarters and offices</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                <fieldset>
+                    <legend class="visually-hidden">Headquarters and offices</legend>
                 <div class="location-picker form-grid three-columns" data-location-picker>
                     <label class="form-field">
                         <span>Country *</span>
@@ -131,16 +140,20 @@
                     <textarea th:field="*{officeLocations}" rows="3" maxlength="1000" placeholder="Bengaluru, Karnataka; Pune, Maharashtra; Remote"></textarea>
                     <small>Separate multiple locations with semicolons.</small>
                 </label>
-            </fieldset>
+                </fieldset>
+            </details>
 
-            <fieldset>
-                <legend><span>4</span> Profile image</legend>
+            <details class="profile-section">
+                <summary><span class="section-number">4</span><span>Profile image</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                <fieldset>
+                    <legend class="visually-hidden">Profile image</legend>
                 <label class="upload-field">
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                     <span><strong>Upload a logo or profile photo</strong><small>PNG or JPEG. Leave empty to keep the current image.</small></span>
                     <input type="file" name="image" accept="image/png,image/jpeg"/>
                 </label>
-            </fieldset>
+                </fieldset>
+            </details>
 
             <button class="save-profile" type="submit">Save recruiter profile <i class="fa-solid fa-arrow-right"></i></button>
         </form>
