@@ -50,6 +50,9 @@ public class JobPostActivityController {
     private final JobSeekerApplyService jobSeekerApplyService;
     private final JobSeekerSaveService jobSeekerSaveService;
 
+    @Autowired(required = false)
+    private com.somil.jobportal.ai.search.SemanticJobSearch semanticSearch;
+
     @Autowired
     public JobPostActivityController(UsersService usersService, JobPostActivityService jobPostActivityService, JobSeekerApplyService jobSeekerApplyService, JobSeekerSaveService jobSeekerSaveService) {
         this.usersService = usersService;
@@ -133,6 +136,11 @@ public class JobPostActivityController {
         Object currentUserProfile = usersService.getCurrentUserProfile();
         experience = com.somil.jobportal.util.JobExperience.normalize(experience);
         jobPost = com.somil.jobportal.util.JobExperience.filter(jobPost, experience);
+        SearchSelection selection = currentUserProfile instanceof JobSeekerProfile
+                ? expandSearch(jobPost, job, location, Arrays.asList(partTime, fullTime, freelance),
+                    Arrays.asList(remoteOnly, officeOnly, partialRemote), searchDate, typeFilter, remoteFilter, experience)
+                : new SearchSelection(jobPost, java.util.Map.of());
+        jobPost = selection.jobs();
         model.addAttribute("experience", experience);
         if (!List.of("relevance", "newest", "title", "applicants").contains(sort)) sort = "relevance";
         if (currentUserProfile instanceof RecruiterProfile && "relevance".equals(sort)) sort = "newest";
@@ -204,6 +212,15 @@ public class JobPostActivityController {
                     model.addAttribute("rankingMessage", scores.values().stream().anyMatch(score -> score > 0)
                             ? "Best matches for your target role and skills appear first."
                             : "Showing the latest jobs. Add your target role and skills for better matches.");
+                    java.util.Map<Integer, Double> semanticScores = StringUtils.hasText(job)
+                            ? selection.scores()
+                            : semanticSearch == null ? java.util.Map.of() : semanticSearch.recommendations(jobSeekerProfile, jobPost);
+                    if (!semanticScores.isEmpty()) {
+                        order = semanticOrder(semanticScores, order);
+                        model.addAttribute("rankingMessage", StringUtils.hasText(job)
+                                ? "Results include related roles matched to the meaning of your search."
+                                : "Jobs related to your target role and skills appear first.");
+                    }
                 }
                 model.addAttribute("jobPost", jobPost.stream()
                         .filter(j -> !"applied".equals(view) || Boolean.TRUE.equals(j.getIsActive()))
@@ -301,10 +318,15 @@ public class JobPostActivityController {
 
         experience = com.somil.jobportal.util.JobExperience.normalize(experience);
         model.addAttribute("experience", experience);
-        List<JobPostActivity> ordered = com.somil.jobportal.util.JobExperience.filter(jobPost, experience).stream()
-                .sorted(Comparator.comparing(JobPostActivity::getPostedDate, Comparator.nullsLast(Comparator.reverseOrder()))
-                        .thenComparing(JobPostActivity::getJobPostId, Comparator.reverseOrder()))
+        SearchSelection selection = expandSearch(com.somil.jobportal.util.JobExperience.filter(jobPost, experience),
+                job, location, Arrays.asList(partTime, fullTime, freelance), Arrays.asList(remoteOnly, officeOnly, partialRemote),
+                searchDate, typeFilter, remoteFilter, experience);
+        Comparator<JobPostActivity> newest = Comparator.comparing(JobPostActivity::getPostedDate, Comparator.nullsLast(Comparator.reverseOrder()))
+                .thenComparing(JobPostActivity::getJobPostId, Comparator.reverseOrder());
+        List<JobPostActivity> ordered = selection.jobs().stream()
+                .sorted(semanticOrder(selection.scores(), newest))
                 .toList();
+        if (!selection.scores().isEmpty()) model.addAttribute("rankingMessage", "Results include related roles matched to the meaning of your search.");
         int resultCount = ordered.size();
         int totalPages = Math.max(1, (resultCount + 11) / 12);
         int currentPage = Math.min(Math.max(1, page), totalPages);
@@ -317,6 +339,32 @@ public class JobPostActivityController {
         model.addAttribute("rangeEnd", Math.min(start + 12, resultCount));
         return "global-search";
     }
+
+    private SearchSelection expandSearch(List<JobPostActivity> keywords, String query, String location,
+            List<String> types, List<String> remote, LocalDate date, boolean typeFilter, boolean remoteFilter, String experience) {
+        if (semanticSearch == null || !StringUtils.hasText(query) || query.length() > 500)
+            return new SearchSelection(keywords, java.util.Map.of());
+        List<JobPostActivity> eligible = com.somil.jobportal.util.JobExperience.filter(
+                jobPostActivityService.search("", location, types, remote, date, typeFilter, remoteFilter), experience);
+        java.util.Map<Integer, Double> scores = semanticSearch.search(query, eligible);
+        if (scores.isEmpty()) return new SearchSelection(keywords, java.util.Map.of());
+        // Keep all keyword hits, including exact company matches and jobs still awaiting vectors.
+        java.util.Map<Integer, JobPostActivity> combined = new java.util.LinkedHashMap<>();
+        java.util.Map<Integer, Double> hybrid = new java.util.HashMap<>(scores);
+        keywords.forEach(j -> {
+            combined.put(j.getJobPostId(), j);
+            hybrid.put(j.getJobPostId(), scores.getOrDefault(j.getJobPostId(), 0.0) + 1.0);
+        });
+        eligible.stream().filter(j -> scores.containsKey(j.getJobPostId())).forEach(j -> combined.putIfAbsent(j.getJobPostId(), j));
+        return new SearchSelection(new java.util.ArrayList<>(combined.values()), hybrid);
+    }
+
+    private Comparator<JobPostActivity> semanticOrder(java.util.Map<Integer, Double> scores, Comparator<JobPostActivity> fallback) {
+        return scores.isEmpty() ? fallback : Comparator.comparingDouble(
+                (JobPostActivity j) -> scores.getOrDefault(j.getJobPostId(), -1.0)).reversed().thenComparing(fallback);
+    }
+
+    private record SearchSelection(List<JobPostActivity> jobs, java.util.Map<Integer, Double> scores) { }
 
     @InitBinder("jobPostActivity")
     public void bindJobFields(WebDataBinder binder) {

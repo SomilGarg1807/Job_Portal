@@ -26,7 +26,7 @@ import com.somil.jobportal.ai.EmbeddingTarget;
  * several quick edits cost one Gemini call, and duplicates collapse into one. Work runs on a
  * single background thread and never on the request thread, so saving a job never waits for
  * Gemini and never fails because of it. If embedding fails (say, a 429 after all retries),
- * the vector just stays stale and the next backfill picks it up.
+ * the vector stays stale and the periodic recovery scan or backfill picks it up.
  */
 public class EmbeddingUpdateQueue implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddingUpdateQueue.class);
@@ -78,8 +78,8 @@ public class EmbeddingUpdateQueue implements AutoCloseable {
                 IndexResult result = indexer.index(target, properties.strategiesFor(target), ids, false);
                 LOGGER.info("Refreshed embeddings after save: target={} ids={} {}", target, ids.size(), result);
             } catch (RuntimeException ex) {
-                LOGGER.warn("Could not refresh embeddings for {} {}: {}. The next backfill will retry.",
-                        target, ids, ex.getMessage());
+                LOGGER.warn("Could not refresh embeddings for {} {}: {}. Recovery will retry.",
+                        target, ids, ex.getClass().getSimpleName());
             }
         });
     }

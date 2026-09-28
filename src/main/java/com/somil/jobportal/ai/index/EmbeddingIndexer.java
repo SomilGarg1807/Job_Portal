@@ -37,7 +37,7 @@ public class EmbeddingIndexer {
         this.store = store;
     }
 
-    public IndexResult index(EmbeddingTarget target, List<EmbeddingStrategy> strategies, Collection<Integer> ids,
+    public synchronized IndexResult index(EmbeddingTarget target, List<EmbeddingStrategy> strategies, Collection<Integer> ids,
                              boolean dryRun) {
         if (ids.isEmpty() || strategies.isEmpty()) return IndexResult.NONE;
         List<SourceText> texts = loader.load(target, strategies, ids);

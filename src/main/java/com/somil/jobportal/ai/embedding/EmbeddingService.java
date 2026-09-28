@@ -21,8 +21,8 @@ import com.somil.jobportal.ai.AiEmbeddingProperties;
  *   <li>Logs texts, characters, tokens and latency for every batch, and keeps running totals.</li>
  * </ul>
  *
- * <p>This is only called when a job or profile is saved and from the backfill, never while
- * a user is searching.
+ * Background indexing uses retries. Interactive search uses a separate instance with
+ * short timeouts and no retries; repeated queries are cached by SemanticJobSearch.
  */
 public class EmbeddingService implements Embedder {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddingService.class);
@@ -54,7 +54,8 @@ public class EmbeddingService implements Embedder {
 
     private static RestClient restClient(AiEmbeddingProperties properties, RestClient.Builder builder) {
         var factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(java.time.Duration.ofSeconds(5));
+        factory.setConnectTimeout(properties.requestTimeout().compareTo(java.time.Duration.ofSeconds(5)) < 0
+                ? properties.requestTimeout() : java.time.Duration.ofSeconds(5));
         factory.setReadTimeout(properties.requestTimeout());
         return builder.requestFactory(factory).baseUrl("https://generativelanguage.googleapis.com/v1beta").build();
     }

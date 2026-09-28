@@ -91,6 +91,29 @@ public class AiEmbeddingConfig {
         }
 
         @Bean
+        @Profile("!backfill")
+        com.somil.jobportal.ai.search.SemanticJobSearch semanticJobSearch(JdbcTemplate jdbc,
+                AiSchemaMigrator migrated, AiEmbeddingProperties p, RestClient.Builder builder,
+                @org.springframework.beans.factory.annotation.Value("${app.ai.search.min-similarity:0.55}") double minimum) {
+            // Interactive searches must not inherit background retries and long timeouts.
+            var queryProperties = new AiEmbeddingProperties(true, p.apiKey(), p.model(), p.dimensions(),
+                    1, 0, p.initialBackoff(), p.maxBackoff(), java.time.Duration.ofSeconds(2),
+                    500, p.saveDelay(), p.jobStrategies(), p.candidateStrategies());
+            return new com.somil.jobportal.ai.search.SemanticJobSearch(
+                    new com.somil.jobportal.ai.search.SemanticVectorRepository(jdbc),
+                    new EmbeddingService(queryProperties, builder.clone()), p, minimum);
+        }
+
+        @Bean(destroyMethod = "close")
+        @Profile("!backfill")
+        @ConditionalOnProperty(name = "app.ai.embedding.recovery-enabled", havingValue = "true", matchIfMissing = true)
+        com.somil.jobportal.ai.index.EmbeddingRecovery embeddingRecovery(JpaEmbeddingSourceLoader loader,
+                EmbeddingIndexer indexer, AiEmbeddingProperties properties,
+                @org.springframework.beans.factory.annotation.Value("${app.ai.embedding.recovery-interval:5m}") java.time.Duration interval) {
+            return new com.somil.jobportal.ai.index.EmbeddingRecovery(loader, indexer, properties, interval);
+        }
+
+        @Bean
         @Profile("backfill")
         EmbeddingBackfillRunner embeddingBackfillRunner(JpaEmbeddingSourceLoader loader, EmbeddingIndexer indexer,
                                                         EmbeddingService embeddings, AiEmbeddingProperties properties,

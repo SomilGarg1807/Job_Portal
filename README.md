@@ -37,9 +37,9 @@ The catalogue includes a varied sample collection across India, the UK, the US, 
 
 Google Gemini supports **job-description drafting**, **interview preparation**, and **resume-to-job comparison**. Candidates can review text extracted from their uploaded PDF, or paste relevant resume text, before comparing it with a selected job. The comparison highlights relevant evidence, requirements not evidenced, resume improvements and preparation topics.
 
-The backend selects the task from the signed-in user's role. Requests require consent, enforce input limits, and apply a cooldown. Generated content remains a draft for the user to review. Credentials stay on the server, and profiles and resumes are not automatically sent to the AI provider.
+The backend selects the assistant task from the signed-in user's role. Assistant requests require consent, enforce input limits, and apply a cooldown. Generated content remains a draft for the user to review. Credentials stay on the server. When embeddings are enabled, selected profile fields (role, headline, experience, skills and work preferences) and job text are sent for embedding automatically; resumes and contact details are excluded. Search phrases are also embedded with bounded calls and caching.
 
-Job recommendations use local profile matching rather than AI-generated suitability scores.
+With embeddings enabled, job recommendations compare stored vectors and search combines keyword hits with related roles found by cosine similarity. Location, experience and other filters remain enforced. Missing or stale vectors and provider failures fall back to existing keyword/profile matching. Similarity is not a candidate suitability percentage.
 
 ## Architecture
 

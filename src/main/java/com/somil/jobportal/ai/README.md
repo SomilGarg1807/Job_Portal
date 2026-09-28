@@ -2,10 +2,11 @@
 
 Finds good job ↔ candidate matches by comparing **embeddings** (lists of numbers that
 capture meaning) stored in TiDB, instead of sending every pair to Gemini. Gemini is
-still used, but only to embed text when something changes, and (from Stage 3) to explain
-a match the user actually opens.
+used to embed changed job/profile text and uncached search phrases. Recommendations
+compare stored vectors without calling Gemini. Generated match explanations are not implemented.
 
-Status: **Stage 2**: tables, embedding, backfill and save hooks. Search comes in Stage 3.
+Status: **Stage 3 search**: storage, backfill, save hooks, semantic recommendations,
+keyword-plus-semantic search, fallback, and periodic recovery are implemented.
 
 ## How it works
 
@@ -46,9 +47,35 @@ backfill CLI ──────────►  EmbeddingIndexer
 - **Own migration runner, not Flyway.** Flyway's bootstrap SQL does not run on TiDB (see
   `ProfileSchemaInitializer`). Applied versions are recorded in `ai_schema_version`. Never
   edit an applied script; add `V2__...sql`. Skipped on H2, which the tests use.
-- **Never on the search path.** Embedding happens after a save (in the background, so a
-  save never waits for or fails because of Gemini) and in the backfill.
+- **Bounded interactive calls.** Recommendations use stored candidate vectors. Search phrases
+  use a separate Gemini client with 2-second connect/read timeouts and no retries.
+  A 512-entry, 10-minute in-memory cache reuses query vectors. At most one new query embeds
+  concurrently, with a per-instance cap of 30 new queries per minute and a 60-second cooldown
+  after a provider failure. Excess traffic uses keyword search.
+- **Fallback and freshness.** Missing vectors, changed source hashes, incompatible models,
+  database errors and provider failures preserve keyword/profile ranking. Exact keyword hits
+  remain visible and are prioritized above semantic-only matches. Explicit sorting still wins.
+- **Recovery.** Every five minutes, a background worker checks one page of 50 jobs and one
+  page of 50 profiles, wrapping at the end. Hashes skip unchanged sources. Failed pages retain
+  their cursor for retry; process restarts begin from the first page. This also repairs missed
+  save events and queue overflow, without requiring another user edit. Backfill mode disables
+  the periodic worker. At larger catalogue sizes a full scan can take multiple intervals.
 - **Off by default.** Nothing here exists unless `AI_EMBEDDING_ENABLED=true`.
+
+Search uses exact TiDB cosine comparison over IDs already allowed by location, employment,
+work mode, date and experience filters. Current catalogue filtering and pagination still
+materialize rows in the application; this is not an approximate vector index or a scalability claim.
+The strongest current job strategy score is used. Scores are similarity signals, not hiring probabilities.
+
+Optional runtime settings (existing embedding key/model settings remain unchanged):
+
+| Environment variable | Default | Meaning |
+|---|---|---|
+| `AI_SEARCH_MIN_SIMILARITY` | `0.55` | Minimum cosine similarity for semantic matches; tune against labeled queries |
+| `AI_EMBEDDING_RECOVERY_ENABLED` | `true` | Enable periodic source/hash reconciliation |
+| `AI_EMBEDDING_RECOVERY_INTERVAL` | `5m` | Delay between recovery pages (minimum `30s`) |
+
+See `docs/semantic-search-guide.html` for behavior and manual verification steps.
 
 ## What text is embedded
 

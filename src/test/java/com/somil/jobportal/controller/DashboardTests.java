@@ -37,6 +37,7 @@ class DashboardTests {
     @MockitoBean AiAssistantService assistant;
     @MockitoBean CustomUserDetailsService details;
     @MockitoBean CustomAuthenticationSuccessHandler successHandler;
+    @MockitoBean com.somil.jobportal.ai.search.SemanticJobSearch semantic;
 
     private JobSeekerProfile seeker;
     private List<JobPostActivity> listings;
@@ -65,6 +66,64 @@ class DashboardTests {
                 .andExpect(content().string(not(containsString("Review applicants"))))
                 .andReturn().getResponse().getContentAsString();
         preview("seeker", html);
+    }
+
+    @Test @WithMockUser(authorities = "Job Seeker")
+    void semanticRecommendationsRankBeforePaginationAndRespectExplicitSort() throws Exception {
+        when(semantic.recommendations(eq(seeker), anyList())).thenReturn(java.util.Map.of(1, .9, 2, .7));
+        mvc.perform(get("/dashboard/"))
+                .andExpect(model().attribute("jobPost", contains(listings.get(0), listings.get(1), listings.get(2))));
+        mvc.perform(get("/dashboard/").param("sort", "newest"))
+                .andExpect(model().attribute("jobPost", contains(listings.get(2), listings.get(1), listings.get(0))));
+    }
+
+    @Test
+    void publicSemanticSearchAddsRelatedJobsAndRetainsKeywordHits() throws Exception {
+        when(jobs.search(eq("build APIs"), any(), anyList(), anyList(), any(), anyBoolean(), anyBoolean()))
+                .thenReturn(List.of(listings.get(0)));
+        when(jobs.search(eq(""), any(), anyList(), anyList(), any(), anyBoolean(), anyBoolean())).thenReturn(listings);
+        when(semantic.search(eq("build APIs"), anyList())).thenReturn(java.util.Map.of(2, .9));
+        mvc.perform(get("/global-search/").param("job", "build APIs"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("jobPost", contains(listings.get(0), listings.get(1))))
+                .andExpect(model().attribute("resultCount", 2));
+    }
+
+    @Test
+    void semanticExpansionPreservesStructuredAndExperienceFilters() throws Exception {
+        listings.get(1).setMinExperienceYears(1); listings.get(1).setMaxExperienceYears(3);
+        listings.get(2).setMinExperienceYears(8); listings.get(2).setMaxExperienceYears(12);
+        when(jobs.search(eq(""), eq("Pune"), anyList(), anyList(), any(), eq(true), eq(true)))
+                .thenReturn(List.of(listings.get(1), listings.get(2)));
+        when(semantic.search(eq("APIs"), eq(List.of(listings.get(1)))))
+                .thenReturn(java.util.Map.of(2, .9, 3, .99));
+        mvc.perform(get("/global-search/").param("job", "APIs").param("location", "Pune")
+                .param("fullTime", "Full-Time").param("remoteOnly", "Remote-Only").param("days7", "true")
+                .param("experience", "1-3"))
+                .andExpect(status().isOk()).andExpect(model().attribute("jobPost", contains(listings.get(1))));
+        verify(jobs).search(eq(""), eq("Pune"), anyList(), anyList(), eq(java.time.LocalDate.now().minusDays(7)), eq(true), eq(true));
+        verify(semantic).search("APIs", List.of(listings.get(1)));
+    }
+
+    @Test
+    void unavailableSemanticSearchRetainsKeywordResultsAndNewestOrder() throws Exception {
+        when(jobs.search(any(), any(), anyList(), anyList(), any(), anyBoolean(), anyBoolean())).thenReturn(listings);
+        when(semantic.search(anyString(), anyList())).thenReturn(java.util.Map.of());
+        mvc.perform(get("/global-search/").param("job", "Developer"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("jobPost", contains(listings.get(2), listings.get(1), listings.get(0))));
+    }
+
+    @Test @WithMockUser(authorities = "Job Seeker")
+    void queryMeaningTakesPriorityOverProfileAndSavedViewStillFilters() throws Exception {
+        when(jobs.search(eq("APIs"), any(), anyList(), anyList(), any(), anyBoolean(), anyBoolean())).thenReturn(List.of());
+        when(jobs.search(eq(""), any(), anyList(), anyList(), any(), anyBoolean(), anyBoolean())).thenReturn(listings);
+        when(semantic.search(eq("APIs"), anyList())).thenReturn(java.util.Map.of(1, .7, 2, .9));
+        mvc.perform(get("/dashboard/").param("job", "APIs"))
+                .andExpect(model().attribute("jobPost", contains(listings.get(1), listings.get(0))));
+        mvc.perform(get("/dashboard/").param("job", "APIs").param("view", "saved"))
+                .andExpect(model().attribute("jobPost", contains(listings.get(0))));
+        verify(semantic, never()).recommendations(any(), anyList());
     }
 
     @Test @WithMockUser(authorities = "Job Seeker")

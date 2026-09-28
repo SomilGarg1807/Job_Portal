@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Semantic job matching | HotDevJobs</title>
+  <style>
+    :root { color-scheme: light; --ink:#17263b; --muted:#53657b; --blue:#245aa7; --line:#dce5ef; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#f4f7fb; color:var(--ink); font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { max-width:960px; margin:auto; padding:48px 24px 72px; }
+    h1,h2,h3 { line-height:1.2; margin-top:0; }
+    h1 { font-size:clamp(2rem,5vw,3rem); margin-bottom:10px; }
+    h2 { font-size:1.35rem; margin-bottom:14px; }
+    h3 { font-size:1rem; margin-bottom:7px; }
+    p { margin:0 0 13px; }
+    a { color:var(--blue); text-underline-offset:3px; }
+    code { background:#edf2f8; border-radius:4px; padding:2px 5px; overflow-wrap:anywhere; }
+    .eyebrow { color:var(--blue); font-size:.78rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .lead { max-width:750px; color:var(--muted); font-size:1.1rem; }
+    .note { background:#eaf2ff; border-left:4px solid var(--blue); padding:13px 17px; border-radius:7px; margin:22px 0 28px; }
+    section { background:white; border:1px solid var(--line); border-radius:15px; padding:24px; margin:18px 0; }
+    .flow { display:flex; flex-wrap:wrap; align-items:stretch; gap:8px; margin:16px 0; }
+    .step { flex:1 1 150px; padding:13px 14px; background:#f0f5fb; border:1px solid #d8e5f4; border-radius:9px; font-weight:650; }
+    .arrow { align-self:center; color:var(--blue); font-size:1.3rem; font-weight:800; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .card { border:1px solid var(--line); border-radius:10px; padding:15px; }
+    .card p { margin-bottom:0; }
+    .small { color:var(--muted); font-size:.91rem; }
+    ul { margin:8px 0 0; padding-left:20px; }
+    li { margin:7px 0; }
+    @media(max-width:680px) { .grid { grid-template-columns:1fr; } .arrow { display:none; } .step { flex-basis:100%; } }
+    @media print { body { background:white; } main { padding:0; } section { break-inside:avoid; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">HotDevJobs / implementation overview</p>
+    <h1>Semantic job matching</h1>
+    <p class="lead">How job and profile embeddings are created, then used to recommend jobs and find related roles.</p>
+    <p class="note"><strong>Status:</strong> This source includes embedding storage, backfill, search, recommendations, and recovery. Runtime matching remains off until AI_EMBEDDING_ENABLED=true, and this page does not indicate whether a deployment has enabled it.</p>
+  </header>
+
+  <section aria-labelledby="indexing">
+    <h2 id="indexing">1. Build and refresh embeddings</h2>
+    <div class="flow" aria-label="Embedding update flow">
+      <div class="step">Job or profile saved</div><span class="arrow" aria-hidden="true">&rarr;</span>
+      <div class="step">Save event queued</div><span class="arrow" aria-hidden="true">&rarr;</span>
+      <div class="step">Text sent to Gemini</div><span class="arrow" aria-hidden="true">&rarr;</span>
+      <div class="step">Vector stored in TiDB</div>
+    </div>
+    <p><a href="../src/main/java/com/somil/jobportal/services/JobPostActivityService.java">JobPostActivityService</a> and <a href="../src/main/java/com/somil/jobportal/services/JobSeekerProfileService.java">JobSeekerProfileService</a> publish an EmbeddingSourceChanged event. <a href="../src/main/java/com/somil/jobportal/ai/index/EmbeddingUpdateQueue.java">EmbeddingUpdateQueue</a> receives it after commit and groups quick edits. <a href="../src/main/java/com/somil/jobportal/ai/index/EmbeddingIndexer.java">EmbeddingIndexer.index()</a> skips unchanged text, calls <a href="../src/main/java/com/somil/jobportal/ai/embedding/EmbeddingService.java">EmbeddingService</a>, and saves vectors through <a href="../src/main/java/com/somil/jobportal/ai/store/JdbcEmbeddingStore.java">JdbcEmbeddingStore</a>.</p>
+    <p class="small">Job text includes title, work details, experience, and description. Profile text includes headline, target role, experience, preferences, and skills. Names, contact details, and resumes are excluded.</p>
+  </section>
+
+  <section aria-labelledby="matching">
+    <h2 id="matching">2. Recommend and search</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Dashboard recommendations</h3>
+        <p>Stored profile vector &rarr; filtered job vectors &rarr; cosine scores &rarr; Best match order. Comparing stored vectors makes no Gemini call. An explicit Newest or Title sort takes precedence.</p>
+      </div>
+      <div class="card">
+        <h3>Search by meaning</h3>
+        <p>Search phrase &rarr; Gemini query vector &rarr; filtered job vectors &rarr; keyword hits plus related jobs. Keyword hits appear first, including those without a usable vector.</p>
+      </div>
+    </div>
+    <p style="margin-top:16px"><a href="../src/main/java/com/somil/jobportal/controller/JobPostActivityController.java">JobPostActivityController</a> applies location, work type, date, and experience filters, then calls <a href="../src/main/java/com/somil/jobportal/ai/search/SemanticJobSearch.java">SemanticJobSearch.recommendations()</a> or search(). <a href="../src/main/java/com/somil/jobportal/ai/search/SemanticVectorRepository.java">SemanticVectorRepository</a> calculates cosine similarity in TiDB. Stale and low scoring vectors are rejected.</p>
+  </section>
+
+  <section aria-labelledby="resilience">
+    <h2 id="resilience">3. Fallback and recovery</h2>
+    <div class="grid">
+      <div class="card"><h3>Fallback</h3><p>Missing vectors, Gemini failures, or vector SQL errors leave the existing keyword and profile ranking in place. Structured filters still apply.</p></div>
+      <div class="card"><h3>Recovery</h3><p><a href="../src/main/java/com/somil/jobportal/ai/index/EmbeddingRecovery.java">EmbeddingRecovery</a> scans 50 jobs and 50 profiles per interval and updates missing or changed vectors. Initial backfill covers existing records faster.</p></div>
+    </div>
+    <p class="small" style="margin-top:15px">Query vectors are cached for 10 minutes. New query embeddings are limited to one at a time and 30 per minute per app instance; excess traffic uses keyword search.</p>
+  </section>
+
+  <section aria-labelledby="wiring">
+    <h2 id="wiring">Wiring and dependencies</h2>
+    <ul>
+      <li><a href="../src/main/java/com/somil/jobportal/ai/AiEmbeddingConfig.java">AiEmbeddingConfig</a> creates the beans when <code>AI_EMBEDDING_ENABLED=true</code>. The feature is off by default; Gemini calls also need <code>GEMINI_API_KEY</code>.</li>
+      <li>Key framework imports: Spring <code>ApplicationEventPublisher</code> and <code>@TransactionalEventListener</code> for saves; <code>RestClient</code> for Gemini; <code>JdbcTemplate</code> and <code>NamedParameterJdbcTemplate</code> for TiDB.</li>
+      <li><a href="../pom.xml">pom.xml</a> already provides Spring Boot Web/JPA, the MySQL JDBC driver used with TiDB, and Jsoup for extracting job text. This stage adds no Maven dependency.</li>
+      <li><a href="../src/main/resources/application.properties">application.properties</a> sets the similarity threshold (default <code>0.55</code>) and recovery interval (default <code>5m</code>).</li>
+    </ul>
+    <p style="margin-top:14px"><strong>Why 768 numbers?</strong> Google recommends 768 as one of the output sizes for <code>gemini-embedding-001</code>. It is one quarter of the default 3072 dimensions, reducing vector storage and comparison work. The service normalizes the shorter vectors, and the TiDB schema uses <code>VECTOR(768)</code>. A different size would require a schema migration and re-embedding existing records. <a href="https://ai.google.dev/gemini-api/docs/embeddings">Google's embedding guide</a> explains the size options.</p>
+    <p class="small" style="margin-top:14px">The Java test suite passed (135 tests). H2 tests do not execute TiDB vector SQL, so that query still needs a TiDB check before production rollout.</p>
+  </section>
+</main>
+</body>
+</html>

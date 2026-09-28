@@ -138,6 +138,7 @@
             </div>
             <span class="result-count" th:text="|${resultCount} jobs|">0 jobs</span>
         </div>
+        <p th:if="${rankingMessage}" th:text="${rankingMessage}"></p>
 
         <div class="empty-results" th:if="${#lists.isEmpty(jobPost)}">
             <span><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
