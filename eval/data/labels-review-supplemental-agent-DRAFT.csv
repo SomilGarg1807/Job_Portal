@@ -1,0 +1,340 @@
+queryId,queryText,jobKey,title,city,jobType,remote,reviewedGrade,reviewNote
+q01,Java Backend Developer,backend_java-005,Junior Java Developer,Chennai,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q01,Java Backend Developer,backend_java-006,Senior Backend Engineer (Java),Bengaluru,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q01,Java Backend Developer,backend_java-011,Junior Java Developer,Hyderabad,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q01,Java Backend Developer,backend_java-017,Junior Java Developer,Pune,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q01,Java Backend Developer,backend_java-018,Senior Backend Engineer (Java),London,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q01,Java Backend Developer,backend_java-023,Junior Java Developer,Toronto,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q02,React Frontend Developer,frontend_react-005,React UI Developer,Austin,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q02,React Frontend Developer,frontend_react-008,UI Engineer (React),Toronto,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q02,React Frontend Developer,frontend_react-011,React UI Developer,London,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q02,React Frontend Developer,frontend_react-014,UI Engineer (React),Chennai,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q02,React Frontend Developer,frontend_react-017,React UI Developer,Delhi,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q02,React Frontend Developer,frontend_react-023,React UI Developer,Bengaluru,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q03,Data Engineer,data_engineering-003,Data Platform Engineer,Pune,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q03,Data Engineer,data_engineering-006,Senior Data Engineer,Austin,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q03,Data Engineer,data_engineering-009,Data Platform Engineer,Toronto,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q03,Data Engineer,data_engineering-012,Senior Data Engineer,London,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q03,Data Engineer,data_engineering-018,Senior Data Engineer,Delhi,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q04,Data Analyst,data_analytics-005,Analytics Specialist,London,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q04,Data Analyst,data_analytics-006,SQL Analyst,Hyderabad,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q04,Data Analyst,data_analytics-017,Analytics Specialist,Bengaluru,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q04,Data Analyst,data_analytics-018,SQL Analyst,Toronto,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q04,Data Analyst,data_analytics-023,Analytics Specialist,Austin,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q05,QA Automation Engineer,qa_automation-004,Quality Engineer,Toronto,Part-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q05,QA Automation Engineer,qa_automation-010,Quality Engineer,Chennai,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q05,QA Automation Engineer,qa_automation-011,Test Automation Developer,Bengaluru,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q05,QA Automation Engineer,qa_automation-016,Quality Engineer,Hyderabad,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q05,QA Automation Engineer,qa_automation-022,Quality Engineer,Pune,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q05,QA Automation Engineer,qa_automation-023,Test Automation Developer,London,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q06,Android Developer,mobile_android-004,Android Software Engineer,Bengaluru,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q06,Android Developer,mobile_android-006,Senior Android Engineer,Delhi,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q06,Android Developer,mobile_android-010,Android Software Engineer,Austin,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q06,Android Developer,mobile_android-012,Senior Android Engineer,Bengaluru,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q06,Android Developer,mobile_android-018,Senior Android Engineer,Austin,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q07,Security Engineer,security-005,Security Operations Engineer,Chennai,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q07,Security Engineer,security-008,Application Security Engineer,Delhi,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q07,Security Engineer,security-009,Cloud Security Engineer,Pune,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q07,Security Engineer,security-011,Security Operations Engineer,Hyderabad,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q07,Security Engineer,security-014,Application Security Engineer,Bengaluru,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q07,Security Engineer,security-015,Cloud Security Engineer,Toronto,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q07,Security Engineer,security-017,Security Operations Engineer,Pune,Freelance,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q07,Security Engineer,security-018,Product Security Engineer,London,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q07,Security Engineer,security-020,Application Security Engineer,Austin,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q07,Security Engineer,security-021,Cloud Security Engineer,Chennai,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q08,Product Designer,ux_design-006,Design Systems Designer,Austin,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q08,Product Designer,ux_design-010,Interaction Designer,Delhi,Freelance,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q08,Product Designer,ux_design-012,Design Systems Designer,London,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q08,Product Designer,ux_design-015,UI/UX Designer,Chennai,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q08,Product Designer,ux_design-018,Design Systems Designer,Delhi,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q08,Product Designer,ux_design-022,Interaction Designer,Austin,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q09,SDE working on Java services,backend_java-002,Spring Boot Engineer,London,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q09,SDE working on Java services,backend_java-004,Software Development Engineer (Java),Austin,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q09,SDE working on Java services,backend_java-006,Senior Backend Engineer (Java),Bengaluru,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q09,SDE working on Java services,backend_java-010,Software Development Engineer (Java),London,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q09,SDE working on Java services,backend_java-012,Senior Backend Engineer (Java),Austin,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q09,SDE working on Java services,backend_java-018,Senior Backend Engineer (Java),London,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q09,SDE working on Java services,backend_java-022,Software Development Engineer (Java),Bengaluru,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q10,JS developer building web interfaces,frontend_react-003,JavaScript Web Developer,London,Part-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q10,JS developer building web interfaces,frontend_react-005,React UI Developer,Austin,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q10,JS developer building web interfaces,frontend_react-007,React Frontend Developer,Bengaluru,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q10,JS developer building web interfaces,frontend_react-009,JavaScript Web Developer,Delhi,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q10,JS developer building web interfaces,frontend_react-011,React UI Developer,London,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q10,JS developer building web interfaces,frontend_react-015,JavaScript Web Developer,Bengaluru,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q10,JS developer building web interfaces,frontend_react-017,React UI Developer,Delhi,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q10,JS developer building web interfaces,frontend_react-019,React Frontend Developer,London,Freelance,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q10,JS developer building web interfaces,frontend_react-021,JavaScript Web Developer,Austin,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q10,JS developer building web interfaces,frontend_react-023,React UI Developer,Bengaluru,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q11,ETL pipeline specialist,data_engineering-002,ETL Developer,Delhi,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q11,ETL pipeline specialist,data_engineering-005,Pipeline Engineer,Hyderabad,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q11,ETL pipeline specialist,data_engineering-011,Pipeline Engineer,Pune,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q11,ETL pipeline specialist,data_engineering-013,Data Engineer,Hyderabad,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q11,ETL pipeline specialist,data_engineering-014,ETL Developer,Austin,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q11,ETL pipeline specialist,data_engineering-017,Pipeline Engineer,Toronto,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q11,ETL pipeline specialist,data_engineering-019,Data Engineer,Pune,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q11,ETL pipeline specialist,data_engineering-023,Pipeline Engineer,Chennai,Freelance,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q12,site reliability and production operations,devops_sre-002,Site Reliability Engineer,Bengaluru,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q12,site reliability and production operations,devops_sre-003,Platform Reliability Engineer,Toronto,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q12,site reliability and production operations,devops_sre-009,Platform Reliability Engineer,Chennai,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q12,site reliability and production operations,devops_sre-014,Site Reliability Engineer,London,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q12,site reliability and production operations,devops_sre-015,Platform Reliability Engineer,Hyderabad,Part-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q12,site reliability and production operations,devops_sre-017,SRE,Chennai,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q12,site reliability and production operations,devops_sre-020,Site Reliability Engineer,Delhi,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q12,site reliability and production operations,devops_sre-021,Platform Reliability Engineer,Pune,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q12,site reliability and production operations,devops_sre-023,SRE,Hyderabad,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q13,SDET writing automated tests,qa_automation-003,SDET,Bengaluru,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q13,SDET writing automated tests,qa_automation-005,Test Automation Developer,Delhi,Freelance,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q13,SDET writing automated tests,qa_automation-007,QA Automation Engineer,London,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q13,SDET writing automated tests,qa_automation-009,SDET,Austin,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q13,SDET writing automated tests,qa_automation-013,QA Automation Engineer,Delhi,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q13,SDET writing automated tests,qa_automation-015,SDET,London,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q13,SDET writing automated tests,qa_automation-017,Test Automation Developer,Austin,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q13,SDET writing automated tests,qa_automation-021,SDET,Delhi,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q13,SDET writing automated tests,qa_automation-023,Test Automation Developer,London,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q14,iPhone app developer,mobile_ios-003,iOS Software Engineer,Austin,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q14,iPhone app developer,mobile_ios-005,iOS UI Engineer,Bengaluru,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q14,iPhone app developer,mobile_ios-007,iOS Developer,Delhi,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q14,iPhone app developer,mobile_ios-011,iOS UI Engineer,Austin,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q14,iPhone app developer,mobile_ios-013,iOS Developer,Bengaluru,Freelance,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q14,iPhone app developer,mobile_ios-017,iOS UI Engineer,London,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q14,iPhone app developer,mobile_ios-018,Senior iOS Engineer,Hyderabad,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q14,iPhone app developer,mobile_ios-019,iOS Developer,Austin,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q14,iPhone app developer,mobile_ios-023,iOS UI Engineer,Delhi,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q15,business intelligence reporting role,data_analytics-002,BI Analyst,Toronto,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q15,business intelligence reporting role,data_analytics-004,Reporting Analyst,Pune,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q15,business intelligence reporting role,data_analytics-006,SQL Analyst,Hyderabad,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q15,business intelligence reporting role,data_analytics-010,Reporting Analyst,Toronto,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q15,business intelligence reporting role,data_analytics-012,SQL Analyst,Pune,Freelance,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q15,business intelligence reporting role,data_analytics-014,BI Analyst,Hyderabad,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q15,business intelligence reporting role,data_analytics-020,BI Analyst,Pune,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q15,business intelligence reporting role,data_analytics-022,Reporting Analyst,Hyderabad,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q16,Kafka,backend_java-006,Senior Backend Engineer (Java),Bengaluru,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q16,Kafka,backend_java-008,Spring Boot Engineer,Delhi,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q16,Kafka,backend_java-011,Junior Java Developer,Hyderabad,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q16,Kafka,backend_java-014,Spring Boot Engineer,Bengaluru,Part-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q16,Kafka,backend_java-019,Java Backend Developer,Hyderabad,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q16,Kafka,backend_java-024,Senior Backend Engineer (Java),Delhi,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q16,Kafka,data_engineering-001,Data Engineer,Toronto,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q16,Kafka,data_engineering-004,Analytics Engineer,London,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q16,Kafka,data_engineering-009,Data Platform Engineer,Toronto,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q16,Kafka,data_engineering-017,Pipeline Engineer,Toronto,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q16,Kafka,data_engineering-020,ETL Developer,London,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,cloud_architecture-001,Cloud Architect,Bengaluru,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,cloud_architecture-004,Cloud Infrastructure Engineer,Pune,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,cloud_architecture-012,Infrastructure Architect,Pune,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,cloud_architecture-015,Azure Cloud Engineer,Austin,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,cloud_architecture-020,AWS Solutions Architect,Pune,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,devops_sre-002,Site Reliability Engineer,Bengaluru,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,devops_sre-003,Platform Reliability Engineer,Toronto,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,devops_sre-006,Infrastructure Automation Engineer,London,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,devops_sre-008,Site Reliability Engineer,Austin,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,devops_sre-012,Infrastructure Automation Engineer,Delhi,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,devops_sre-013,DevOps Engineer,Pune,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,devops_sre-014,Site Reliability Engineer,London,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,devops_sre-015,Platform Reliability Engineer,Hyderabad,Part-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,devops_sre-017,SRE,Chennai,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,devops_sre-018,Infrastructure Automation Engineer,Bengaluru,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,devops_sre-019,DevOps Engineer,Toronto,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q17,Terraform,devops_sre-020,Site Reliability Engineer,Delhi,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q18,Playwright,devops_sre-021,Platform Reliability Engineer,Pune,Freelance,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q18,Playwright,frontend_react-007,React Frontend Developer,Bengaluru,Full-Time,Partial-Remote,1,PROVISIONAL agent review; not human ground truth
+q18,Playwright,frontend_react-009,JavaScript Web Developer,Delhi,Freelance,Office-Only,1,PROVISIONAL agent review; not human ground truth
+q18,Playwright,frontend_react-012,Web Application Engineer,Hyderabad,Full-Time,Office-Only,1,PROVISIONAL agent review; not human ground truth
+q18,Playwright,frontend_react-017,React UI Developer,Delhi,Full-Time,Remote-Only,1,PROVISIONAL agent review; not human ground truth
+q18,Playwright,frontend_react-020,UI Engineer (React),Hyderabad,Full-Time,Remote-Only,1,PROVISIONAL agent review; not human ground truth
+q18,Playwright,frontend_react-023,React UI Developer,Bengaluru,Part-Time,Remote-Only,1,PROVISIONAL agent review; not human ground truth
+q18,Playwright,qa_automation-001,QA Automation Engineer,Austin,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q18,Playwright,qa_automation-004,Quality Engineer,Toronto,Part-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q18,Playwright,qa_automation-009,SDET,Austin,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q18,Playwright,qa_automation-014,Software Test Engineer,Pune,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q18,Playwright,qa_automation-017,Test Automation Developer,Austin,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q18,Playwright,qa_automation-020,Software Test Engineer,Toronto,Freelance,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-002,Product Designer,Delhi,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-004,Interaction Designer,London,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-005,UX Researcher,Hyderabad,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-006,Design Systems Designer,Austin,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-007,UX Designer,Chennai,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-010,Interaction Designer,Delhi,Freelance,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-011,UX Researcher,Pune,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-013,UX Designer,Hyderabad,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-014,Product Designer,Austin,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-015,UI/UX Designer,Chennai,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-017,UX Researcher,Toronto,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-018,Design Systems Designer,Delhi,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-020,Product Designer,London,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-021,UI/UX Designer,Hyderabad,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q19,Figma,ux_design-023,UX Researcher,Chennai,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q20,Coroutines,mobile_android-005,Mobile UI Engineer,Toronto,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q20,Coroutines,mobile_android-010,Android Software Engineer,Austin,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q20,Coroutines,mobile_android-013,Android Developer,Toronto,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q20,Coroutines,mobile_android-014,Kotlin Mobile Engineer,Delhi,Freelance,Office-Only,1,PROVISIONAL agent review; not human ground truth
+q20,Coroutines,mobile_android-018,Senior Android Engineer,Austin,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q20,Coroutines,mobile_android-020,Kotlin Mobile Engineer,Bengaluru,Full-Time,Office-Only,1,PROVISIONAL agent review; not human ground truth
+q20,Coroutines,mobile_android-021,Mobile Application Developer,Toronto,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q21,Snowflake,cloud_architecture-009,Azure Cloud Engineer,Bengaluru,Freelance,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q21,Snowflake,data_analytics-002,BI Analyst,Toronto,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q21,Snowflake,data_analytics-005,Analytics Specialist,London,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q21,Snowflake,data_analytics-010,Reporting Analyst,Toronto,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q21,Snowflake,data_analytics-013,Data Analyst,London,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q21,Snowflake,data_analytics-016,Reporting Analyst,Chennai,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q21,Snowflake,data_analytics-018,SQL Analyst,Toronto,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q21,Snowflake,data_engineering-006,Senior Data Engineer,Austin,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q21,Snowflake,data_engineering-008,ETL Developer,Bengaluru,Freelance,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q21,Snowflake,data_engineering-011,Pipeline Engineer,Pune,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q21,Snowflake,data_engineering-019,Data Engineer,Pune,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q21,Snowflake,data_engineering-024,Senior Data Engineer,Bengaluru,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q21,Snowflake,security-021,Cloud Security Engineer,Chennai,Part-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q22,OAuth,backend_java-005,Junior Java Developer,Chennai,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q22,OAuth,backend_java-010,Software Development Engineer (Java),London,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q22,OAuth,backend_java-013,Java Backend Developer,Chennai,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q22,OAuth,backend_java-018,Senior Backend Engineer (Java),London,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q22,OAuth,backend_java-021,API Platform Engineer,Chennai,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q22,OAuth,security-001,Security Engineer,Pune,Part-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q22,OAuth,security-004,SOC Analyst,Austin,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q22,OAuth,security-007,Security Engineer,Toronto,Freelance,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q22,OAuth,security-009,Cloud Security Engineer,Pune,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q22,OAuth,security-011,Security Operations Engineer,Hyderabad,Part-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q22,OAuth,security-012,Product Security Engineer,Austin,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q22,OAuth,security-013,Security Engineer,Chennai,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q22,OAuth,security-014,Application Security Engineer,Bengaluru,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q22,OAuth,security-017,Security Operations Engineer,Pune,Freelance,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q22,OAuth,security-019,Security Engineer,Hyderabad,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q22,OAuth,security-020,Application Security Engineer,Austin,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q23,Java backend,frontend_react-018,Web Application Engineer,Pune,Part-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q23,Java backend,mobile_android-007,Android Developer,Pune,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q23,Java backend,mobile_android-015,Mobile Application Developer,Pune,Full-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q23,Java backend,mobile_android-023,Mobile UI Engineer,Pune,Part-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q23,Java backend,qa_automation-006,Manual QA Analyst,Pune,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q23,Java backend,qa_automation-014,Software Test Engineer,Pune,Part-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q23,Java backend,qa_automation-022,Quality Engineer,Pune,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q24,React frontend,backend_java-006,Senior Backend Engineer (Java),Bengaluru,Full-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q24,React frontend,backend_java-014,Spring Boot Engineer,Bengaluru,Part-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q24,React frontend,mobile_android-004,Android Software Engineer,Bengaluru,Freelance,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q24,React frontend,mobile_android-020,Kotlin Mobile Engineer,Bengaluru,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q24,React frontend,mobile_ios-005,iOS UI Engineer,Bengaluru,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q24,React frontend,ux_design-008,Product Designer,Bengaluru,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q24,React frontend,ux_design-016,Interaction Designer,Bengaluru,Full-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q25,data engineering,cloud_architecture-022,Cloud Infrastructure Engineer,Hyderabad,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q25,data engineering,data_analytics-006,SQL Analyst,Hyderabad,Part-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q25,data engineering,data_analytics-014,BI Analyst,Hyderabad,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q25,data engineering,data_analytics-022,Reporting Analyst,Hyderabad,Freelance,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q25,data engineering,devops_sre-007,DevOps Engineer,Hyderabad,Full-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q25,data engineering,devops_sre-015,Platform Reliability Engineer,Hyderabad,Part-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q25,data engineering,security-019,Security Engineer,Hyderabad,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q26,DevOps,backend_java-002,Spring Boot Engineer,London,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q26,DevOps,cloud_architecture-005,Kubernetes Platform Engineer,London,Full-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q26,DevOps,cloud_architecture-013,Cloud Architect,London,Part-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q26,DevOps,cloud_architecture-021,Azure Cloud Engineer,London,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q26,DevOps,mobile_android-024,Senior Android Engineer,London,Freelance,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q26,DevOps,qa_automation-015,SDET,London,Freelance,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q26,DevOps,qa_automation-023,Test Automation Developer,London,Full-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q27,iOS development,backend_java-007,Java Backend Developer,Toronto,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q27,iOS development,backend_java-023,Junior Java Developer,Toronto,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q27,iOS development,cloud_architecture-018,Infrastructure Architect,Toronto,Part-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q27,iOS development,frontend_react-024,Web Application Engineer,Toronto,Freelance,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q27,iOS development,mobile_android-005,Mobile UI Engineer,Toronto,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q27,iOS development,mobile_android-013,Android Developer,Toronto,Part-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q27,iOS development,mobile_android-021,Mobile Application Developer,Toronto,Full-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q28,cloud architecture,backend_java-004,Software Development Engineer (Java),Austin,Part-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q28,cloud architecture,backend_java-012,Senior Backend Engineer (Java),Austin,Full-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q28,cloud architecture,backend_java-020,Spring Boot Engineer,Austin,Freelance,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q28,cloud architecture,data_engineering-014,ETL Developer,Austin,Full-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q28,cloud architecture,devops_sre-008,Site Reliability Engineer,Austin,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q28,cloud architecture,devops_sre-016,Cloud Operations Engineer,Austin,Freelance,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q28,cloud architecture,devops_sre-024,Infrastructure Automation Engineer,Austin,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q29,Java API engineer,backend_java-002,Spring Boot Engineer,London,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q29,Java API engineer,backend_java-003,API Platform Engineer,Hyderabad,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q29,Java API engineer,backend_java-008,Spring Boot Engineer,Delhi,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q29,Java API engineer,backend_java-011,Junior Java Developer,Hyderabad,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q29,Java API engineer,backend_java-017,Junior Java Developer,Pune,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q29,Java API engineer,backend_java-021,API Platform Engineer,Chennai,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q30,React developer,backend_java-010,Software Development Engineer (Java),London,Freelance,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q30,React developer,mobile_android-004,Android Software Engineer,Bengaluru,Freelance,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q30,React developer,mobile_android-010,Android Software Engineer,Austin,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q30,React developer,mobile_android-016,Android Software Engineer,London,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q30,React developer,mobile_android-022,Android Software Engineer,Delhi,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q30,React developer,qa_automation-015,SDET,London,Freelance,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q31,QA automation,backend_java-014,Spring Boot Engineer,Bengaluru,Part-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q31,QA automation,cloud_architecture-003,Azure Cloud Engineer,Delhi,Part-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q31,QA automation,data_engineering-017,Pipeline Engineer,Toronto,Part-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q31,QA automation,devops_sre-010,Cloud Operations Engineer,Bengaluru,Part-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q31,QA automation,devops_sre-015,Platform Reliability Engineer,Hyderabad,Part-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q31,QA automation,frontend_react-018,Web Application Engineer,Pune,Part-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q31,QA automation,mobile_android-008,Kotlin Mobile Engineer,London,Part-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q31,QA automation,security-011,Security Operations Engineer,Hyderabad,Part-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q32,data analyst,data_engineering-001,Data Engineer,Toronto,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q32,data analyst,data_engineering-007,Data Engineer,Chennai,Part-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q32,data analyst,data_engineering-013,Data Engineer,Hyderabad,Freelance,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q32,data analyst,data_engineering-019,Data Engineer,Pune,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q32,data analyst,frontend_react-009,JavaScript Web Developer,Delhi,Freelance,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q32,data analyst,qa_automation-010,Quality Engineer,Chennai,Freelance,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q33,mobile app developer,backend_java-015,API Platform Engineer,Toronto,Freelance,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q33,mobile app developer,data_engineering-008,ETL Developer,Bengaluru,Freelance,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q33,mobile app developer,frontend_react-019,React Frontend Developer,London,Freelance,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q33,mobile app developer,qa_automation-005,Test Automation Developer,Delhi,Freelance,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q33,mobile app developer,security-002,Application Security Engineer,London,Freelance,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q33,mobile app developer,security-017,Security Operations Engineer,Pune,Freelance,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q33,mobile app developer,ux_design-010,Interaction Designer,Delhi,Freelance,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q34,I want to keep cloud services reliable and respond to incidents,cloud_architecture-009,Azure Cloud Engineer,Bengaluru,Freelance,Remote-Only,1,PROVISIONAL agent review; not human ground truth
+q34,I want to keep cloud services reliable and respond to incidents,cloud_architecture-019,Cloud Architect,Delhi,Freelance,Office-Only,1,PROVISIONAL agent review; not human ground truth
+q34,I want to keep cloud services reliable and respond to incidents,cloud_architecture-021,Azure Cloud Engineer,London,Full-Time,Remote-Only,1,PROVISIONAL agent review; not human ground truth
+q34,I want to keep cloud services reliable and respond to incidents,devops_sre-003,Platform Reliability Engineer,Toronto,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q34,I want to keep cloud services reliable and respond to incidents,devops_sre-009,Platform Reliability Engineer,Chennai,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q34,I want to keep cloud services reliable and respond to incidents,devops_sre-021,Platform Reliability Engineer,Pune,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q34,I want to keep cloud services reliable and respond to incidents,devops_sre-022,Cloud Operations Engineer,London,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q34,I want to keep cloud services reliable and respond to incidents,security-015,Cloud Security Engineer,Toronto,Full-Time,Remote-Only,1,PROVISIONAL agent review; not human ground truth
+q35,Help teams understand user behavior through dashboards and experiments,data_analytics-002,BI Analyst,Toronto,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q35,Help teams understand user behavior through dashboards and experiments,data_analytics-007,Data Analyst,Austin,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q35,Help teams understand user behavior through dashboards and experiments,data_analytics-009,Product Analyst,Bengaluru,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q35,Help teams understand user behavior through dashboards and experiments,data_analytics-013,Data Analyst,London,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q35,Help teams understand user behavior through dashboards and experiments,data_analytics-014,BI Analyst,Hyderabad,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q35,Help teams understand user behavior through dashboards and experiments,data_analytics-015,Product Analyst,Austin,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q35,Help teams understand user behavior through dashboards and experiments,data_analytics-019,Data Analyst,Delhi,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q35,Help teams understand user behavior through dashboards and experiments,data_analytics-020,BI Analyst,Pune,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q36,Build secure sign-in and protect web APIs,security-005,Security Operations Engineer,Chennai,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q36,Build secure sign-in and protect web APIs,security-007,Security Engineer,Toronto,Freelance,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q36,Build secure sign-in and protect web APIs,security-009,Cloud Security Engineer,Pune,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q36,Build secure sign-in and protect web APIs,security-011,Security Operations Engineer,Hyderabad,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q36,Build secure sign-in and protect web APIs,security-013,Security Engineer,Chennai,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q36,Build secure sign-in and protect web APIs,security-015,Cloud Security Engineer,Toronto,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q36,Build secure sign-in and protect web APIs,security-017,Security Operations Engineer,Pune,Freelance,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q36,Build secure sign-in and protect web APIs,security-019,Security Engineer,Hyderabad,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q36,Build secure sign-in and protect web APIs,security-023,Security Operations Engineer,Toronto,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q37,Design accessible interfaces and test them with users,ux_design-002,Product Designer,Delhi,Full-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q37,Design accessible interfaces and test them with users,ux_design-003,UI/UX Designer,Pune,Full-Time,Office-Only,2,PROVISIONAL agent review; not human ground truth
+q37,Design accessible interfaces and test them with users,ux_design-007,UX Designer,Chennai,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q37,Design accessible interfaces and test them with users,ux_design-013,UX Designer,Hyderabad,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q37,Design accessible interfaces and test them with users,ux_design-014,Product Designer,Austin,Part-Time,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q37,Design accessible interfaces and test them with users,ux_design-019,UX Designer,Pune,Part-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q37,Design accessible interfaces and test them with users,ux_design-020,Product Designer,London,Freelance,Remote-Only,2,PROVISIONAL agent review; not human ground truth
+q37,Design accessible interfaces and test them with users,ux_design-022,Interaction Designer,Austin,Full-Time,Partial-Remote,2,PROVISIONAL agent review; not human ground truth
+q38,marine biologist studying coral reefs,data_analytics-002,BI Analyst,Toronto,Freelance,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q38,marine biologist studying coral reefs,data_analytics-005,Analytics Specialist,London,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q38,marine biologist studying coral reefs,data_analytics-008,BI Analyst,Chennai,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q38,marine biologist studying coral reefs,data_analytics-011,Analytics Specialist,Delhi,Part-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q38,marine biologist studying coral reefs,data_analytics-014,BI Analyst,Hyderabad,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q38,marine biologist studying coral reefs,data_analytics-017,Analytics Specialist,Bengaluru,Freelance,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q38,marine biologist studying coral reefs,data_analytics-020,BI Analyst,Pune,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q38,marine biologist studying coral reefs,data_analytics-023,Analytics Specialist,Austin,Full-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q38,marine biologist studying coral reefs,devops_sre-020,Site Reliability Engineer,Delhi,Part-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q38,marine biologist studying coral reefs,ux_design-010,Interaction Designer,Delhi,Freelance,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q39,airline pilot flying passenger aircraft,cloud_architecture-006,Infrastructure Architect,Hyderabad,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q39,airline pilot flying passenger aircraft,cloud_architecture-013,Cloud Architect,London,Part-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q39,airline pilot flying passenger aircraft,cloud_architecture-018,Infrastructure Architect,Toronto,Part-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q39,airline pilot flying passenger aircraft,cloud_architecture-024,Infrastructure Architect,Chennai,Freelance,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q39,airline pilot flying passenger aircraft,devops_sre-002,Site Reliability Engineer,Bengaluru,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q39,airline pilot flying passenger aircraft,devops_sre-008,Site Reliability Engineer,Austin,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q39,airline pilot flying passenger aircraft,devops_sre-014,Site Reliability Engineer,London,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q39,airline pilot flying passenger aircraft,devops_sre-020,Site Reliability Engineer,Delhi,Part-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q39,airline pilot flying passenger aircraft,ux_design-002,Product Designer,Delhi,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q39,airline pilot flying passenger aircraft,ux_design-008,Product Designer,Bengaluru,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q40,veterinary surgeon for small animals,backend_java-020,Spring Boot Engineer,Austin,Freelance,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q40,veterinary surgeon for small animals,cloud_architecture-003,Azure Cloud Engineer,Delhi,Part-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q40,veterinary surgeon for small animals,cloud_architecture-009,Azure Cloud Engineer,Bengaluru,Freelance,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q40,veterinary surgeon for small animals,cloud_architecture-015,Azure Cloud Engineer,Austin,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q40,veterinary surgeon for small animals,cloud_architecture-021,Azure Cloud Engineer,London,Full-Time,Remote-Only,0,PROVISIONAL agent review; not human ground truth
+q40,veterinary surgeon for small animals,devops_sre-004,Cloud Operations Engineer,Delhi,Full-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q40,veterinary surgeon for small animals,devops_sre-010,Cloud Operations Engineer,Bengaluru,Part-Time,Partial-Remote,0,PROVISIONAL agent review; not human ground truth
+q40,veterinary surgeon for small animals,devops_sre-015,Platform Reliability Engineer,Hyderabad,Part-Time,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q40,veterinary surgeon for small animals,frontend_react-024,Web Application Engineer,Toronto,Freelance,Office-Only,0,PROVISIONAL agent review; not human ground truth
+q40,veterinary surgeon for small animals,qa_automation-015,SDET,London,Freelance,Remote-Only,0,PROVISIONAL agent review; not human ground truth

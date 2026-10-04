@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "queries": [
+    {"id": "q01", "category": "exact_title", "text": "Java Backend Developer", "filters": {}},
+    {"id": "q02", "category": "exact_title", "text": "React Frontend Developer", "filters": {}},
+    {"id": "q03", "category": "exact_title", "text": "Data Engineer", "filters": {}},
+    {"id": "q04", "category": "exact_title", "text": "Data Analyst", "filters": {}},
+    {"id": "q05", "category": "exact_title", "text": "QA Automation Engineer", "filters": {}},
+    {"id": "q06", "category": "exact_title", "text": "Android Developer", "filters": {}},
+    {"id": "q07", "category": "exact_title", "text": "Security Engineer", "filters": {}},
+    {"id": "q08", "category": "exact_title", "text": "Product Designer", "filters": {}},
+
+    {"id": "q09", "category": "synonym", "text": "SDE working on Java services", "filters": {}},
+    {"id": "q10", "category": "synonym", "text": "JS developer building web interfaces", "filters": {}},
+    {"id": "q11", "category": "synonym", "text": "ETL pipeline specialist", "filters": {}},
+    {"id": "q12", "category": "synonym", "text": "site reliability and production operations", "filters": {}},
+    {"id": "q13", "category": "synonym", "text": "SDET writing automated tests", "filters": {}},
+    {"id": "q14", "category": "synonym", "text": "iPhone app developer", "filters": {}},
+    {"id": "q15", "category": "synonym", "text": "business intelligence reporting role", "filters": {}},
+
+    {"id": "q16", "category": "skill_only", "text": "Kafka", "filters": {}},
+    {"id": "q17", "category": "skill_only", "text": "Terraform", "filters": {}},
+    {"id": "q18", "category": "skill_only", "text": "Playwright", "filters": {}},
+    {"id": "q19", "category": "skill_only", "text": "Figma", "filters": {}},
+    {"id": "q20", "category": "skill_only", "text": "Coroutines", "filters": {}},
+    {"id": "q21", "category": "skill_only", "text": "Snowflake", "filters": {}},
+    {"id": "q22", "category": "skill_only", "text": "OAuth", "filters": {}},
+
+    {"id": "q23", "category": "location_role", "text": "Java backend", "filters": {"location": "Pune"}},
+    {"id": "q24", "category": "location_role", "text": "React frontend", "filters": {"location": "Bengaluru"}},
+    {"id": "q25", "category": "location_role", "text": "data engineering", "filters": {"location": "Hyderabad"}},
+    {"id": "q26", "category": "location_role", "text": "DevOps", "filters": {"location": "London"}},
+    {"id": "q27", "category": "location_role", "text": "iOS development", "filters": {"location": "Toronto"}},
+    {"id": "q28", "category": "location_role", "text": "cloud architecture", "filters": {"location": "Austin"}},
+
+    {"id": "q29", "category": "filtered", "text": "Java API engineer", "filters": {"experience": "1-3", "jobType": "Full-Time"}},
+    {"id": "q30", "category": "filtered", "text": "React developer", "filters": {"experience": "3-5", "remote": "Remote-Only"}},
+    {"id": "q31", "category": "filtered", "text": "QA automation", "filters": {"experience": "0-1", "jobType": "Part-Time"}},
+    {"id": "q32", "category": "filtered", "text": "data analyst", "filters": {"experience": "5-8", "remote": "Office-Only"}},
+    {"id": "q33", "category": "filtered", "text": "mobile app developer", "filters": {"jobType": "Freelance", "remote": "Partial-Remote"}},
+
+    {"id": "q34", "category": "natural_language", "text": "I want to keep cloud services reliable and respond to incidents", "filters": {}},
+    {"id": "q35", "category": "natural_language", "text": "Help teams understand user behavior through dashboards and experiments", "filters": {}},
+    {"id": "q36", "category": "natural_language", "text": "Build secure sign-in and protect web APIs", "filters": {}},
+    {"id": "q37", "category": "natural_language", "text": "Design accessible interfaces and test them with users", "filters": {}},
+
+    {"id": "q38", "category": "no_answer", "text": "marine biologist studying coral reefs", "filters": {}},
+    {"id": "q39", "category": "no_answer", "text": "airline pilot flying passenger aircraft", "filters": {}},
+    {"id": "q40", "category": "no_answer", "text": "veterinary surgeon for small animals", "filters": {}}
+  ]
+}

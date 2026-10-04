@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Job Portal · Semantic Search Lab</title>
+  <style>
+    :root { color-scheme: dark; --bg:#090e1d; --panel:#121b30; --line:#2a3855; --ink:#eff5ff; --muted:#a7b6d0; --cyan:#64e1e7; --violet:#aa91ff; --amber:#ffd18a; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at 12% 4%,#1b3150 0,transparent 34%),radial-gradient(circle at 91% 12%,#2d2253 0,transparent 30%),var(--bg); color:var(--ink); font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif; }
+    main { max-width:1120px; margin:auto; padding:42px 28px 55px; }
+    .eyebrow { display:inline-flex; align-items:center; gap:9px; border:1px solid #47657a; border-radius:999px; padding:6px 12px; color:var(--cyan); font-size:11px; letter-spacing:.14em; font-weight:800; text-transform:uppercase; }
+    .jump { display:flex; flex-wrap:wrap; gap:8px; margin:-5px 0 24px; }
+    .jump a { border:1px solid #3a4d69; background:#14213a; border-radius:999px; padding:6px 11px; color:#dbeaff; font-size:11px; font-weight:700; }
+    .jump a:hover { border-color:var(--cyan); text-decoration:none; }
+    .dot { width:7px; height:7px; border-radius:50%; background:var(--cyan); box-shadow:0 0 10px var(--cyan); }
+    h1 { margin:16px 0 6px; font-size:clamp(32px,5vw,56px); line-height:1.07; letter-spacing:-.045em; }
+    h1 span { color:var(--cyan); }
+    .lede { color:var(--muted); font-size:17px; max-width:760px; margin:0 0 28px; }
+    .layout { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .card { background:linear-gradient(145deg,rgba(22,33,56,.96),rgba(15,24,43,.97)); border:1px solid var(--line); border-radius:20px; padding:24px; box-shadow:0 15px 35px #02050e38; }
+    .card.wide { grid-column:1/-1; }
+    .kicker { color:var(--violet); text-transform:uppercase; font-size:11px; font-weight:800; letter-spacing:.16em; margin:0 0 8px; }
+    h2 { font-size:21px; line-height:1.2; letter-spacing:-.025em; margin:0 0 10px; }
+    p { margin:0; }
+    .muted { color:var(--muted); }
+    .flow { display:flex; align-items:stretch; gap:8px; margin-top:20px; }
+    .step { flex:1; min-width:0; border:1px solid #354666; background:#17243c; border-radius:13px; padding:13px 12px; }
+    .step strong { display:block; font-size:13px; line-height:1.28; }
+    .step small { display:block; color:var(--muted); font-size:11px; line-height:1.35; margin-top:5px; }
+    .arrow { color:var(--cyan); align-self:center; font-size:22px; font-weight:700; }
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
+    .branch { border-radius:13px; padding:15px; border:1px solid #3f4b70; background:#211f3b; }
+    .branch:nth-child(2) { border-color:#326773; background:#15323c; }
+    .branch b { color:var(--ink); }
+    .branch p { color:var(--muted); font-size:12px; margin-top:4px; }
+    .merge { text-align:center; color:var(--cyan); font-size:12px; font-weight:750; letter-spacing:.02em; margin:14px 0 0; }
+    .reason { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-top:17px; }
+    .reason div { border-left:2px solid var(--violet); padding:2px 12px; }
+    .reason b { display:block; font-size:14px; }
+    .reason span { color:var(--muted); font-size:12px; }
+    .numbers { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:18px; }
+    .number { background:#0d182b; border:1px solid #2f4262; border-radius:12px; padding:13px; }
+    .number b { display:block; font-size:25px; color:var(--cyan); letter-spacing:-.04em; line-height:1.1; }
+    .number span { color:var(--muted); font-size:11px; }
+    .bars { display:grid; gap:13px; margin-top:18px; }
+    .bar-row { display:grid; grid-template-columns:85px 1fr 44px; align-items:center; gap:12px; font-size:12px; font-weight:700; }
+    .track { height:13px; background:#0a1427; border-radius:999px; overflow:hidden; border:1px solid #33415d; }
+    .fill { height:100%; border-radius:999px; }
+    .keyword { width:37%; background:#7287a7; }
+    .semantic { width:81.5%; background:var(--violet); }
+    .hybrid { width:83%; background:linear-gradient(90deg,var(--violet),var(--cyan)); }
+    .callout { border:1px solid #856638; background:#332b20; border-radius:13px; padding:14px 16px; margin-top:18px; color:#ffe4b9; font-size:13px; }
+    .callout strong { color:var(--amber); }
+    .evidence { border:1px solid #356d78; background:#12313b; border-radius:13px; padding:15px 17px; margin-top:16px; }
+    .evidence strong { display:block; color:var(--cyan); font-size:14px; margin-bottom:5px; }
+    .evidence p { color:#d6e9ed; font-size:12px; }
+    .phase-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:17px; }
+    .phase { border:1px solid #354666; background:#101c31; border-radius:13px; padding:15px; }
+    .phase em { display:block; color:var(--cyan); font-size:11px; font-style:normal; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .phase b { display:block; margin:5px 0; font-size:15px; }
+    .phase span { display:block; color:var(--muted); font-size:12px; }
+    .path { display:grid; grid-template-columns:repeat(5,1fr); gap:9px; margin-top:18px; }
+    .path .step { min-height:126px; }
+    .step .count { display:block; color:var(--cyan); font-size:11px; font-weight:800; margin-bottom:8px; }
+    .fine { color:var(--muted); font-size:12px; margin-top:13px; }
+    .fine a, .code-link { color:var(--cyan); }
+    .example-table { width:100%; border-collapse:collapse; margin-top:18px; font-size:12px; }
+    .example-table th { color:var(--cyan); font-size:11px; text-align:left; text-transform:uppercase; letter-spacing:.08em; padding:9px 10px; border-bottom:1px solid #51617b; }
+    .example-table td { vertical-align:top; padding:12px 10px; border-bottom:1px solid #2a3855; }
+    .example-table tr:last-child td { border-bottom:0; }
+    .example-table td:first-child { font-weight:750; width:23%; }
+    .tag { display:inline-block; border:1px solid #445b74; color:var(--cyan); border-radius:999px; padding:1px 7px; font-size:10px; font-weight:800; margin-bottom:5px; }
+    details { border:1px solid #354666; background:#111e34; border-radius:13px; padding:13px 16px; margin-top:10px; }
+    summary { cursor:pointer; font-weight:750; }
+    details p { color:var(--muted); font-size:12px; margin-top:9px; }
+    .metric-guide { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:16px; }
+    .metric-guide div { border-top:2px solid var(--violet); padding-top:9px; }
+    .metric-guide b { display:block; font-size:13px; }
+    .metric-guide span { color:var(--muted); font-size:12px; }
+    code { color:#d7c9ff; font:12px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    footer { display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap; color:#9baec9; font-size:11px; margin-top:24px; }
+    a { color:var(--cyan); text-decoration:none; } a:hover { text-decoration:underline; }
+    @media(max-width:760px) { main{padding:28px 16px 38px}.layout{grid-template-columns:1fr}.card.wide{grid-column:auto}.flow{flex-direction:column}.arrow{transform:rotate(90deg);line-height:12px}.reason,.phase-grid,.metric-guide{grid-template-columns:1fr}.path{grid-template-columns:1fr}.path .step{min-height:0}.numbers{grid-template-columns:repeat(2,1fr)}.example-table{display:block;overflow-x:auto;white-space:normal;min-width:590px} }
+    @media print { :root{color-scheme:light} body{background:white;color:#16223b} .card{background:white;box-shadow:none;break-inside:avoid} .step,.branch,.number{background:#f4f7fc;color:#16223b} .muted,.step small,.branch p,.number span,.reason span{color:#45536b} footer{color:#45536b} }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow"><i class="dot"></i> Job Portal · Evaluation snapshot · 04 Oct 2026</div>
+  <h1>Search by words. <span>Find by meaning.</span></h1>
+  <p class="lede">A small, isolated lab measured whether semantic matching improves job search—and whether the current 0.55 similarity cutoff rejects unrelated jobs.</p>
+  <nav class="jump" aria-label="Jump to explanation"><a href="#timeline">What changed</a><a href="#indexing">Job indexing</a><a href="#search">Live search</a><a href="#evaluation">Eval flow</a><a href="#examples">Examples</a><a href="#use">How to use</a></nav>
+
+  <div class="layout">
+    <section class="card wide">
+      <p class="kicker">Why we built this</p>
+      <h2>Two useful behaviors needed evidence.</h2>
+      <div class="reason">
+        <div><b>Synonyms</b><span>“SDE” should find Java engineering roles even when that phrase is absent.</span></div>
+        <div><b>Precision</b><span>“Marine biologist” should not return an analytics job just because vectors look similar.</span></div>
+        <div><b>Safety</b><span>We needed a real TiDB test without seeding or changing production search.</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <p class="kicker">Live search · how it works</p>
+      <h2>One query, two paths</h2>
+      <div class="split">
+        <div class="branch"><b>Keyword path</b><p>Exact phrase matches title, description, or company after filters.</p></div>
+        <div class="branch"><b>Semantic path</b><p>Gemini embeds the query; TiDB compares it with filtered job vectors.</p></div>
+      </div>
+      <div class="merge">↓ merge · keep keyword hits first · add semantic matches above cutoff</div>
+      <div class="callout"><strong>Production stayed unchanged.</strong> Its current minimum similarity is still 0.55.</div>
+    </section>
+
+    <section class="card">
+      <p class="kicker">Eval lab · how we tested</p>
+      <h2>Reproducible and isolated</h2>
+      <div class="flow">
+        <div class="step"><strong>Synthetic jobs</strong><small>288 jobs<br>12 role families</small></div><div class="arrow">›</div>
+        <div class="step"><strong>Separate TiDB</strong><small>Eval-name guard<br>576 job vectors</small></div><div class="arrow">›</div>
+        <div class="step"><strong>Disk cache</strong><small>Batched Gemini<br>0 calls on rerun</small></div>
+      </div>
+      <div class="flow">
+        <div class="step"><strong>40 queries</strong><small>Synonyms, skills,<br>filters, no-answer</small></div><div class="arrow">›</div>
+        <div class="step"><strong>3 modes × 5 cutoffs</strong><small>Keyword · semantic · hybrid<br>0.35 through 0.75</small></div><div class="arrow">›</div>
+        <div class="step"><strong>Rank + inspect</strong><small>P@5 · R@10 · MRR<br>latency · empty results</small></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <p class="kicker">What the pilot found</p>
+      <h2>Hybrid led on precision@5</h2>
+      <p class="muted">At the existing 0.55 cutoff, using provisional agent-estimated labels:</p>
+      <div class="bars" aria-label="Precision at five: keyword 0.370, semantic 0.815, hybrid 0.830">
+        <div class="bar-row"><span>Keyword</span><div class="track"><div class="fill keyword"></div></div><span>0.370</span></div>
+        <div class="bar-row"><span>Semantic</span><div class="track"><div class="fill semantic"></div></div><span>0.815</span></div>
+        <div class="bar-row"><span>Hybrid</span><div class="track"><div class="fill hybrid"></div></div><span>0.830</span></div>
+      </div>
+      <div class="callout"><strong>Cutoff signal:</strong> 0.55 returned unrelated results for all 3 no-answer queries; 0.75 returned none. But 0.75 hurt semantic-only recall for “Kafka” and “Snowflake.”</div>
+    </section>
+
+    <section class="card">
+      <p class="kicker">Scale of the run</p>
+      <h2>Small enough to inspect</h2>
+      <div class="numbers">
+        <div class="number"><b>288</b><span>fictional jobs</span></div>
+        <div class="number"><b>40</b><span>search queries</span></div>
+        <div class="number"><b>600</b><span>mode/cutoff comparisons</span></div>
+        <div class="number"><b>0</b><span>Gemini calls on final rerun</span></div>
+      </div>
+      <p class="muted" style="font-size:12px;margin-top:17px">First 341 labels were human-reviewed. Additional result-pool labels and catalogue coverage were agent-estimated, so these numbers are exploratory—not a validated production benchmark.</p>
+    </section>
+
+    <section class="card wide" id="timeline">
+      <p class="kicker">What changed, and when</p>
+      <h2>Three different states—not one “before and after”</h2>
+      <div class="phase-grid">
+        <div class="phase"><em>1 · Earlier search</em><b>Keyword only</b><span>A phrase had to appear in a job title, description, or company. A synonym with different wording could return nothing.</span></div>
+        <div class="phase"><em>2 · Semantic code already added</em><b>Hybrid live search</b><span>Commit <code>0d01bbc</code> added Gemini job/query embeddings, TiDB cosine matching, and keyword-first merging. This is the current production code when AI embedding is enabled.</span></div>
+        <div class="phase"><em>3 · This work</em><b>Evaluation harness</b><span>A separate eval database, synthetic data, labels, cache, and metrics measure that behavior. The harness did not change the live algorithm or its 0.55 cutoff.</span></div>
+      </div>
+      <div class="evidence"><strong>Your production screenshot shows hybrid search working</strong><p>On 05 Oct 2026, the live page showed 478 results for “SDE working on Java services” and the message “Results include related roles matched to the meaning of your search.” The controller displays that message only when semantic scores are present. The 478 count is the merged result set; the screenshot does not show how many also matched the keyword query. We did not run keyword-only against production.</p></div>
+    </section>
+
+    <section class="card wide" id="indexing">
+      <p class="kicker">Flow 1 · preparing jobs for semantic search</p>
+      <h2>Each job gets two searchable meaning vectors</h2>
+      <div class="path">
+        <div class="step"><span class="count">01 · Source</span><strong>Job is saved or updated</strong><small>The app queues a refresh; recovery can later find missing or stale vectors.</small></div>
+        <div class="step"><span class="count">02 · Text</span><strong>Build two texts</strong><small>Full posting and requirements-only; location and company are kept as filters, not embedding text.</small></div>
+        <div class="step"><span class="count">03 · Embed</span><strong>Call Gemini</strong><small><code>gemini-embedding-001</code> returns 768-number vectors. Background indexing batches calls and retries 429.</small></div>
+        <div class="step"><span class="count">04 · Store</span><strong>Write TiDB VECTOR(768)</strong><small>Two rows per job in <code>ai_job_embedding</code>, with model, dimension, strategy, and source hash.</small></div>
+        <div class="step"><span class="count">05 · Refresh</span><strong>Skip fresh vectors</strong><small>The source hash detects changed text; unchanged job vectors do not need re-embedding.</small></div>
+      </div>
+      <p class="fine">Code: <a href="../src/main/java/com/somil/jobportal/ai/index/EmbeddingIndexer.java">EmbeddingIndexer</a> · <a href="../src/main/java/com/somil/jobportal/ai/text/EmbeddingTexts.java">EmbeddingTexts</a> · <a href="../src/main/java/com/somil/jobportal/ai/index/EmbeddingRecovery.java">EmbeddingRecovery</a> · <a href="../src/main/java/com/somil/jobportal/ai/store/JdbcEmbeddingStore.java">JdbcEmbeddingStore</a></p>
+    </section>
+
+    <section class="card wide" id="search">
+      <p class="kicker">Flow 2 · a person searches for jobs</p>
+      <h2>Filters first. Keyword and meaning results then meet.</h2>
+      <div class="path">
+        <div class="step"><span class="count">01 · Request</span><strong>Query + filters</strong><small>For example, “Java backend” with city “Pune” and an experience range.</small></div>
+        <div class="step"><span class="count">02 · Eligible set</span><strong>Apply filters</strong><small>Location, type, and work mode are SQL conditions; experience is filtered in Java before vector scoring.</small></div>
+        <div class="step"><span class="count">03 · Keyword</span><strong>Find literal matches</strong><small>The full query is a case-insensitive substring of title, description, or company.</small></div>
+        <div class="step"><span class="count">04 · Semantic</span><strong>Embed + cosine score</strong><small>TiDB compares the query vector only with eligible job IDs. Each fresh strategy can score a job; the best score wins.</small></div>
+        <div class="step"><span class="count">05 · Merge</span><strong>Keep keyword first</strong><small>Semantic hits below 0.55 are dropped. Keyword hits get a +1 ranking bonus; newest job breaks ties.</small></div>
+      </div>
+      <div class="callout"><strong>Failure path:</strong> if Gemini or vector matching is unavailable, the production search returns its keyword results. The vector query is exact cosine scoring over filtered IDs; this query does not use a TiDB vector index.</div>
+      <p class="fine">Code: <a href="../src/main/java/com/somil/jobportal/controller/JobPostActivityController.java">JobPostActivityController</a> · <a href="../src/main/java/com/somil/jobportal/repository/JobPostActivityRepository.java">keyword SQL</a> · <a href="../src/main/java/com/somil/jobportal/ai/search/SemanticJobSearch.java">SemanticJobSearch</a> · <a href="../src/main/java/com/somil/jobportal/ai/search/SemanticVectorRepository.java">TiDB cosine SQL</a></p>
+    </section>
+
+    <section class="card wide" id="evaluation">
+      <p class="kicker">Flow 3 · what the evaluation runner does</p>
+      <h2>A rehearsal on synthetic jobs, not a live search request</h2>
+      <div class="path">
+        <div class="step"><span class="count">01 · Guard</span><strong>Require eval DB</strong><small>URL name must contain “eval”; the connected database name is checked again before writing.</small></div>
+        <div class="step"><span class="count">02 · Seed</span><strong>Load fictional jobs</strong><small>288 deterministic postings in a separate <code>eval_job</code> table.</small></div>
+        <div class="step"><span class="count">03 · Cache</span><strong>Embed once</strong><small>576 job vectors plus query vectors; save each under a text-hash, model, and dimension key on disk.</small></div>
+        <div class="step"><span class="count">04 · Compare</span><strong>40 × 3 × 5</strong><small>Run each query as keyword-only, semantic-only, and hybrid across five similarity cutoffs.</small></div>
+        <div class="step"><span class="count">05 · Judge</span><strong>Score rankings</strong><small>Compare results with relevance grades 0, 1, or 2; write metrics, latency, call counts, and review queues.</small></div>
+      </div>
+      <p class="fine">The runner reuses production embedding text and vector SQL. Its <code>eval_job</code> keyword query mirrors the production conditions; it does not call the live HTTP endpoint. Code: <a href="../src/main/java/com/somil/jobportal/eval/EvalConfig.java">database guard</a> · <a href="../src/main/java/com/somil/jobportal/eval/EvalRunner.java">runner</a> · <a href="../src/main/java/com/somil/jobportal/eval/DiskEmbeddingCache.java">disk cache</a> · <a href="../src/main/java/com/somil/jobportal/eval/EvalMetrics.java">metrics</a></p>
+    </section>
+
+    <section class="card wide" id="examples">
+      <p class="kicker">Concrete examples · synthetic eval catalogue</p>
+      <h2>Two modes on the synthetic eval catalogue</h2>
+      <p class="muted" style="font-size:12px">These rows compare eval keyword-only and eval hybrid at 0.55 using fictional jobs. “No results” below is <b>not</b> a claim about your live site; your screenshot confirms the live hybrid search returns results. The harness has not altered live output.</p>
+      <div style="overflow-x:auto">
+        <table class="example-table">
+          <thead><tr><th>Query</th><th>Eval keyword-only</th><th>Eval hybrid</th><th>What this tells us</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag">Synonym</span><br>“SDE working on Java services”</td><td>0 of the 288 synthetic jobs matched the full literal phrase; P@5 = 0.</td><td>Software Development Engineer (Java) appears in the top three; P@5 = 1.0.</td><td>Your production site already uses hybrid search, so seeing live Java results is consistent with this eval result.</td></tr>
+            <tr><td><span class="tag">Location</span><br>“Java backend” + Pune</td><td>One Java Backend Developer.</td><td>That job plus Junior Java Developer and API Platform Engineer in Pune.</td><td>The semantic path expands related roles while retaining the location filter.</td></tr>
+            <tr><td><span class="tag">Skill</span><br>“Kafka”</td><td>Relevant Data Platform Engineer, ETL Developer, and Data Engineer already appear.</td><td>Relevant Java and data jobs also appear; both modes have P@5 = 1.0.</td><td>Semantic search is not needed for every query.</td></tr>
+            <tr><td><span class="tag">No answer</span><br>“marine biologist studying coral reefs”</td><td>No results, correctly.</td><td>At 0.55, unrelated analytics jobs appear; highest similarity = 0.7439.</td><td>The current cutoff admits false positives. The eval’s 0.75 trial removes them, but production is still 0.55.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" id="use">
+      <p class="kicker">How it is used now</p>
+      <h2>Two independent uses</h2>
+      <details open><summary>In the live Job Portal</summary><p>People use the existing search page. If <code>AI_EMBEDDING_ENABLED=true</code>, Gemini is configured, and job vectors are available, the app adds related semantic matches. There is no new user-facing eval screen or action.</p></details>
+      <details open><summary>In the eval lab</summary><p>A developer runs the eval CLI with <code>.env.eval</code> pointing to the separate TiDB database. It writes local Markdown, JSON, CSV, and review files under <code>eval/results/</code>. The final cached run used zero Gemini calls. This cache lives on disk; Redis is not required for the eval. See <a href="README.md">exact commands</a>.</p></details>
+    </section>
+
+    <section class="card">
+      <p class="kicker">How to read the scorecard</p>
+      <h2>Four different questions</h2>
+      <div class="metric-guide">
+        <div><b>Precision@5</b><span>How many of the first five jobs are relevant?</span></div>
+        <div><b>Recall@10</b><span>How many labeled relevant jobs appear in the first ten?</span></div>
+        <div><b>MRR@10</b><span>How early does the first relevant job appear?</span></div>
+      </div>
+      <p class="fine"><b>No-answer accuracy</b> asks whether a query with no suitable job returns nothing. The 0.75 trial passed all three such queries; the 0.55 default passed none. These are provisional labels, so a fresh human-checked holdout is still required.</p>
+    </section>
+  </div>
+
+  <footer>
+    <span>Decision: keep production at 0.55 until a human-checked holdout supports a change.</span>
+    <span><a href="README.md">Method + limitations</a> · <a href="report.md">Results snapshot</a></span>
+  </footer>
+</main>
+</body>
+</html>
