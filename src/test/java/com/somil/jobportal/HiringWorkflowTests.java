@@ -39,6 +39,7 @@ class HiringWorkflowTests {
     @Autowired ApplicationWorkflowService workflow;
     @Autowired EntityManager em;
     @MockitoBean AiAssistantService ai;
+    @MockitoBean com.somil.jobportal.ai.explain.MatchExplanationService explanations;
     Users owner, outsider, candidate, otherCandidate;
     RecruiterProfile recruiter;
     JobSeekerProfile seeker;
@@ -229,5 +230,27 @@ class HiringWorkflowTests {
         mvc.perform(post(path).servletPath(path).with(user(candidate.getEmail()).authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("Job Seeker"))).with(csrf())
                 .param("resume","Relevant Java engineering experience and AWS deployment projects. Skills in SQL and testing.").param("consent","true"))
                 .andExpect(status().isBadGateway()).andExpect(jsonPath("$.message").value("Try again later."));
+    }
+    @Test void matchExplanationIsOptInForJobSeekersOnlyAndShareTheRateLimit() throws Exception {
+        var seekerAuth=user(candidate.getEmail()).authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("Job Seeker"));
+        var recruiterAuth=user(owner.getEmail()).authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("Recruiter"));
+        String page="/job-details-apply/"+job.getJobPostId(), path="/resume-comparison/"+job.getJobPostId()+"/match";
+        mvc.perform(get(page).with(seekerAuth)).andExpect(status().isOk()).andExpect(content().string(containsString("id=\"match-form\"")));
+        mvc.perform(get(page).with(recruiterAuth)).andExpect(content().string(not(containsString("id=\"match-form\""))));
+        verifyNoInteractions(explanations);
+        var explanation=new com.somil.jobportal.ai.explain.MatchExplanationService.Explanation(
+                List.of(new com.somil.jobportal.ai.explain.MatchExplanationService.Point("Java fits.","Java","Java APIs")),List.of(),1);
+        when(explanations.isConfigured()).thenReturn(true); when(explanations.explain(any(),any())).thenReturn(explanation);
+        mvc.perform(post(path).servletPath(path).with(seekerAuth).with(csrf())).andExpect(status().isBadRequest());
+        mvc.perform(post(path).servletPath(path).with(seekerAuth).param("consent","true")).andExpect(status().isForbidden());
+        mvc.perform(post(path).servletPath(path).with(recruiterAuth).with(csrf()).param("consent","true")).andExpect(status().isForbidden());
+        verify(explanations,never()).explain(any(),any());
+        var session=new MockHttpSession();
+        mvc.perform(post(path).servletPath(path).session(session).with(seekerAuth).with(csrf()).param("consent","true"))
+                .andExpect(status().isOk()).andExpect(header().string("Cache-Control","no-store"))
+                .andExpect(jsonPath("$.matches[0].jobQuote").value("Java APIs")).andExpect(jsonPath("$.dropped").value(1));
+        verify(explanations).explain(argThat(p->p.getUserAccountId().equals(seeker.getUserAccountId())),argThat(j->j.getJobPostId().equals(job.getJobPostId())));
+        mvc.perform(post(path).servletPath(path).session(session).with(seekerAuth).with(csrf()).param("consent","true"))
+                .andExpect(status().isTooManyRequests());
     }
 }

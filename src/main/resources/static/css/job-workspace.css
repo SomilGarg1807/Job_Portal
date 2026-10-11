@@ -173,3 +173,14 @@ button:disabled { cursor: default; }
     .job-description { font-size: 13px; }
     .applicant-row { flex-wrap: wrap; }
 }
+
+.match-card { background: #fff; border: 1px solid #dce5ef; border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+.match-card h3 { font-size: 15px; margin: 0 0 6px; }
+.match-card > p, .match-status { color: var(--muted); font-size: 12px; line-height: 1.7; }
+.match-consent { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; line-height: 1.6; margin: 10px 0 12px; }
+.match-consent input { margin-top: 3px; flex-shrink: 0; }
+.match-status:empty { display: none; }
+.match-result-group h4 { font-size: 13px; margin: 14px 0 8px; }
+.match-result-group ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.match-result-group li { font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.match-quote { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }

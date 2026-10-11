@@ -1,5 +1,6 @@
 package com.somil.jobportal.controller;
 
+import com.somil.jobportal.ai.explain.MatchExplanationService;
 import com.somil.jobportal.entity.JobSeekerProfile;
 import com.somil.jobportal.services.*;
 import com.somil.jobportal.services.AiAssistantService.AssistantException;
@@ -20,9 +21,12 @@ public class ResumeComparisonController {
     private final ResumeTextService resumes;
     private final AiAssistantService ai;
     private final AtsScoreService ats;
+    private final MatchExplanationService explanations;
     public ResumeComparisonController(UsersService users, JobPostActivityService jobs, CandidateAccessService files,
-                                      ResumeTextService resumes, AiAssistantService ai, AtsScoreService ats) {
+                                      ResumeTextService resumes, AiAssistantService ai, AtsScoreService ats,
+                                      MatchExplanationService explanations) {
         this.users = users; this.jobs = jobs; this.files = files; this.resumes = resumes; this.ai = ai; this.ats = ats;
+        this.explanations = explanations;
     }
     @GetMapping("/{id}/ats-score") @ResponseBody
     public ResponseEntity<AtsScoreService.AtsReport> atsScore(@PathVariable int id) {
@@ -65,13 +69,28 @@ public class ResumeComparisonController {
         String requirements = "Role: " + job.getJobTitle() + "\nExperience: " + job.getExperienceLabel()
                 + "\n" + JobContent.plainText(Objects.toString(job.getDescriptionOfJob(), ""));
         requirements = requirements.substring(0, Math.min(requirements.length(), 16000));
+        throttle(session);
+        return Map.of("text", ai.compareResume(resume.trim(), requirements));
+    }
+    /** Sends only the profile fields used for matching (no name, contact details, pay or resume). */
+    @PostMapping("/{id}/match") @ResponseBody
+    public MatchExplanationService.Explanation explainMatch(@PathVariable int id,
+                                                           @RequestParam(defaultValue = "false") boolean consent,
+                                                           HttpSession session, HttpServletResponse response) {
+        var profile = seeker(); response.setHeader("Cache-Control", "no-store");
+        if (!consent) throw new AssistantException(400, "Agree to send your profile summary and this job to Gemini.");
+        var job = jobs.getOne(id);
+        if (!explanations.isConfigured()) throw new AssistantException(503, "AI is not connected yet. The site owner needs to configure GEMINI_API_KEY.");
+        throttle(session);
+        return explanations.explain(profile, job);
+    }
+    private static void throttle(HttpSession session) {
         synchronized (session) {
             long now = System.currentTimeMillis();
             Long last = (Long) session.getAttribute("aiLastRequest");
             if (last != null && now - last < 30000) throw new AssistantException(429, "Please wait 30 seconds between AI requests.");
             session.setAttribute("aiLastRequest", now);
         }
-        return Map.of("text", ai.compareResume(resume.trim(), requirements));
     }
     @ExceptionHandler(AssistantException.class) @ResponseBody
     public ResponseEntity<Map<String,String>> error(AssistantException ex) {

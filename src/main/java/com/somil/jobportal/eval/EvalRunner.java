@@ -49,6 +49,9 @@ final class EvalRunner {
     private static final ObjectMapper JSON = new ObjectMapper();
     private static final List<Double> THRESHOLDS = List.of(.35, .45, .55, .65, .75);
     private static final int FIRST_JOB_ID = 900001;
+    /** Job vectors scored alone, and the per-job maximum that production search uses. */
+    private static final List<String> STRATEGIES = List.of("job_full_v1", "job_req_v1", "max");
+    private static final String PRODUCTION_STRATEGY = "max";
 
     static void run(EvalConfig config, Path evalRoot) throws Exception {
         AtomicLong apiCalls = new AtomicLong();
@@ -93,6 +96,7 @@ final class EvalRunner {
         for (JsonNode item : labels.path("queries")) labelMap.put(item.path("queryId").asText(), item);
         List<Map<String, Object>> rows = new ArrayList<>();
         Set<String> pending = new HashSet<>();
+        int evaluated = 0;
         for (JsonNode query : queryFile.path("queries")) {
             String id = query.path("id").asText();
             JsonNode label = labelMap.get(id);
@@ -100,38 +104,42 @@ final class EvalRunner {
             SearchContext searchContext = retrieve(jdbc, vectors, cache, jobs, query, config);
             for (double threshold : THRESHOLDS) {
                 for (String mode : List.of("keyword", "semantic", "hybrid")) {
-                    long beforeCalls = apiCalls.get();
-                    long start = System.nanoTime();
-                    List<Job> ranking = search(searchContext, mode, threshold);
-                    long rankingMs = (System.nanoTime() - start) / 1_000_000;
-                    long retrievalMs = switch (mode) {
-                        case "keyword" -> searchContext.keywordMs();
-                        case "semantic" -> searchContext.eligibleMs() + searchContext.vectorMs();
-                        default -> searchContext.keywordMs() + searchContext.eligibleMs() + searchContext.vectorMs();
-                    };
-                    List<String> keys = ranking.stream().map(Job::key).toList();
-                    Map<String, Integer> grades = new HashMap<>();
-                    label.path("judgments").fields().forEachRemaining(entry -> grades.put(entry.getKey(), entry.getValue().asInt()));
-                    keys.stream().limit(10).filter(key -> !grades.containsKey(key)).forEach(key -> pending.add(id + "," + key));
-                    Map<String, Object> row = new LinkedHashMap<>();
-                    row.put("queryId", id); row.put("category", query.path("category").asText());
-                    row.put("mode", mode); row.put("threshold", threshold);
-                    row.put("latencyMs", retrievalMs + rankingMs); row.put("retrievalMs", retrievalMs);
-                    row.put("rankingMs", rankingMs); row.put("geminiCalls", apiCalls.get() - beforeCalls);
-                    row.put("geminiBatchParticipation", queryNeededCall.get(id) ? 1 : 0);
-                    row.put("top10", keys.stream().limit(10).toList());
-                    row.put("maxSimilarity", searchContext.rawScores().values().stream().mapToDouble(Double::doubleValue)
-                            .max().orElse(-1));
-                    Map<String, Double> topScores = new LinkedHashMap<>();
-                    keys.stream().limit(10).forEach(key -> {
-                        Double score = searchContext.rawScores().get(jobs.get(key).id());
-                        if (score != null) topScores.put(key, score);
-                    });
-                    row.put("top10Similarities", topScores);
-                    rows.add(row);
+                    // Keyword ranking ignores vectors, so it is measured once rather than per strategy.
+                    for (String strategy : mode.equals("keyword") ? List.of("none") : STRATEGIES) {
+                        Map<Integer, Double> rawScores = searchContext.scores().getOrDefault(strategy, Map.of());
+                        long beforeCalls = apiCalls.get();
+                        long start = System.nanoTime();
+                        List<Job> ranking = search(searchContext, rawScores, mode, threshold);
+                        long rankingMs = (System.nanoTime() - start) / 1_000_000;
+                        long retrievalMs = switch (mode) {
+                            case "keyword" -> searchContext.keywordMs();
+                            case "semantic" -> searchContext.eligibleMs() + searchContext.vectorMs();
+                            default -> searchContext.keywordMs() + searchContext.eligibleMs() + searchContext.vectorMs();
+                        };
+                        List<String> keys = ranking.stream().map(Job::key).toList();
+                        Map<String, Integer> grades = new HashMap<>();
+                        label.path("judgments").fields().forEachRemaining(entry -> grades.put(entry.getKey(), entry.getValue().asInt()));
+                        keys.stream().limit(10).filter(key -> !grades.containsKey(key)).forEach(key -> pending.add(id + "," + key));
+                        Map<String, Object> row = new LinkedHashMap<>();
+                        row.put("queryId", id); row.put("category", query.path("category").asText());
+                        row.put("mode", mode); row.put("strategy", strategy); row.put("threshold", threshold);
+                        row.put("latencyMs", retrievalMs + rankingMs); row.put("retrievalMs", retrievalMs);
+                        row.put("rankingMs", rankingMs); row.put("geminiCalls", apiCalls.get() - beforeCalls);
+                        row.put("geminiBatchParticipation", queryNeededCall.get(id) ? 1 : 0);
+                        row.put("top10", keys.stream().limit(10).toList());
+                        row.put("maxSimilarity", rawScores.values().stream().mapToDouble(Double::doubleValue)
+                                .max().orElse(-1));
+                        Map<String, Double> topScores = new LinkedHashMap<>();
+                        keys.stream().limit(10).forEach(key -> {
+                            Double score = rawScores.get(jobs.get(key).id());
+                            if (score != null) topScores.put(key, score);
+                        });
+                        row.put("top10Similarities", topScores);
+                        rows.add(row);
+                    }
                 }
             }
-            System.out.println("Evaluated " + id + " (" + rows.size() / 15 + "/40 queries).");
+            System.out.println("Evaluated " + id + " (" + ++evaluated + "/40 queries).");
         }
         boolean coverageReviewed = labels.path("coverageReviewed").asBoolean(false);
         if (coverageReviewed && pending.isEmpty()) addMetrics(rows, labelMap);
@@ -263,7 +271,7 @@ final class EvalRunner {
         List<Job> keywords = filtered(jdbc, jobs, phrase, filters);
         long keywordMs = (System.nanoTime() - began) / 1_000_000;
         began = System.nanoTime();
-        Map<Integer, Double> scores = new HashMap<>();
+        Map<String, Map<Integer, Double>> scores = new HashMap<>();
         if (!eligible.isEmpty()) {
             String normalized = phrase.trim().replaceAll("\\s+", " ");
             String vector = VectorText.format(cache.embed(List.of(new EmbeddingInput(normalized, "SEMANTIC_SIMILARITY"))).get(0).values());
@@ -273,18 +281,20 @@ final class EvalRunner {
                 if (job == null || !Double.isFinite(match.similarity())) continue;
                 EmbeddingStrategy strategy = EmbeddingStrategy.fromId(match.strategy());
                 String text = EmbeddingTexts.job(strategy, job.entity(), 6000);
-                if (SourceHash.of(strategy, config.model, config.dimensions, text).equals(match.hash()))
-                    scores.merge(match.id(), match.similarity(), Math::max);
+                if (SourceHash.of(strategy, config.model, config.dimensions, text).equals(match.hash())) {
+                    scores.computeIfAbsent(match.strategy(), s -> new HashMap<>()).put(match.id(), match.similarity());
+                    scores.computeIfAbsent(PRODUCTION_STRATEGY, s -> new HashMap<>()).merge(match.id(), match.similarity(), Math::max);
+                }
             }
         }
         long vectorMs = (System.nanoTime() - began) / 1_000_000;
         return new SearchContext(eligible, keywords, scores, eligibleMs, keywordMs, vectorMs);
     }
 
-    private static List<Job> search(SearchContext context, String mode, double threshold) {
+    private static List<Job> search(SearchContext context, Map<Integer, Double> rawScores, String mode, double threshold) {
         List<Job> eligible = context.eligible();
         List<Job> keywords = context.keywords();
-        Map<Integer, Double> scores = context.rawScores().entrySet().stream()
+        Map<Integer, Double> scores = rawScores.entrySet().stream()
                 .filter(entry -> entry.getValue() >= threshold)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         Comparator<Job> newest = Comparator.comparing((Job j) -> j.entity().getPostedDate(), Comparator.reverseOrder())
@@ -349,9 +359,10 @@ final class EvalRunner {
                         ? "PROVISIONAL: AGENT-ESTIMATED LABELS, NOT HUMAN GROUND TRUTH" : "REVIEWED")
                 : "WITHHELD: supplemental result judgments and recall coverage review required");
         JSON.writerWithDefaultPrettyPrinter().writeValue(out.resolve("stage3-results.json").toFile(), Map.of("header", header, "perQuery", rows));
-        List<String> csv = new ArrayList<>(List.of("queryId,category,mode,threshold,latencyMs,geminiCalls,geminiBatchParticipation,precision5,recall10,mrr10,correctNoAnswer,top10"));
+        List<String> csv = new ArrayList<>(List.of("queryId,category,mode,strategy,threshold,latencyMs,geminiCalls,geminiBatchParticipation,precision5,recall10,mrr10,correctNoAnswer,top10"));
         for (Map<String, Object> row : rows) csv.add(String.join(",", row.get("queryId").toString(), row.get("category").toString(),
-                row.get("mode").toString(), row.get("threshold").toString(), row.get("latencyMs").toString(),
+                row.get("mode").toString(), row.get("strategy").toString(), row.get("threshold").toString(),
+                row.get("latencyMs").toString(),
                 row.get("geminiCalls").toString(), row.get("geminiBatchParticipation").toString(),
                 value(row,"precision5"), value(row,"recall10"), value(row,"mrr10"),
                 value(row,"correctNoAnswer"), "\"" + String.join("|", (List<String>) row.get("top10")) + "\""));
@@ -376,19 +387,21 @@ final class EvalRunner {
                         : "Metrics use reviewed labels. Synthetic data and a single labeler remain limitations.")
                         : "**Metrics withheld.** Retrieved results have " + pending.size() + " unjudged query/job pairs."
                         + " Recall@10 also requires review of potentially relevant jobs outside the result pool.", "",
-                "| Mode | Threshold | P@5 | R@10 | MRR@10 | No-answer accuracy | p50 ms | p95 ms |",
-                "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |"));
-        for (String mode : List.of("keyword", "semantic", "hybrid")) for (double threshold : THRESHOLDS) {
-            List<Long> times = rows.stream().filter(r -> mode.equals(r.get("mode")) && threshold == (double) r.get("threshold"))
-                    .map(r -> (Long) r.get("latencyMs")).toList();
-            List<Map<String, Object>> group = rows.stream().filter(r -> mode.equals(r.get("mode")) && threshold == (double) r.get("threshold")).toList();
+                "`max` is the per-job maximum over both job strategies, which is what production search uses.", "",
+                "| Mode | Strategy | Threshold | P@5 | R@10 | MRR@10 | No-answer accuracy | p50 ms | p95 ms |",
+                "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |"));
+        for (String mode : List.of("keyword", "semantic", "hybrid"))
+        for (String strategy : mode.equals("keyword") ? List.of("none") : STRATEGIES) for (double threshold : THRESHOLDS) {
+            List<Map<String, Object>> group = rows.stream().filter(r -> mode.equals(r.get("mode"))
+                    && strategy.equals(r.get("strategy")) && threshold == (double) r.get("threshold")).toList();
+            List<Long> times = group.stream().map(r -> (Long) r.get("latencyMs")).toList();
             String metrics = ready ? String.format(java.util.Locale.ROOT, "%.3f | %.3f | %.3f | %.3f",
                     average(group, "precision5"), average(group, "recall10"), average(group, "mrr10"),
                     group.stream().filter(r -> "no_answer".equals(r.get("category")))
                             .filter(r -> Boolean.TRUE.equals(r.get("correctNoAnswer"))).count()
                             / (double) group.stream().filter(r -> "no_answer".equals(r.get("category"))).count())
                     : "pending | pending | pending | pending";
-            md.add("| " + mode + " | " + threshold + " | " + metrics + " | "
+            md.add("| " + mode + " | " + strategy + " | " + threshold + " | " + metrics + " | "
                     + EvalMetrics.percentile(times, .50) + " | " + EvalMetrics.percentile(times, .95) + " |");
         }
         Files.write(out.resolve("stage3-results.md"), md);
@@ -401,7 +414,7 @@ final class EvalRunner {
     }
 
     private record Job(int id, String key, JobPostActivity entity) { }
-    private record SearchContext(List<Job> eligible, List<Job> keywords, Map<Integer, Double> rawScores,
+    private record SearchContext(List<Job> eligible, List<Job> keywords, Map<String, Map<Integer, Double>> scores,
                                  long eligibleMs, long keywordMs, long vectorMs) { }
     private record PendingEmbedding(int id, EmbeddingStrategy strategy, String text, String hash) { }
 }

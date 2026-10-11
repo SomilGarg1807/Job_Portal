@@ -3,7 +3,7 @@
 Finds good job ↔ candidate matches by comparing **embeddings** (lists of numbers that
 capture meaning) stored in TiDB, instead of sending every pair to Gemini. Gemini is
 used to embed changed job/profile text and uncached search phrases. Recommendations
-compare stored vectors without calling Gemini. Generated match explanations are not implemented.
+compare stored vectors without calling Gemini. Match explanations (below) are generated on request and verified.
 
 Status: **Stage 3 search**: storage, backfill, save hooks, semantic recommendations,
 keyword-plus-semantic search, fallback, and periodic recovery are implemented.
@@ -146,3 +146,24 @@ fails loudly rather than storing bad data:
 - the response has exactly 768 values per text (checked on every vector);
 - whether `batchEmbedContents` reports token usage (handled either way);
 - the batch limit of 100 texts per call (the default batch size is 50).
+
+## Match explanations (`ai.explain`)
+
+On a job page, a job seeker can opt in to **"Explain the match"**
+(`POST /resume-comparison/{jobId}/match`, `consent=true`, CSRF-protected, job seekers only,
+sharing the 30-second AI limit with the other assistants).
+
+- **What is sent:** the `cand_profile_v1` text and the `job_full_v1` text, the same fields the
+  embeddings use. No name, contact details, pay, work authorization or resume.
+- **How:** Spring AI `ChatClient` (`spring-ai-google-genai`, Spring AI 1.1.x) with structured output
+  mapped to records. The module is wired by hand, not through the starter, so a missing
+  `GEMINI_API_KEY` disables the feature instead of failing startup. One attempt, 30-second timeout.
+- **Groundedness:** each match must quote both the profile and the job, and each gap must quote
+  the job and must not quote the profile. `Groundedness` checks every quote against the exact text
+  that was sent (case and whitespace are ignored, nothing else). Failing claims are dropped and
+  counted. If none survive, the user gets an error rather than an unverified answer.
+- **Cost:** each call logs
+  `Match explanation: model=… promptTokens=… outputTokens=… latencyMs=… kept=… dropped=…`.
+  A sample call used 702 input and 207 output tokens.
+
+`MatchExplanationLiveTests` calls the real API only with `-Dlive.gemini=true` and `GEMINI_API_KEY` set.

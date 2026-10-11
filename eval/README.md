@@ -123,3 +123,18 @@ Three cases without a hybrid gain:
 | `q22` OAuth | Keyword top three included Cloud Security Engineer, SOC Analyst, Software Development Engineer (Java), all grade 2. Keyword and hybrid P@5 were `1.0`; semantic-only fell to `0.6`. |
 
 The unexpectedly high no-answer cosine scores show why the original 0.55 should not be treated as a calibrated cutoff. The exact TiDB scan is fine for this 288-job fixture, but warm semantic retrieval still costs about 2.1 seconds p50; the current query is not using a vector index. If the synthetic wording, label rules, prompt, or threshold is changed after this run, record that change and evaluate on a new holdout before making a production claim.
+
+## Embedding strategy comparison — 2026-10-11
+
+Semantic and hybrid modes are now scored three ways: `job_full_v1` alone, `job_req_v1` alone, and `max` (the higher of the two per job, which production uses). Keyword mode does not use vectors, so it is reported once as `none`. The rerun made 0 Gemini calls; the `max` rows reproduce the 2026-10-04 figures exactly. Same provisional agent-estimated labels and caveats as above.
+
+| Mode | Strategy | Threshold | P@5 | R@10 | MRR@10 |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Semantic | `job_full_v1` | 0.55 | 0.780 | 0.488 | 0.913 |
+| Semantic | `job_req_v1` | 0.55 | 0.825 | 0.515 | 0.913 |
+| Semantic | `max` | 0.55 | 0.815 | 0.510 | 0.925 |
+| Hybrid | `job_full_v1` | 0.55 | 0.830 | 0.519 | 0.925 |
+| Hybrid | `job_req_v1` | 0.55 | 0.825 | 0.515 | 0.913 |
+| Hybrid | `max` | 0.55 | 0.830 | 0.519 | 0.925 |
+
+Requirement-only text was the stronger single strategy for semantic-only search (+0.045 P@5 over the full description). Taking the maximum traded a little P@5 for the best MRR. In hybrid mode, the keyword bonus hides most of the difference: `job_full_v1` alone matched `max`. On this evidence, storing a second vector per job buys little for hybrid search; that is not yet a reason to drop it, because 40 synthetic queries cannot separate a 0.005 difference. Latency is identical across strategies here because one SQL query retrieves both vectors; a single-strategy production query would scan half as many rows.
