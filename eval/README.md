@@ -1,6 +1,6 @@
 # Semantic job-search evaluation — Stage 2 data
 
-**Labels remain DRAFT, not ground truth.** The human review of the first 341 explicit judgments is recorded, but new retrieved results and recall coverage still need review before any metric or threshold recommendation is trusted. No evaluation scores have been calculated.
+**Labels remain DRAFT, not ground truth.** The human review of the first 341 explicit judgments is recorded, but new retrieved results and recall coverage still need review before any metric or threshold recommendation is trusted. Provisional scores, calculated with agent-estimated labels for the remaining results, are in [Stage 4 exploratory result](#stage-4-exploratory-result--2026-10-04) and [Embedding strategy comparison](#embedding-strategy-comparison--2026-10-11) below, and in `report.md`.
 
 The dataset lives here; the Stage 3 runner lives in `src/main/java/com/somil/jobportal/eval`. The runner has its own Spring context and `eval` profile. It never scans or starts the production application and has no fallback to `DB_URL`.
 
