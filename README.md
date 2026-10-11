@@ -41,6 +41,8 @@ The backend selects the assistant task from the signed-in user's role. Assistant
 
 With embeddings enabled, job recommendations compare stored vectors and search combines keyword hits with related roles found by cosine similarity. Location, experience and other filters remain enforced. Missing or stale vectors and provider failures fall back to existing keyword/profile matching. Similarity is not a candidate suitability percentage.
 
+Job seekers can also ask, with consent, **why a job matches their profile**. Gemini returns matches and gaps through Spring AI structured output, and each point must quote both the profile and the job word for word. Points whose quotes cannot be found in that text are dropped before the user sees them.
+
 ## Architecture
 
 ```mermaid
@@ -62,7 +64,7 @@ Controllers handle requests, services coordinate application behavior, and repos
 | Security | Spring Security, BCrypt |
 | Persistence | Spring Data JPA, Hibernate, MySQL-compatible database |
 | Frontend | Thymeleaf, JavaScript, CSS, Bootstrap |
-| AI integration | Google Gemini REST API |
+| AI integration | Spring AI (Google GenAI), Google Gemini, TiDB vector search |
 | Tests | JUnit 5, Mockito, MockMvc, H2 |
 | Build and delivery | Maven, Docker, Render |
 
@@ -71,6 +73,8 @@ Controllers handle requests, services coordinate application behavior, and repos
 Automated tests cover application startup, authentication redirects, recruiter ownership, dashboard rendering, profile validation, pagination, recommendation ordering, search-provider failures, AI request handling, and email verification.
 
 Browser checks cover desktop and mobile layouts, keyboard navigation, location selection, filter controls, and the rich-text editor. The public `/health` endpoint supports service monitoring.
+
+Semantic search quality is measured by a separate evaluation harness against an isolated database: 288 synthetic jobs, 40 graded queries, precision@5, recall@10 and MRR@10 for keyword, semantic and hybrid search and for each embedding strategy. Results are exploratory; see [eval/README.md](eval/README.md).
 
 ## Configuration
 
