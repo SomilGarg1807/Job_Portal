@@ -39,6 +39,7 @@ class HiringWorkflowTests {
     @Autowired ApplicationWorkflowService workflow;
     @Autowired EntityManager em;
     @MockitoBean AiAssistantService ai;
+    @MockitoBean org.springframework.data.redis.core.StringRedisTemplate redis;
     @MockitoBean com.somil.jobportal.ai.explain.MatchExplanationService explanations;
     Users owner, outsider, candidate, otherCandidate;
     RecruiterProfile recruiter;
@@ -139,7 +140,9 @@ class HiringWorkflowTests {
                 .andExpect(status().is3xxRedirection()).andExpect(cookie().doesNotExist("remember-me"));
     }
     @Test void databaseHealthIsPublicAndQueriesTheDatabase() throws Exception {
+        when(redis.opsForValue()).thenThrow(new org.springframework.data.redis.RedisConnectionFailureException("Redis unavailable"));
         mvc.perform(get("/health/db")).andExpect(status().isOk()).andExpect(jsonPath("$.database").value("UP"))
+                .andExpect(jsonPath("$.redis").value("DOWN"))
                 .andExpect(jsonPath("$.latencyMs").isNumber()).andExpect(header().string("Cache-Control","no-store"));
     }
     @Test void atsScoreAndCandidateProfileRespectApplicationAccess() throws Exception {
