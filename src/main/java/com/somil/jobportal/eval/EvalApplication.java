@@ -24,7 +24,7 @@ public class EvalApplication {
             }
         } catch (Exception ex) {
             // JDBC exceptions can include URLs and credentials, so do not print their messages or stack traces.
-            System.err.println("Evaluation stopped: " + (ex instanceof IllegalArgumentException ? ex.getMessage()
+            System.err.println("Evaluation stopped: " + (ex instanceof IllegalArgumentException || ex instanceof EvalCheck.Failure ? ex.getMessage()
                     : ex.getClass().getSimpleName() + ". Check eval configuration and logs without sharing secrets."));
             System.exit(1);
         }

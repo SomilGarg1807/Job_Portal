@@ -21,7 +21,8 @@ final class EvalConfig {
         url = required(env, "EVAL_DB_URL");
         username = required(env, "EVAL_DB_USERNAME");
         password = required(env, "EVAL_DB_PASSWORD");
-        apiKey = required(env, "GEMINI_API_KEY");
+        // Offline runs (CI) read every vector from the caches and never call Gemini, so they need no key.
+        apiKey = Boolean.getBoolean("eval.offline") ? env.getOrDefault("GEMINI_API_KEY", "") : required(env, "GEMINI_API_KEY");
         model = env.getOrDefault("EVAL_EMBEDDING_MODEL", "gemini-embedding-001");
         dimensions = Integer.parseInt(env.getOrDefault("EVAL_EMBEDDING_DIMENSIONS", "768"));
         batchSize = Integer.parseInt(env.getOrDefault("EVAL_EMBEDDING_BATCH_SIZE", "50"));

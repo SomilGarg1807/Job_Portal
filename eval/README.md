@@ -138,3 +138,17 @@ Semantic and hybrid modes are now scored three ways: `job_full_v1` alone, `job_r
 | Hybrid | `max` | 0.55 | 0.830 | 0.519 | 0.925 |
 
 Requirement-only text was the stronger single strategy for semantic-only search (+0.045 P@5 over the full description). Taking the maximum traded a little P@5 for the best MRR. In hybrid mode, the keyword bonus hides most of the difference: `job_full_v1` alone matched `max`. On this evidence, storing a second vector per job buys little for hybrid search; that is not yet a reason to drop it, because 40 synthetic queries cannot separate a 0.005 difference. Latency is identical across strategies here because one SQL query retrieves both vectors; a single-strategy production query would scan half as many rows.
+
+## Quality check in CI
+
+`.github/workflows/search-eval.yml` reruns the evaluation whenever search or eval code changes and fails the build if any metric in `baseline.json` (hybrid, semantic and keyword at threshold 0.55) drops by more than its tolerance of 0.02. It uses the same agent-estimated labels as the numbers above, so it is a regression check, not a quality benchmark.
+
+The CI run is **offline** (`-Deval.offline=true`): it never calls Gemini and needs no API key. Job vectors are already stored in the eval database, and the 40 query vectors are committed in `query-cache/`. If an embedding is missing, for example after editing a query or the job text builder, the run stops with a message instead of calling the provider. Rerun the eval locally with `GEMINI_API_KEY` set to refresh both, then commit `query-cache/`.
+
+The workflow needs three repository secrets: `EVAL_DB_URL`, `EVAL_DB_USERNAME` and `EVAL_DB_PASSWORD`, pointing to the eval database only. To run the same check locally:
+
+```powershell
+./mvnw.cmd '-Dspring-boot.run.main-class=com.somil.jobportal.eval.EvalApplication' '-Dspring-boot.run.arguments=--spring.profiles.active=eval' '-Dspring-boot.run.jvmArguments=-Deval.offline=true -Deval.useAgentLabels=true -Deval.check=eval/baseline.json -Dspring.devtools.restart.enabled=false' spring-boot:run
+```
+
+When a change is meant to improve or trade off quality, update `baseline.json` in the same commit and say why in the commit message.

@@ -59,6 +59,54 @@ class EvalHarnessTests {
     }
 
     @Test
+    void qualityCheckFailsOnlyOnDropsBeyondTolerance() throws Exception {
+        var baseline = new com.fasterxml.jackson.databind.ObjectMapper().readTree(
+                "{\"tolerance\": 0.02, \"metrics\": {\"hybrid/max/0.55\": {\"precision5\": 0.830, \"mrr10\": 0.925}}}");
+        assertTrue(EvalCheck.regressions(baseline, Map.of("hybrid/max/0.55",
+                Map.of("precision5", 0.815, "mrr10", 0.95))).isEmpty(), "small drop and improvement both pass");
+        assertEquals(List.of("hybrid/max/0.55 precision5 0.800 < baseline 0.830"), EvalCheck.regressions(baseline,
+                Map.of("hybrid/max/0.55", Map.of("precision5", 0.80, "mrr10", 0.925))));
+        assertEquals(2, EvalCheck.regressions(baseline, Map.of()).size(), "a metric that was not measured fails");
+    }
+
+    @Test
+    void aggregatesAverageEachModeStrategyAndThreshold() {
+        List<Map<String, Object>> rows = List.of(
+                Map.of("mode", "hybrid", "strategy", "max", "threshold", .55, "precision5", .8, "recall10", .4, "mrr10", 1.0),
+                Map.of("mode", "hybrid", "strategy", "max", "threshold", .55, "precision5", .6, "recall10", .2, "mrr10", .5));
+        var hybrid = EvalRunner.aggregates(rows).get("hybrid/max/0.55");
+        assertEquals(.7, hybrid.get("precision5"), 1e-9);
+        assertEquals(.3, hybrid.get("recall10"), 1e-9);
+        assertEquals(.75, hybrid.get("mrr10"), 1e-9);
+    }
+
+    @Test
+    void offlineRunsNeedNoGeminiKey() {
+        var settings = Map.of("EVAL_DB_URL", "jdbc:mysql://localhost:4000/jobportal_eval",
+                "EVAL_DB_USERNAME", "dummy", "EVAL_DB_PASSWORD", "dummy");
+        assertThrows(IllegalArgumentException.class, () -> EvalConfig.from(settings));
+        System.setProperty("eval.offline", "true");
+        try {
+            assertEquals("", EvalConfig.from(settings).apiKey);
+        } finally {
+            System.clearProperty("eval.offline");
+        }
+    }
+
+    @Test
+    void committedQueryCacheCoversEveryQuery() throws Exception {
+        // CI runs offline, so a new or edited query needs its vector committed under eval/query-cache.
+        var queries = new com.fasterxml.jackson.databind.ObjectMapper().readTree(Path.of("eval/data/queries.json").toFile());
+        var digest = java.security.MessageDigest.getInstance("SHA-256");
+        for (var query : queries.path("queries")) {
+            String text = query.path("text").asText().trim().replaceAll("\\s+", " ");
+            String hash = java.util.HexFormat.of().formatHex(digest.digest(text.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            assertTrue(Files.exists(Path.of("eval/query-cache/gemini-embedding-001/768", hash + ".json")),
+                    "Missing cached vector for " + query.path("id").asText() + "; run the eval locally with GEMINI_API_KEY.");
+        }
+    }
+
+    @Test
     void realTidbSupportsTheEvalVectorQueryWhenConfigured() throws Exception {
         Path file = Path.of(".env.eval");
         Assumptions.assumeTrue(Files.exists(file) || System.getenv("EVAL_DB_URL") != null,

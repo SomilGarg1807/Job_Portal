@@ -31,6 +31,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.somil.jobportal.ai.AiEmbeddingProperties;
 import com.somil.jobportal.ai.EmbeddingStrategy;
 import com.somil.jobportal.ai.EmbeddingTarget;
+import com.somil.jobportal.ai.embedding.Embedder;
+import com.somil.jobportal.ai.embedding.Embedding;
 import com.somil.jobportal.ai.embedding.EmbeddingInput;
 import com.somil.jobportal.ai.embedding.EmbeddingService;
 import com.somil.jobportal.ai.search.SemanticVectorRepository;
@@ -56,6 +58,7 @@ final class EvalRunner {
     static void run(EvalConfig config, Path evalRoot) throws Exception {
         AtomicLong apiCalls = new AtomicLong();
         AtomicReference<DiskEmbeddingCache> cacheRef = new AtomicReference<>();
+        AtomicReference<DiskEmbeddingCache> queryCacheRef = new AtomicReference<>();
         try {
         JsonNode fixture = JSON.readTree(evalRoot.resolve("data/jobs.json").toFile());
         JsonNode queryFile = JSON.readTree(evalRoot.resolve("data/queries.json").toFile());
@@ -72,14 +75,17 @@ final class EvalRunner {
         verifyVectorTable(jdbc, config.dimensions);
         Map<String, Job> jobs = jobs(fixture.path("jobs"));
         prepareJobs(jdbc, jobs.values());
-        AiEmbeddingProperties properties = properties(config);
         ClientHttpRequestInterceptor countCalls = (request, body, execution) -> {
             apiCalls.incrementAndGet();
             return execution.execute(request, body);
         };
-        EmbeddingService provider = new EmbeddingService(properties, RestClient.builder().requestInterceptor(countCalls));
+        Embedder provider = Boolean.getBoolean("eval.offline") ? offline(config)
+                : new EmbeddingService(properties(config), RestClient.builder().requestInterceptor(countCalls));
         DiskEmbeddingCache cache = new DiskEmbeddingCache(provider, evalRoot.resolve("cache"));
         cacheRef.set(cache);
+        // Query vectors live in a tracked folder, so CI can score every query without a Gemini key.
+        DiskEmbeddingCache queryCache = new DiskEmbeddingCache(provider, evalRoot.resolve("query-cache"));
+        queryCacheRef.set(queryCache);
         indexJobs(jdbc, jobs.values(), cache, config);
         SemanticVectorRepository vectors = new SemanticVectorRepository(jdbc);
         List<EmbeddingInput> queryInputs = new ArrayList<>();
@@ -88,10 +94,10 @@ final class EvalRunner {
             EmbeddingInput input = new EmbeddingInput(query.path("text").asText().trim().replaceAll("\\s+", " "),
                     "SEMANTIC_SIMILARITY");
             queryInputs.add(input);
-            queryNeededCall.put(query.path("id").asText(), !cache.contains(input));
+            queryNeededCall.put(query.path("id").asText(), !queryCache.contains(input));
         }
         // One shared provider batch covers all 40 queries. Per-query rows record participation in that batch.
-        cache.embed(queryInputs);
+        queryCache.embed(queryInputs);
         Map<String, JsonNode> labelMap = new HashMap<>();
         for (JsonNode item : labels.path("queries")) labelMap.put(item.path("queryId").asText(), item);
         List<Map<String, Object>> rows = new ArrayList<>();
@@ -101,7 +107,7 @@ final class EvalRunner {
             String id = query.path("id").asText();
             JsonNode label = labelMap.get(id);
             if (label == null) throw new IllegalStateException("Missing labels for " + id);
-            SearchContext searchContext = retrieve(jdbc, vectors, cache, jobs, query, config);
+            SearchContext searchContext = retrieve(jdbc, vectors, queryCache, jobs, query, config);
             for (double threshold : THRESHOLDS) {
                 for (String mode : List.of("keyword", "semantic", "hybrid")) {
                     // Keyword ranking ignores vectors, so it is measured once rather than per strategy.
@@ -143,19 +149,57 @@ final class EvalRunner {
         }
         boolean coverageReviewed = labels.path("coverageReviewed").asBoolean(false);
         if (coverageReviewed && pending.isEmpty()) addMetrics(rows, labelMap);
-        writeResults(evalRoot, config, jobs, queryFile, labels, rows, pending, apiCalls.get(), cache.hits(), cache.avoidedCalls(),
+        writeResults(evalRoot, config, jobs, queryFile, labels, rows, pending, apiCalls.get(),
+                cache.hits() + queryCache.hits(), cache.avoidedCalls() + queryCache.avoidedCalls(),
                 coverageReviewed && pending.isEmpty());
         System.out.println("Supplemental judgments needed=" + pending.size() + ". Metrics "
                 + (coverageReviewed && pending.isEmpty()
                         ? ("agent".equals(labels.path("coverageReviewedBy").asText())
                                 ? "computed from provisional agent estimates." : "computed from reviewed labels.")
                         : "withheld until recall coverage review."));
-        } finally {
-            DiskEmbeddingCache cache = cacheRef.get();
-            System.out.println("Gemini API calls made=" + apiCalls.get() + ", avoided by disk cache="
-                    + (cache == null ? 0 : cache.avoidedCalls()) + " ("
-                    + (cache == null ? 0 : cache.hits()) + " text hits).");
+        String baseline = System.getProperty("eval.check", "");
+        if (!baseline.isBlank()) {
+            if (!coverageReviewed || !pending.isEmpty())
+                throw new EvalCheck.Failure("Metrics unavailable for the quality check: " + pending.size()
+                        + " retrieved result(s) have no label" + (coverageReviewed ? "" : " and label coverage is not reviewed")
+                        + ". Label them (see eval/results/supplemental-review.csv), then rerun.");
+            EvalCheck.verify(Path.of(baseline), aggregates(rows));
+            System.out.println("Search quality check passed against " + baseline + ".");
         }
+        } finally {
+            long avoided = 0, hits = 0;
+            for (DiskEmbeddingCache cache : new DiskEmbeddingCache[]{cacheRef.get(), queryCacheRef.get()})
+                if (cache != null) { avoided += cache.avoidedCalls(); hits += cache.hits(); }
+            System.out.println("Gemini API calls made=" + apiCalls.get() + ", avoided by disk cache=" + avoided
+                    + " (" + hits + " text hits).");
+        }
+    }
+
+    /** Fails instead of calling Gemini, so a CI run can never spend money or need a key. */
+    private static Embedder offline(EvalConfig config) {
+        return new Embedder() {
+            @Override public List<Embedding> embed(List<EmbeddingInput> inputs) {
+                throw new EvalCheck.Failure(inputs.size() + " embedding(s) are not cached and eval.offline is set. "
+                        + "Run the eval locally with GEMINI_API_KEY to refresh eval/query-cache and the eval database, "
+                        + "then commit eval/query-cache.");
+            }
+            @Override public String model() { return config.model; }
+            @Override public int dimensions() { return config.dimensions; }
+            @Override public int batchSize() { return config.batchSize; }
+        };
+    }
+
+    /** Average precision@5, recall@10 and MRR@10 per "mode/strategy/threshold" group. */
+    static Map<String, Map<String, Double>> aggregates(List<Map<String, Object>> rows) {
+        Map<String, List<Map<String, Object>>> groups = rows.stream().collect(Collectors.groupingBy(
+                row -> row.get("mode") + "/" + row.get("strategy") + "/" + row.get("threshold"), LinkedHashMap::new, Collectors.toList()));
+        Map<String, Map<String, Double>> result = new LinkedHashMap<>();
+        groups.forEach((group, members) -> {
+            Map<String, Double> metrics = new java.util.TreeMap<>();
+            for (String metric : List.of("precision5", "recall10", "mrr10")) metrics.put(metric, average(members, metric));
+            result.put(group, metrics);
+        });
+        return result;
     }
 
     static DataSource datasource(EvalConfig config) {

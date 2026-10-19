@@ -60,6 +60,7 @@ final class DiskEmbeddingCache implements Embedder {
             avoidedCalls.addAndGet((inputs.size() + batchSize() - 1) / batchSize()
                     - (misses.size() + batchSize() - 1) / batchSize());
             return result;
+        } catch (EvalCheck.Failure ex) { throw ex;
         } catch (Exception ex) { throw new IllegalStateException("Eval embedding cache failed: " + ex.getClass().getSimpleName(), ex); }
     }
 

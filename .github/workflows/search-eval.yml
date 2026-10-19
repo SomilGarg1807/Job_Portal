@@ -1,0 +1,76 @@
+name: Search quality
+
+# Runs the 40-query semantic search evaluation against the separate TiDB eval database and fails
+# when precision@5, recall@10 or MRR@10 drop below eval/baseline.json. It runs offline: job vectors
+# are already in the eval database and query vectors are committed in eval/query-cache, so it needs
+# no Gemini key and makes no paid API calls. It only runs when search or eval code changes.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/main/java/com/somil/jobportal/ai/**'
+      - 'src/main/java/com/somil/jobportal/eval/**'
+      - 'src/main/java/com/somil/jobportal/util/JobExperience.java'
+      - 'eval/data/**'
+      - 'eval/query-cache/**'
+      - 'eval/baseline.json'
+      - 'pom.xml'
+      - '.github/workflows/search-eval.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/main/java/com/somil/jobportal/ai/**'
+      - 'src/main/java/com/somil/jobportal/eval/**'
+      - 'src/main/java/com/somil/jobportal/util/JobExperience.java'
+      - 'eval/data/**'
+      - 'eval/query-cache/**'
+      - 'eval/baseline.json'
+      - 'pom.xml'
+      - '.github/workflows/search-eval.yml'
+  workflow_dispatch:
+
+# Every run writes to the same eval database, so never run two at once.
+concurrency:
+  group: search-eval
+  cancel-in-progress: false
+
+jobs:
+  eval:
+    name: Search quality check
+    runs-on: ubuntu-latest
+    # Secrets are not available to pull requests from forks.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: temurin
+          cache: maven
+
+      - name: Run evaluation and compare with baseline
+        env:
+          EVAL_DB_URL: ${{ secrets.EVAL_DB_URL }}
+          EVAL_DB_USERNAME: ${{ secrets.EVAL_DB_USERNAME }}
+          EVAL_DB_PASSWORD: ${{ secrets.EVAL_DB_PASSWORD }}
+        run: |
+          if [ -z "$EVAL_DB_URL" ]; then
+            echo "::error::EVAL_DB_URL, EVAL_DB_USERNAME and EVAL_DB_PASSWORD repository secrets are required."
+            exit 1
+          fi
+          ./mvnw -B -q \
+            -Dspring-boot.run.main-class=com.somil.jobportal.eval.EvalApplication \
+            -Dspring-boot.run.arguments=--spring.profiles.active=eval \
+            "-Dspring-boot.run.jvmArguments=-Deval.offline=true -Deval.useAgentLabels=true -Deval.check=eval/baseline.json -Dspring.devtools.restart.enabled=false" \
+            spring-boot:run
+
+      - name: Upload eval results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-eval-results
+          path: eval/results/
+          if-no-files-found: ignore
