@@ -152,3 +152,21 @@ The workflow needs three repository secrets: `EVAL_DB_URL`, `EVAL_DB_USERNAME` a
 ```
 
 When a change is meant to improve or trade off quality, update `baseline.json` in the same commit and say why in the commit message.
+
+## Human review of the top-5 result pool — 2026-10-20
+
+All 122 agent-estimated judgments that appeared in the top 5 of production search (hybrid and semantic, `max`, threshold 0.55) were reviewed by hand, using `export_priority_review.py` to build the review sheet and `import_priority_review.py` to merge it. The reviewed grade differed from the agent estimate in 12 of 122 cases. Both label files list the reviewed pairs in `humanPriorityReviewed`.
+
+Precision@5 and MRR@10 for production search now rest on human grades: the original 341 human-reviewed judgments plus these 122. Recall@10 still depends on the agent-estimated catalogue coverage, so treat it as an estimate.
+
+| Mode | Strategy | P@5 before → after | R@10 before → after | MRR@10 before → after |
+| --- | --- | ---: | ---: | ---: |
+| Semantic | `job_full_v1` | 0.780 → 0.790 | 0.488 → 0.487 | 0.913 → 0.913 |
+| Semantic | `job_req_v1` | 0.825 → 0.825 | 0.515 → 0.505 | 0.913 → 0.896 |
+| Semantic | `max` | 0.815 → 0.825 | 0.510 → 0.508 | 0.925 → 0.908 |
+| Hybrid | `job_full_v1` | 0.830 → 0.840 | 0.519 → 0.518 | 0.925 → 0.925 |
+| Hybrid | `job_req_v1` | 0.825 → 0.825 | 0.515 → 0.505 | 0.913 → 0.896 |
+| Hybrid | `max` | 0.830 → 0.840 | 0.519 → 0.518 | 0.925 → 0.908 |
+| Keyword | — | 0.370 → 0.370 | 0.168 → 0.158 | 0.450 → 0.450 |
+
+The strategy comparison holds: requirement-only text still leads the full description in semantic-only search (+0.035 P@5), and in hybrid mode `job_full_v1` alone still matches `max` on precision. `baseline.json` now uses these numbers. A fresh holdout set is still to do.

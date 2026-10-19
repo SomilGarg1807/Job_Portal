@@ -1,10 +1,10 @@
 {
-  "description": "Search quality floor checked by CI (eval.check). Measured 2026-10-11 with the provisional agent-estimated labels; update in the same commit as any intended change.",
+  "description": "Search quality floor checked by CI (eval.check). Measured 2026-10-20 after the top-5 result pool of production search was reviewed by hand; update in the same commit as any intended change.",
   "labels": "data/labels-agent-estimate.json",
   "tolerance": 0.02,
   "metrics": {
-    "hybrid/max/0.55": { "precision5": 0.830, "recall10": 0.519, "mrr10": 0.925 },
-    "semantic/max/0.55": { "precision5": 0.815, "recall10": 0.510, "mrr10": 0.925 },
-    "keyword/none/0.55": { "precision5": 0.370, "recall10": 0.168, "mrr10": 0.450 }
+    "hybrid/max/0.55": { "precision5": 0.840, "recall10": 0.518, "mrr10": 0.908 },
+    "semantic/max/0.55": { "precision5": 0.825, "recall10": 0.508, "mrr10": 0.908 },
+    "keyword/none/0.55": { "precision5": 0.370, "recall10": 0.158, "mrr10": 0.450 }
   }
 }
