@@ -36,7 +36,7 @@ class MatchExplanationServiceTests {
         assertThat(Groundedness.isQuoted(null, JOB)).isFalse();
     }
 
-    @Test void verifyDropsInventedAndSelfContradictingClaims() {
+    @Test void verifyDropsInventedAndMalformedClaims() {
         var draft = new Draft(List.of(
                 new Claim("You use Java.", "Java (3 years)", "Build secure Java APIs"),
                 new Claim("You know Kubernetes.", "Kubernetes", "deploy services on AWS"),
@@ -55,7 +55,7 @@ class MatchExplanationServiceTests {
         var result = MatchExplanationService.verify(new Draft(many, null), PROFILE, JOB);
         assertThat(result.matches()).hasSize(MatchExplanationService.MAX_POINTS);
         assertThat(result.gaps()).isEmpty();
-        assertThat(result.dropped()).isEqualTo(3);
+        assertThat(result.dropped()).as("points past the limit did not fail a check").isZero();
     }
 
     @Test void explainParsesStructuredOutputAndSendsOnlyMatchingFields() {

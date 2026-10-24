@@ -101,20 +101,25 @@ public class MatchExplanationService {
         return result;
     }
 
-    /** Keeps only claims whose quotes appear in the supplied text; everything else is counted as dropped. */
+    /**
+     * Keeps only claims that pass the checks; failed claims are counted as dropped. Points past the display
+     * limit are ignored, not counted, because they did not fail anything.
+     */
     static Explanation verify(Draft draft, String profileText, String jobText) {
         List<Point> matches = new ArrayList<>();
         List<Point> gaps = new ArrayList<>();
         int dropped = 0;
         for (Claim claim : Objects.requireNonNullElse(draft.matches(), List.<Claim>of())) {
-            if (claim != null && matches.size() < MAX_POINTS && StringUtils.hasText(claim.point())
+            if (matches.size() == MAX_POINTS) break;
+            if (claim != null && StringUtils.hasText(claim.point())
                     && Groundedness.isQuoted(claim.profileQuote(), profileText) && Groundedness.isQuoted(claim.jobQuote(), jobText))
                 matches.add(new Point(trim(claim.point()), claim.profileQuote().trim(), claim.jobQuote().trim()));
             else dropped++;
         }
         for (Claim claim : Objects.requireNonNullElse(draft.gaps(), List.<Claim>of())) {
-            // A gap that quotes the profile is contradicting itself.
-            if (claim != null && gaps.size() < MAX_POINTS && StringUtils.hasText(claim.point())
+            if (gaps.size() == MAX_POINTS) break;
+            // Format check only: an empty profile quote does not prove the profile lacks the skill.
+            if (claim != null && StringUtils.hasText(claim.point())
                     && !StringUtils.hasText(claim.profileQuote()) && Groundedness.isQuoted(claim.jobQuote(), jobText))
                 gaps.add(new Point(trim(claim.point()), "", claim.jobQuote().trim()));
             else dropped++;

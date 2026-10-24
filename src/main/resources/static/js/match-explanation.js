@@ -48,7 +48,7 @@
             if (data.gaps.length) result.append(group('Not shown in your profile', data.gaps, false));
             result.hidden = false;
             status.textContent = data.dropped
-                ? `${data.dropped} point(s) were removed because their quotes could not be verified.`
+                ? `${data.dropped} point(s) were removed because they failed the checks.`
                 : 'Every point below quotes your profile or this job.';
         } catch (error) {
             status.textContent = error.name === 'AbortError' ? 'This is taking longer than expected. Please try again shortly.' : error.message;
