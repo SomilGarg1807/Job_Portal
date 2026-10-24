@@ -34,6 +34,8 @@ public class WebSecurityConfig {
             "/global-search/**",
             "/register",
             "/register/**",
+            "/privacy",
+            "/terms",
             "/forgot-password",
             "/forgot-password/**",
             "/webjars/**",

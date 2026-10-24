@@ -140,6 +140,18 @@ class PortalEnhancementsTests {
         session.setAttribute("emailVerificationToken", "preview");
         preview("verify", mvc.perform(get("/register/verify").session(session)).andExpect(status().isOk()).andReturn().getResponse().getContentAsString());
     }
+    @Test void legalPagesArePublicAndLinkedFromHomeAndSignup() throws Exception {
+        mvc.perform(get("/privacy")).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("gmail.send")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("hotdevjobs.co@gmail.com")));
+        mvc.perform(get("/terms")).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Terms of Service")));
+        mvc.perform(get("/")).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("href=\"/privacy\"")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("href=\"/terms\"")));
+        mvc.perform(get("/register")).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("href=\"/privacy\"")));
+    }
     @Test void recruiterCannotSaveMissingCompany() throws Exception {
         Users account = registration();
         account.setUserTypeId(types.findById(1).orElseThrow());
