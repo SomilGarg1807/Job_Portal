@@ -54,7 +54,14 @@ public class UsersController {
     public String register(Model model) {
         List<UsersType> usersTypes = usersTypeService.getAll();
         model.addAttribute("getAllTypes", usersTypes);
-        if (!model.containsAttribute("user")) model.addAttribute("user", new Users());
+        if (!model.containsAttribute("user")) {
+            Users user = new Users();
+            usersTypes.stream()
+                    .filter(type -> "Job Seeker".equalsIgnoreCase(type.getUserTypeName()))
+                    .findFirst()
+                    .ifPresent(user::setUserTypeId);
+            model.addAttribute("user", user);
+        }
         return "register";
     }
 

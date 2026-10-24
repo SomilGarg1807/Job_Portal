@@ -114,6 +114,13 @@ class PortalEnhancementsTests {
         mvc.perform(get("/register/new")).andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/register"));
     }
+    @Test void registrationDefaultsToJobSeeker() throws Exception {
+        String html = mvc.perform(get("/register")).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        var selected = org.jsoup.Jsoup.parse(html).selectFirst("#accountType option[selected]");
+        assertThat(selected).isNotNull();
+        assertThat(selected.text()).isEqualTo("Job Seeker");
+    }
     @Test void deliveryFailureRedirectsWithoutKeepingPassword() throws Exception {
         doThrow(new IllegalStateException("Email temporarily unavailable")).when(mail).send(anyString(), anyString(), anyString());
         Users account = registration();
