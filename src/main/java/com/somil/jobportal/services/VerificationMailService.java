@@ -7,6 +7,10 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -15,6 +19,8 @@ import java.util.Map;
 
 @Service
 public class VerificationMailService {
+    private static final Logger log = LoggerFactory.getLogger(VerificationMailService.class);
+    private static final String DELIVERY_ERROR = "We could not send your email code right now. Please try again later.";
     private final String resendApiKey;
     private final String resendSender;
     private final String gmailClientId;
@@ -74,20 +80,32 @@ public class VerificationMailService {
 
     private void deliver(String email, String deliveryId, String subject, String body) {
         if (gmailConfigured()) {
-            sendWithGmail(email, subject, body);
-            return;
+            try {
+                sendWithGmail(email, subject, body);
+                return;
+            } catch (MailDeliveryFailure failure) {
+                if (!resendConfigured()) throw failure;
+                // Reuse the same code if Gmail accepted the message before a timeout.
+                log.warn("Email delivery: Gmail failed; trying configured Resend fallback.");
+            }
         }
-        if (resendApiKey.isBlank() || resendSender.isBlank())
+        if (!resendConfigured()) {
+            log.warn("Email delivery unavailable: configure Gmail credentials or RESEND_API_KEY and EMAIL_FROM.");
             throw new IllegalStateException("Email verification is temporarily unavailable. Please try again later.");
+        }
         try {
             client.post().uri("https://api.resend.com/emails").header("Authorization", "Bearer " + resendApiKey)
                     .header("Idempotency-Key", deliveryId)
+                    .contentType(MediaType.APPLICATION_JSON)
                     .body(Map.of("from", resendSender, "to", List.of(email), "subject", subject, "text", body))
                     .retrieve().toBodilessEntity();
         } catch (RestClientException failure) {
-            // Provider errors can contain recipient details; never expose/log the response body.
-            throw new IllegalStateException("We could not send the verification email. Please try again later.");
+            throw deliveryFailure("resend-send", failure);
         }
+    }
+
+    private boolean resendConfigured() {
+        return !resendApiKey.isBlank() && !resendSender.isBlank();
     }
 
     private boolean gmailConfigured() {
@@ -96,8 +114,8 @@ public class VerificationMailService {
     }
 
     private void sendWithGmail(String email, String subject, String body) {
+        String accessToken = refreshAccessToken();
         try {
-            String accessToken = refreshAccessToken();
             String raw = Base64.getUrlEncoder().withoutPadding().encodeToString(mime(email, subject, body).getBytes(StandardCharsets.UTF_8));
             client.post().uri("https://gmail.googleapis.com/gmail/v1/users/me/messages/send")
                     .header("Authorization", "Bearer " + accessToken)
@@ -105,24 +123,48 @@ public class VerificationMailService {
                     .body(Map.of("raw", raw))
                     .retrieve().toBodilessEntity();
         } catch (RestClientException failure) {
-            throw new IllegalStateException("We could not send the verification email. Please try again later.");
+            throw deliveryFailure("gmail-send", failure);
         }
     }
 
     private String refreshAccessToken() {
-        @SuppressWarnings("unchecked")
-        Map<String, Object> response = client.post().uri("https://oauth2.googleapis.com/token")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body("client_id=" + encode(gmailClientId)
-                        + "&client_secret=" + encode(gmailClientSecret)
-                        + "&refresh_token=" + encode(gmailRefreshToken)
-                        + "&grant_type=refresh_token")
-                .retrieve().body(Map.class);
-        Object token = response == null ? null : response.get("access_token");
-        if (!(token instanceof String value) || value.isBlank()) {
-            throw new IllegalStateException("Email verification is temporarily unavailable. Please try again later.");
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> response = client.post().uri("https://oauth2.googleapis.com/token")
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body("client_id=" + encode(gmailClientId)
+                            + "&client_secret=" + encode(gmailClientSecret)
+                            + "&refresh_token=" + encode(gmailRefreshToken)
+                            + "&grant_type=refresh_token")
+                    .retrieve().body(Map.class);
+            Object token = response == null ? null : response.get("access_token");
+            if (!(token instanceof String value) || value.isBlank()) {
+                log.warn("Email delivery failed: stage=gmail-token reason=missing-access-token");
+                throw new MailDeliveryFailure();
+            }
+            return value;
+        } catch (RestClientException failure) {
+            throw deliveryFailure("gmail-token", failure);
         }
-        return value;
+    }
+
+    private MailDeliveryFailure deliveryFailure(String stage, RestClientException failure) {
+        int status = failure instanceof RestClientResponseException response ? response.getStatusCode().value() : 0;
+        String reason = status == 0 ? "transport-error" : "provider-rejected";
+        // Only allowlisted OAuth codes are logged, never provider descriptions, tokens or recipients.
+        if (stage.equals("gmail-token") && failure instanceof RestClientResponseException response) {
+            try {
+                String code = new ObjectMapper().readTree(response.getResponseBodyAsString()).path("error").asText();
+                if (java.util.Set.of("invalid_grant", "invalid_client", "unauthorized_client", "invalid_scope").contains(code))
+                    reason = code;
+            } catch (Exception ignored) { /* A non-JSON response still has a safe status code. */ }
+        }
+        log.warn("Email delivery failed: stage={} status={} reason={}", stage, status, reason);
+        return new MailDeliveryFailure();
+    }
+
+    private static final class MailDeliveryFailure extends IllegalStateException {
+        private MailDeliveryFailure() { super(DELIVERY_ERROR); }
     }
 
     private String mime(String email, String subject, String body) {

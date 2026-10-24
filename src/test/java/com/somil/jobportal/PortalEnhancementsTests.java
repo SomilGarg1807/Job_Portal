@@ -110,6 +110,26 @@ class PortalEnhancementsTests {
         mvc.perform(post("/register/verify").with(csrf()).session(session).param("code", sentCode.get()))
                 .andExpect(model().attribute("verified", true));
     }
+    @Test void registrationSubmissionUrlIsSafeToOpen() throws Exception {
+        mvc.perform(get("/register/new")).andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/register"));
+    }
+    @Test void deliveryFailureRedirectsWithoutKeepingPassword() throws Exception {
+        doThrow(new IllegalStateException("Email temporarily unavailable")).when(mail).send(anyString(), anyString(), anyString());
+        Users account = registration();
+        var result = mvc.perform(post("/register/new").servletPath("/register/new").with(csrf())
+                .param("email", account.getEmail()).param("password", account.getPassword()).param("userTypeId", "2"))
+                .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/register"))
+                .andExpect(flash().attribute("error", "Email temporarily unavailable")).andReturn();
+        Users retry = (Users) result.getFlashMap().get("user");
+        assertThat(retry.getEmail()).isEqualTo(account.getEmail());
+        assertThat(retry.getPassword()).isNullOrEmpty();
+        mvc.perform(get("/register").flashAttrs(result.getFlashMap()))
+                .andExpect(status().isOk()).andExpect(content().string(org.hamcrest.Matchers.containsString(account.getEmail())))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(account.getPassword()))));
+        assertThat(pending.findById(account.getEmail())).isEmpty();
+        assertThat(users.findByEmail(account.getEmail())).isEmpty();
+    }
     @Test void publicSuggestionsAcceptEmptyInputAndTemplatesRender() throws Exception {
         mvc.perform(get("/api/search/jobs").param("q", "x")).andExpect(status().isOk()).andExpect(content().json("[]"));
         mvc.perform(get("/api/search/jobs").param("q", "Java")).andExpect(status().isOk());

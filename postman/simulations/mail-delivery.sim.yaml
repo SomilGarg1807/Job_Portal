@@ -1,0 +1,6 @@
+simulation: mail-delivery
+routing: path
+mocks:
+  - name: mail-delivery
+    routeKey: mail
+    path: postman/mocks/mail-delivery/config.yaml

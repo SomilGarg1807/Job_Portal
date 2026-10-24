@@ -23,6 +23,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.somil.jobportal.services.EmailVerificationService;
 import com.somil.jobportal.services.PasswordResetService;
 
@@ -53,22 +54,30 @@ public class UsersController {
     public String register(Model model) {
         List<UsersType> usersTypes = usersTypeService.getAll();
         model.addAttribute("getAllTypes", usersTypes);
-        model.addAttribute("user", new Users());
+        if (!model.containsAttribute("user")) model.addAttribute("user", new Users());
         return "register";
     }
 
+    @GetMapping("/register/new")
+    public String registrationEntry() {
+        return "redirect:/register";
+    }
+
     @PostMapping("/register/new")
-    public String userRegistration(@Valid Users users, BindingResult binding, Model model, HttpSession session) {
+    public String userRegistration(@Valid Users users, BindingResult binding, RedirectAttributes redirect, HttpSession session) {
         try {
             if (binding.hasErrors()) throw new IllegalArgumentException("Enter a valid email, password, and account type.");
             String token = verification.start(users);
             session.setAttribute("emailVerificationToken", token);
             return "redirect:/register/verify";
         } catch (IllegalArgumentException | IllegalStateException error) {
-            model.addAttribute("error", error.getMessage());
-            model.addAttribute("getAllTypes", usersTypeService.getAll());
-            model.addAttribute("user", new Users());
-            return "register";
+            redirect.addFlashAttribute("error", error.getMessage());
+            // Preserve non-secret input only; refreshing must not resubmit an email request.
+            Users retry = new Users();
+            retry.setEmail(users.getEmail());
+            retry.setUserTypeId(users.getUserTypeId());
+            redirect.addFlashAttribute("user", retry);
+            return "redirect:/register";
         }
     }
 

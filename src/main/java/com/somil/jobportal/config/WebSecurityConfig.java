@@ -56,6 +56,7 @@ public class WebSecurityConfig {
         http.authenticationProvider(authenticationProvider());
 
         http.authorizeHttpRequests(auth -> {
+            auth.dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ERROR).permitAll();
             auth.requestMatchers(org.springframework.http.HttpMethod.GET, "/job-details-apply/*").permitAll();
             auth.requestMatchers(publicUrl).permitAll();
             auth.anyRequest().authenticated();

@@ -16,7 +16,7 @@ The OAuth client ID, client secret and redirect URI identify the app. The refres
 
 After `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET` and `GMAIL_REDIRECT_URI` are deployed, open `/oauth2/gmail/start`, sign in as `hotdevjobs.co@gmail.com`, approve access, then copy the returned value into Render as `GMAIL_REFRESH_TOKEN`. Redeploy after adding it.
 
-Resend remains supported as a fallback when Gmail variables are not complete:
+Resend is used when Gmail variables are incomplete or a Gmail token/send request fails, if both Resend settings are present. Both providers receive the same code. A Gmail timeout can mean it accepted the message, so in that case two emails containing the same code may arrive. No account is created if all configured providers fail.
 
 1. Create a [Resend](https://resend.com) account and [verify a domain you own](https://resend.com/docs/dashboard/domains/introduction) by adding its DNS records. A Gmail address or the shared `onrender.com` domain cannot be your verified sender domain.
 2. Create a sending API key. In Render -> your service -> Environment, add `RESEND_API_KEY`.
@@ -24,6 +24,26 @@ Resend remains supported as a fallback when Gmail variables are not complete:
 4. Save and redeploy. Register a test account, confirm the code arrives, verify it, and sign in. Automated tests mock email delivery and do not verify the live sender.
 
 Delivery uses HTTPS APIs, since [Render free services block SMTP ports](https://render.com/docs/free). No SMTP password is needed. Missing settings or delivery failure prevent new registration and show an error; existing users can still sign in. `/health` does not check email delivery. Check sending quotas in the provider dashboard.
+### Diagnosing failed email delivery
+
+Look for `Email delivery failed` in Render logs. Only the stage, HTTP status and an allowlisted reason are logged; provider response bodies, addresses, codes and credentials are excluded.
+
+| Log | Operator action |
+| --- | --- |
+| `stage=gmail-token reason=invalid_grant` | Reauthorize the sender using `/oauth2/gmail/start`, replace `GMAIL_REFRESH_TOKEN` in Render and redeploy. Confirm the token belongs to the configured OAuth client. |
+| `stage=gmail-token reason=invalid_client` | Check the client ID/secret pair in Render. |
+| `stage=gmail-send status=403` | Check that Gmail API is enabled, the sender granted `gmail.send`, and the account has not reached its sending limits. |
+| `stage=resend-send status=403` | Check the API key's permissions and that `EMAIL_FROM` uses a verified domain; Resend's test sender cannot send to arbitrary signup addresses. |
+| `status=0 reason=transport-error` | Check provider availability and outbound connectivity. Requests have a 5-second connect and 10-second read timeout. |
+
+Google external OAuth apps in **Testing** normally receive refresh tokens that expire after seven days for Gmail scopes. Review the app's publishing status and Google's production requirements, then reauthorize the sender; do not assume a token lasts indefinitely. See [Google's token expiration documentation](https://developers.google.com/identity/protocols/oauth2#expiration) and [Resend's error reference](https://resend.com/docs/api-reference/errors).
+
+`GMAIL_REDIRECT_URI` is required for reconnecting OAuth, not for normal sending. Keep the refresh token and client secret in Render's secret environment settings, never in source control or screenshots.
+
+### Browser error recovery
+
+`GET /register/new` redirects to `/register`; signup still requires a CSRF-protected POST. Failed submissions redirect back with a one-time message, email and role, never the password. Refreshing that page does not send another code. Browser error dispatches render `templates/error.html` with recovery links and retain their HTTP status (including 403, 404, 405 and 500). JSON error responses remain handled by Spring Boot; exception messages and stack traces are excluded.
+
 ## Search and recommendations
 
 Public search and dashboard results are paginated in groups of 12. Experience filters match jobs whose stated requirement range overlaps the selected years; jobs without stated experience appear under “Not specified”. New job posts support nullable `min_experience_years` and `max_experience_years` columns, created through the existing Hibernate schema-update configuration. Existing posts use explicit year ranges in their descriptions until a recruiter supplies structured values.
